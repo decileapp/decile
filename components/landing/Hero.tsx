@@ -13,7 +13,7 @@ const Hero: React.FC<Props> = (props) => {
       <div className="flex flex-col items-center justify-center space-y-8 w-full">
         <p className=" font-extrabold  text-4xl sm:text-4xl text-center">
           <span className="bg-gradient-to-r from-primary-500 to-secondary-500  text-transparent bg-clip-text ">
-            Dataverse
+            Subtable
           </span>
         </p>
         <p className="text-center text-xl">

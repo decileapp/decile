@@ -4,15 +4,15 @@ import {
   DatabaseIcon,
   HomeIcon,
   CodeIcon,
-  PlusIcon,
   XIcon,
-  SearchIcon,
   MenuIcon,
 } from "@heroicons/react/outline";
 import { LogoutIcon, UserIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
 import { supabase } from "../../../utils/supabaseClient";
 import { classNames } from "../../../utils/classnames";
+import Logo from "../../../public/subtable.png";
+import Image from "next/image";
 
 const sidebarNavigation = [
   { name: "Home", href: "/queries", icon: HomeIcon, current: false },
@@ -42,14 +42,10 @@ const SideBarShell: React.FC = ({ children }) => {
       <div className="flex h-full w-full">
         {/* Narrow sidebar */}
 
-        <div className="hidden w-28 overflow-y-auto bg-indigo-700 md:block">
+        <div className="hidden w-28 overflow-y-auto bg-primary-600 md:block">
           <div className="flex w-full h-full flex-col items-center py-6">
             <div className="flex flex-shrink-0 items-center">
-              <img
-                className="h-8 w-auto"
-                src="https://tailwindui.com/img/logos/mark.svg?color=white"
-                alt="Your Company"
-              />
+              <Image src="/subtable.png" height="24" width="24" />
             </div>
             <div className="mt-6 w-full flex-1 space-y-1 px-2">
               {sidebarNavigation.map((item) => (
@@ -58,8 +54,8 @@ const SideBarShell: React.FC = ({ children }) => {
                   href={item.href}
                   className={classNames(
                     item.current
-                      ? "bg-indigo-800 text-white"
-                      : "text-indigo-100 hover:bg-indigo-800 hover:text-white",
+                      ? "bg-primary-500 text-white"
+                      : "text-primary-50 hover:bg-primary-500 hover:text-white",
                     "group w-full p-3 rounded-md flex flex-col items-center text-xs font-medium"
                   )}
                   aria-current={item.current ? "page" : undefined}
@@ -68,7 +64,7 @@ const SideBarShell: React.FC = ({ children }) => {
                     className={classNames(
                       item.current
                         ? "text-white"
-                        : "text-indigo-300 group-hover:text-white",
+                        : "text-primary-300 group-hover:text-white",
                       "h-6 w-6"
                     )}
                     aria-hidden="true"
@@ -84,8 +80,8 @@ const SideBarShell: React.FC = ({ children }) => {
                   href={item.href}
                   className={classNames(
                     item.current
-                      ? "bg-indigo-800 text-white"
-                      : "text-indigo-100 hover:bg-indigo-800 hover:text-white",
+                      ? "bg-primary-500 text-white"
+                      : "text-primary-100 hover:bg-primary-500 hover:text-white",
                     "group w-full p-3 rounded-md flex flex-col items-center text-xs font-medium"
                   )}
                   aria-current={item.current ? "page" : undefined}
@@ -94,7 +90,7 @@ const SideBarShell: React.FC = ({ children }) => {
                     className={classNames(
                       item.current
                         ? "text-white"
-                        : "text-indigo-300 group-hover:text-white",
+                        : "text-primary-300 group-hover:text-white",
                       "h-6 w-6"
                     )}
                     aria-hidden="true"
@@ -135,7 +131,7 @@ const SideBarShell: React.FC = ({ children }) => {
                 leaveFrom="translate-x-0"
                 leaveTo="-translate-x-full"
               >
-                <Dialog.Panel className="relative flex w-full max-w-xs flex-1 flex-col bg-indigo-700 pt-5 pb-4">
+                <Dialog.Panel className="relative flex w-full max-w-xs flex-1 flex-col bg-primary-700 pt-5 pb-4">
                   <Transition.Child
                     as={Fragment}
                     enter="ease-in-out duration-300"
@@ -160,11 +156,7 @@ const SideBarShell: React.FC = ({ children }) => {
                     </div>
                   </Transition.Child>
                   <div className="flex flex-shrink-0 items-center px-4">
-                    <img
-                      className="h-8 w-auto"
-                      src="https://tailwindui.com/img/logos/mark.svg?color=white"
-                      alt="Your Company"
-                    />
+                    <Image src="/subtable.png" height="24" width="24" />
                   </div>
                   <div className="mt-5 h-0 flex-1 overflow-y-auto px-2">
                     <nav className="flex h-full flex-col justify-between">
@@ -175,8 +167,8 @@ const SideBarShell: React.FC = ({ children }) => {
                             href={item.href}
                             className={classNames(
                               item.current
-                                ? "bg-indigo-800 text-white"
-                                : "text-indigo-100 hover:bg-indigo-800 hover:text-white",
+                                ? "bg-primary-500 text-white"
+                                : "text-primary-100 hover:bg-primary-500 hover:text-white",
                               "group py-2 px-3 rounded-md flex items-center text-sm font-medium"
                             )}
                             aria-current={item.current ? "page" : undefined}
@@ -185,7 +177,7 @@ const SideBarShell: React.FC = ({ children }) => {
                               className={classNames(
                                 item.current
                                   ? "text-white"
-                                  : "text-indigo-300 group-hover:text-white",
+                                  : "text-primary-300 group-hover:text-white",
                                 "mr-3 h-6 w-6"
                               )}
                               aria-hidden="true"
@@ -201,8 +193,8 @@ const SideBarShell: React.FC = ({ children }) => {
                             href={item.href}
                             className={classNames(
                               item.current
-                                ? "bg-indigo-800 text-white"
-                                : "text-indigo-100 hover:bg-indigo-800 hover:text-white",
+                                ? "bg-primary-500 text-white"
+                                : "text-primary-100 hover:bg-primary-500 hover:text-white",
                               "group py-2 px-3 rounded-md flex items-center text-sm font-medium"
                             )}
                             aria-current={item.current ? "page" : undefined}
@@ -211,7 +203,7 @@ const SideBarShell: React.FC = ({ children }) => {
                               className={classNames(
                                 item.current
                                   ? "text-white"
-                                  : "text-indigo-300 group-hover:text-white",
+                                  : "text-primary-300 group-hover:text-white",
                                 "mr-3 h-6 w-6"
                               )}
                               aria-hidden="true"
@@ -237,7 +229,7 @@ const SideBarShell: React.FC = ({ children }) => {
             <div className="relative z-10 flex h-16 flex-shrink-0 border-b border-gray-200 bg-white shadow-sm">
               <button
                 type="button"
-                className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 "
+                className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 "
                 onClick={() => setMobileMenuOpen(true)}
               >
                 <span className="sr-only">Open sidebar</span>

@@ -37,7 +37,7 @@ const AppLayout: React.FC = ({ children }) => {
         )}
 
       <Head>
-        <title>Dataverse</title>
+        <title>Subtable</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="shortcut icon" href="/favicon.png" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
