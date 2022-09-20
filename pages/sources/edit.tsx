@@ -1,18 +1,17 @@
 import SourceForm from "../../components/forms/source";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { getSupabase } from "../../utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 import { Source } from "../../types/Sources";
 import Loading from "../../components/individual/Loading";
-import { useUser } from "@auth0/nextjs-auth0";
+import { GetServerSideProps } from "next";
 
 const EditSource: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const [loading, setLoading] = useState(false);
   const [source, setSource] = useState<Source>();
-  const { user } = useUser();
-  const supabase = getSupabase(user?.access_token);
+  const user = supabase.auth.user();
 
   // Get links
   async function getSource() {
@@ -47,12 +46,28 @@ const EditSource: React.FC = () => {
         host={source.host}
         dbUser={source.dbUser}
         database={source.database}
-        password="********"
+        password={source.password}
         port={source.port}
         ssl={source.ssl}
       />
     )
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { user } = await supabase.auth.api.getUserByCookie(req);
+  if (!user) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default EditSource;

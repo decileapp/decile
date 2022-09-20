@@ -5,10 +5,8 @@ import axios from "axios";
 import Button from "../../components/individual/Button";
 import TableShell from "../../components/individual/Table";
 import Editor from "@monaco-editor/react";
-import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { getSupabase } from "../../utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
-import { useUser } from "@auth0/nextjs-auth0";
 import { Source } from "../../types/Sources";
 import TextInput from "../individual/TextInput";
 import Select from "../individual/Select";
@@ -44,12 +42,11 @@ const QueryForm: React.FC<Props> = (props) => {
   // Data
   const [fields, setFields] = useState<string[]>();
   const [data, setData] = useState<any>();
-  const { user, error: userError, isLoading } = useUser();
+  const user = supabase.auth.user();
 
   // Error
   const [error, setError] = useState<Props>();
 
-  const supabase = getSupabase(user);
   const router = useRouter();
 
   const queryDb = async () => {
@@ -98,9 +95,8 @@ const QueryForm: React.FC<Props> = (props) => {
         body: body,
         tags: tags,
         publicQuery: publicQuery,
-        user_id: user?.sub || "",
+        user_id: user?.id,
       };
-      console.log(input);
       if (validateLink(input)) {
         let { data, error } = await supabase.from("queries").insert(input);
         if (data) {
@@ -126,13 +122,13 @@ const QueryForm: React.FC<Props> = (props) => {
         body: body,
         tags: tags,
         publicQuery: publicQuery,
-        user_id: user?.sub || "",
+        user_id: user?.id,
       };
       if (validateLink(input)) {
         let { data, error } = await supabase
           .from("queries")
           .update(input)
-          .match({ user_id: user?.sub, id: props.id });
+          .match({ user_id: user?.id, id: props.id });
         if (data) {
           router.push("/queries");
         } else {

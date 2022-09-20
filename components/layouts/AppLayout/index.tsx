@@ -1,14 +1,20 @@
-import React, { useState } from "react";
-import Topbar from "./Topbar";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Script from "next/script";
+import SideBarShell from "./SidebarShell";
+import { supabase } from "../../../utils/supabaseClient";
 import Loading from "../../individual/Loading";
-import SideBarShell from "./Sidebar";
-import { useUser } from "@auth0/nextjs-auth0";
 
 const AppLayout: React.FC = ({ children }) => {
-  const [loading, setLoading] = useState(false);
-  const { user, error: userError, isLoading } = useUser();
+  const user = supabase.auth.user();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      setLoading(false);
+    }
+    setLoading(false);
+  }, [user]);
 
   return (
     <div>
@@ -40,11 +46,10 @@ const AppLayout: React.FC = ({ children }) => {
           rel="stylesheet"
         />
       </Head>
-      <div className="flex flex-col h-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-auto">
-        {user && (
-          <SideBarShell>{loading ? <Loading /> : children}</SideBarShell>
-        )}
-        {!user && (loading ? <Loading /> : children)}
+      <div className="flex h-screen w-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-hidden">
+        {loading && <Loading />}
+        {user && user.id && !loading && <SideBarShell>{children}</SideBarShell>}
+        {!user && !loading && children}
       </div>
     </div>
   );

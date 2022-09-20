@@ -1,12 +1,11 @@
 import QueryForm from "../../components/forms/query";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { getSupabase } from "../../utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 import { Query } from "../../types/Query";
 import Loading from "../../components/individual/Loading";
-import { useUser } from "@auth0/nextjs-auth0";
-import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { Source } from "../../types/Sources";
+import { GetServerSideProps } from "next";
 
 interface Props {
   sources: Source[];
@@ -17,8 +16,7 @@ const EditQuery: React.FC<Props> = (props) => {
   const { id } = router.query;
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState<Query>();
-  const { user } = useUser();
-  const supabase = getSupabase(user?.access_token);
+  const user = supabase.auth.user();
 
   // Get links
   async function getSource() {
@@ -60,19 +58,23 @@ const EditQuery: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps({ req, res }) {
-    const data = await getSession(req, res);
-
-    const supabase = getSupabase(data?.accessToken);
-
-    const { data: sources, error } = await supabase
-      .from<Source[]>("sources")
-      .select("id, name, host, database, port, dbUser, password, created_at");
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { user } = await supabase.auth.api.getUserByCookie(req);
+  if (!user) {
     return {
-      props: { sources: sources },
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
     };
-  },
-});
+  }
+
+  const { data: sources, error } = await supabase
+    .from<Source[]>("sources")
+    .select("id, name, host, database, port, dbUser, password, created_at");
+  return {
+    props: { sources: sources },
+  };
+};
 
 export default EditQuery;

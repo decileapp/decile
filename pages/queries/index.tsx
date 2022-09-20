@@ -1,13 +1,15 @@
 import { useRouter } from "next/router";
-import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { getSupabase } from "../../utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import TableShell from "../../components/individual/Table";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
-import { useUser } from "@auth0/nextjs-auth0";
 import { Query } from "../../types/Query";
+import { GetServerSideProps } from "next";
+import Cookies from "cookies";
+
+import { getUser } from "@supabase/auth-helpers-nextjs";
 
 interface Props {
   queries: Query[];
@@ -18,8 +20,7 @@ const Queries: React.FC<Props> = (props) => {
   const { queries } = props;
   const [deletedId, setDeletedId] = useState<number>();
   const [loading, setLoading] = useState(false);
-  const { user, error: userError, isLoading } = useUser();
-  const supabase = getSupabase(user?.accessToken);
+  const user = supabase.auth.user();
 
   // Delete link
   async function deleteQuery(id: number) {
@@ -28,7 +29,7 @@ const Queries: React.FC<Props> = (props) => {
     const { data, error } = await supabase
       .from<Query>("queries")
       .delete()
-      .match({ user_id: user?.sub || "", id: id });
+      .match({ user_id: user?.id || "", id: id });
     if (data) {
       setDeletedId(undefined);
     }
@@ -127,22 +128,25 @@ const Queries: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps({ req, res }) {
-    const data = await getSession(req, res);
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { user } = await supabase.auth.api.getUserByCookie(req);
 
-    const supabase = getSupabase(data?.accessToken);
-
-    const { data: queries, error } = await supabase
-      .from<Query[]>("queries")
-      .select("id, name, database, body, tags, publicQuery");
-
-    console.log(queries);
-
+  if (!user) {
     return {
-      props: { queries: queries },
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
     };
-  },
-});
+  }
+
+  const { data: queries, error } = await supabase
+    .from<Query[]>("queries")
+    .select("id, name, database, body, tags, publicQuery");
+
+  return {
+    props: { queries: queries },
+  };
+};
 
 export default Queries;

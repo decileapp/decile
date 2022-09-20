@@ -1,10 +1,9 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { getSupabase } from "../../utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 import FormLayout from "../../components/layouts/FormLayout";
 import TextInput from "../../components/individual/TextInput";
 import Button from "../../components/individual/Button";
-import { useUser } from "@auth0/nextjs-auth0";
 import Switch from "../../components/individual/Switch";
 import { encrypt } from "../../utils/encryption";
 
@@ -34,9 +33,7 @@ const SourceForm: React.FC<Props> = (props) => {
   const [error, setError] = useState<Props>();
 
   const { id } = router.query;
-  const { user, error: userError, isLoading } = useUser();
-
-  const supabase = getSupabase(user);
+  const user = supabase.auth.user();
 
   const validateLink = (input: Props) => {
     const { name, database, host, dbUser, password, port } = input;
@@ -85,7 +82,7 @@ const SourceForm: React.FC<Props> = (props) => {
         password: encrypt(password || ""),
         port: port,
         ssl: ssl,
-        user_id: user?.sub || "",
+        user_id: user?.id,
       };
       if (validateLink(input)) {
         let { data, error } = await supabase.from("sources").insert(input);
@@ -114,13 +111,13 @@ const SourceForm: React.FC<Props> = (props) => {
         password: encrypt(password || ""),
         port: port,
         ssl: ssl,
-        user_id: user?.sub || "",
+        user_id: user?.id,
       };
       if (validateLink(input)) {
         let { data, error } = await supabase
           .from("sources")
           .update(input)
-          .match({ user_id: user?.sub, id: props.id });
+          .match({ user_id: user?.id, id: props.id });
         if (data) {
           router.push("/sources");
         } else {

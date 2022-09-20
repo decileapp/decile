@@ -1,12 +1,14 @@
 import "../styles/globals.css";
-import React, { FC, useMemo } from "react";
+import React from "react";
 import type { AppProps } from "next/app";
 import AppLayout from "../components/layouts/AppLayout";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
 import { event } from "../utils/mixpanel";
-import { UserProvider } from "@auth0/nextjs-auth0";
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { supabase } from "../utils/supabaseClient";
+import axios from "axios";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -28,19 +30,38 @@ function MyApp({ Component, pageProps }: AppProps) {
     };
   }, [router.events]);
 
+  // Set cookies
+  const handleAuthChange = async (
+    event: AuthChangeEvent,
+    session: Session | null
+  ) => {
+    await axios({
+      url: "/api/auth",
+      method: "POST",
+      data: { event, session },
+      headers: new Headers({ "Content-Type": "application/json" }),
+    });
+    return;
+  };
+
   // For supabase log in
   useEffect(() => {
     if (!router.isReady) return;
+
+    // Detect auth changes
+    supabase.auth.onAuthStateChange((_event, session) => {
+      handleAuthChange(_event, session);
+
+      return;
+    });
   }, [router.query, router.isReady]);
 
   return (
-    <UserProvider>
-      <ThemeProvider attribute="class">
-        <AppLayout>
-          <Component {...pageProps} />
-        </AppLayout>
-      </ThemeProvider>
-    </UserProvider>
+    <ThemeProvider attribute="class">
+      <AppLayout>
+        <Component {...pageProps} />
+      </AppLayout>
+    </ThemeProvider>
   );
 }
 

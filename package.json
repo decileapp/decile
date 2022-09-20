@@ -21,6 +21,8 @@
     "@solana/wallet-adapter-react-ui": "^0.9.10",
     "@solana/wallet-adapter-wallets": "^0.16.8",
     "@solana/web3.js": "^1.48.0",
+    "@supabase/auth-helpers-nextjs": "^0.2.8",
+    "@supabase/auth-helpers-react": "^0.2.4",
     "@supabase/supabase-js": "^1.30.0",
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/forms": "^0.4.0",
@@ -29,6 +31,8 @@
     "@types/gtag.js": "^0.0.8",
     "@zoralabs/v3": "^1.0.9",
     "bs58": "^5.0.0",
+    "cookie-parser": "^1.4.6",
+    "cookies": "^0.8.0",
     "crypto-js": "^4.1.1",
     "ethers": "^5.6.8",
     "formik": "^2.2.9",
@@ -51,6 +55,8 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.3",
+    "@types/cookies": "^0.7.7",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/mixpanel-browser": "^2.38.0",
     "@types/node": "17.0.5",

@@ -1,13 +1,12 @@
 import { useRouter } from "next/router";
 import { Source } from "../../types/Sources";
-import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { getSupabase } from "../../utils/supabaseClient";
+import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import TableShell from "../../components/individual/Table";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
-import { useUser } from "@auth0/nextjs-auth0";
+import { GetServerSideProps } from "next";
 
 interface Props {
   sources: Source[];
@@ -18,8 +17,7 @@ const Sources: React.FC<Props> = (props) => {
   const { sources } = props;
   const [deletedId, setDeletedId] = useState<number>();
   const [loading, setLoading] = useState(false);
-  const { user, error: userError, isLoading } = useUser();
-  const supabase = getSupabase(user?.accessToken);
+  const user = supabase.auth.user();
 
   // Delete link
   async function deleteSource(id: number) {
@@ -28,7 +26,7 @@ const Sources: React.FC<Props> = (props) => {
     const { data, error } = await supabase
       .from<Source>("sources")
       .delete()
-      .match({ user_id: user?.sub || "", id: id });
+      .match({ user_id: user?.id || "", id: id });
     if (data) {
       setDeletedId(undefined);
     }
@@ -127,20 +125,24 @@ const Sources: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps({ req, res }) {
-    const data = await getSession(req, res);
-
-    const supabase = getSupabase(data?.accessToken);
-
-    const { data: sources, error } = await supabase
-      .from<Source[]>("sources")
-      .select("id, name, host, database, port, created_at");
-
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { user } = await supabase.auth.api.getUserByCookie(req);
+  if (!user) {
     return {
-      props: { sources: sources },
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
     };
-  },
-});
+  }
+
+  const { data: sources, error } = await supabase
+    .from<Source[]>("sources")
+    .select("id, name, host, database, port, created_at");
+
+  return {
+    props: { sources: sources },
+  };
+};
 
 export default Sources;

@@ -4,24 +4,40 @@ import Loading from "../components/individual/Loading";
 import { event } from "../utils/mixpanel";
 import Hero from "../components/landing/Hero";
 import LandingFooter from "../components/landing/LandingFooter";
-import { useUser } from "@auth0/nextjs-auth0";
+import { supabase } from "../utils/supabaseClient";
+import queryString from "querystring";
 
 const Home: React.FC = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  // const user = supabase.auth.user();
-  const { handleText } = router.query;
-  const { user, error: userError, isLoading } = useUser();
-
-  console.log(user);
+  const [loading, setLoading] = useState(false);
+  const user = supabase.auth.user();
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     event("landing_page", {});
 
-    setLoading(false);
-  }, [user]);
+    // Detect auth changes
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (_event === "PASSWORD_RECOVERY") {
+        supabase.auth.signOut();
+        router.push({
+          pathname: "/auth/reset",
+          query: queryString.parse(router.asPath.split("#")[1]),
+        });
+        return;
+      }
+      // setLoading(false);
+      return;
+    });
 
+    if (user) {
+      router.push("/queries");
+      return;
+    }
+
+    // setLoading(false);
+    return;
+  }, [user?.id]);
   return (
     <div className="flex flex-col flex-grow place-self-center h-full w-full space-y-16 md:space-y-24">
       {loading ? (
@@ -29,7 +45,7 @@ const Home: React.FC = () => {
       ) : (
         <Fragment>
           <div className="flex flex-col place-self-center h-full w-full lg:w-2/3 xl:w-1/2 space-y-16 md:space-y-24">
-            <Hero handleText={handleText?.toString()} />
+            <Hero />
           </div>
 
           {/* <div className="flex flex-col items-center justify-center w-full space-y-4">
