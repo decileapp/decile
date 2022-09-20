@@ -1,6 +1,3 @@
-import { InboxIcon, LinkIcon, PhotographIcon } from "@heroicons/react/outline";
-import { WalletNft } from "../../types/Nfts";
-
 import Image from "next/image";
 import {
   FaInstagram,
@@ -46,40 +43,6 @@ const Features: React.FC = () => {
     </div>
   );
 
-  const sampleNft: WalletNft = {
-    id: "1",
-    contractId: "1",
-    title: "Noun 218",
-    description: "",
-    imageUrl:
-      "https://openseauserdata.com/files/8b9f68792153903b90738f1342c73e97.svg",
-    displayed: false,
-    owner: "",
-    network: "Ethereum",
-    askPrice: "22",
-  };
-  const nftGrid = (
-    <div className="w-full h-full border border-zinc-600 rounded-lg overflow-auto">
-      <div className="">
-        <img src={sampleNft.imageUrl} alt="" className="w-full self-center" />
-      </div>
-      <div className="flex flex-col space-y-4 justify-between items-start w-full p-2 mt-1">
-        <div className="flex flex-row justify-between items-start w-full ">
-          <p className="block text-sm font-medium  pointer-events-none ">
-            {sampleNft.title}
-          </p>
-          {sampleNft.network === "Ethereum" ? (
-            <Image src={"/ethereum.svg"} height={25} width={25} />
-          ) : (
-            <Image src={"/solana.svg"} height={20} width={20} />
-          )}
-        </div>
-
-        <p className=" text-sm ">{`Price: ${sampleNft.askPrice} ETH`}</p>
-      </div>
-    </div>
-  );
-
   const featureComp = ({
     heading,
     comp,
@@ -119,15 +82,7 @@ const Features: React.FC = () => {
       comp: linkComponent,
       text: ["One link for all your links."],
     },
-    {
-      heading: "Display and sell NFTs",
-      comp: nftGrid,
-      text: [
-        "Display and sell NFTs.",
-        "Our trading fees are 1%.",
-        "Royalties are always paid.",
-      ],
-    },
+
     {
       heading: "Own your audience",
       comp: audienceComp,

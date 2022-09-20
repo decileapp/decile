@@ -1,11 +1,23 @@
 import CryptoJS from "crypto-js";
 
 export const encrypt = (text: string) => {
-  return CryptoJS.AES.encrypt(text, process.env.SECRET_KEY || "").toString();
+  const encJson = CryptoJS.AES.encrypt(
+    JSON.stringify(text),
+    process.env.SECRET_KEY || ""
+  ).toString();
+  const encData = CryptoJS.enc.Base64.stringify(
+    CryptoJS.enc.Utf8.parse(encJson)
+  );
+  return encData;
 };
 
 export const decrypt = (ciphertext: string) => {
-  const bytes = CryptoJS.AES.decrypt(ciphertext, process.env.SECRET_KEY || "");
-  const originalText = bytes.toString(CryptoJS.enc.Utf8);
-  return originalText;
+  const decData = CryptoJS.enc.Base64.parse(ciphertext).toString(
+    CryptoJS.enc.Utf8
+  );
+  const bytes = CryptoJS.AES.decrypt(
+    decData,
+    process.env.SECRET_KEY || ""
+  ).toString(CryptoJS.enc.Utf8);
+  return JSON.parse(bytes);
 };

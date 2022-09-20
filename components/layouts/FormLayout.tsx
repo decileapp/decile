@@ -15,10 +15,12 @@ const FormLayout: React.FC<Props> = ({
   return pageLoading ? (
     <Loading />
   ) : (
-    <form className="flex flex-col w-full sm:w-1/3 2xl:w-1/4 py-6 sm:px-4 space-y-6 sm:p-6">
-      {heading && <PageHeading title={heading} />}
-      {children}
-    </form>
+    <div className="flex flex-col w-full justify-start items-center p-8">
+      <form className="flex flex-col w-full sm:w-1/3 2xl:w-1/4 py-6 sm:px-4 space-y-6 sm:p-6">
+        {heading && <PageHeading title={heading} />}
+        {children}
+      </form>
+    </div>
   );
 };
 

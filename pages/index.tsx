@@ -30,6 +30,10 @@ const Home: React.FC = () => {
       return;
     });
 
+    if (!user) {
+      router.push("/auth/signin");
+    }
+
     if (user) {
       router.push("/queries");
       return;

@@ -129,9 +129,8 @@ const Queries: React.FC<Props> = (props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user } = await supabase.auth.api.getUserByCookie(req);
-
-  if (!user) {
+  const { user, token } = await supabase.auth.api.getUserByCookie(req);
+  if (!user || !token) {
     return {
       redirect: {
         destination: `/`,
@@ -139,6 +138,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
       },
     };
   }
+
+  supabase.auth.setAuth(token);
 
   const { data: queries, error } = await supabase
     .from<Query[]>("queries")

@@ -27,12 +27,11 @@ const SourceForm: React.FC<Props> = (props) => {
   const [dbUser, setDbUser] = useState<string | undefined>(props.dbUser);
   const [password, setPassword] = useState<string | undefined>(props.password);
   const [port, setPort] = useState<number | undefined>(props.port);
-  const [ssl, setSsl] = useState<boolean | undefined>(props.ssl);
+  const [ssl, setSsl] = useState<boolean | undefined>(props.ssl || true);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Props>();
 
-  const { id } = router.query;
   const user = supabase.auth.user();
 
   const validateLink = (input: Props) => {
@@ -93,9 +92,9 @@ const SourceForm: React.FC<Props> = (props) => {
         }
       }
 
-      setLoading(false);
       return;
     } catch (error: any) {
+      setLoading(false);
       alert("Something went wrong.");
     }
   }
@@ -125,9 +124,9 @@ const SourceForm: React.FC<Props> = (props) => {
         }
       }
 
-      setLoading(false);
       return;
     } catch (error: any) {
+      setLoading(false);
       alert("Something went wrong.");
     }
   }
@@ -198,11 +197,7 @@ const SourceForm: React.FC<Props> = (props) => {
         title="Port"
         error={error?.port === 1 ? "Please enter port." : ""}
       />
-      <Switch
-        setSelected={() => setSsl(!ssl)}
-        value={ssl || true}
-        title="SSL"
-      />
+      <Switch setSelected={() => setSsl(!ssl)} value={ssl} title="SSL" />
       <div className="flex mt-2 justify-between">
         <a
           type="button"

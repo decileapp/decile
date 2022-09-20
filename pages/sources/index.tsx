@@ -3,7 +3,7 @@ import { Source } from "../../types/Sources";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import TableShell from "../../components/individual/Table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
@@ -33,6 +33,17 @@ const Sources: React.FC<Props> = (props) => {
     setLoading(false);
     return;
   }
+
+  const getSources = async () => {
+    const { data: sources, error } = await supabase
+      .from<Source[]>("sources")
+      .select("id, name, host, database, port, created_at, user_id");
+    return;
+  };
+
+  useEffect(() => {
+    getSources();
+  }, []);
 
   return (
     <Page
@@ -126,8 +137,8 @@ const Sources: React.FC<Props> = (props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user } = await supabase.auth.api.getUserByCookie(req);
-  if (!user) {
+  const { user, token } = await supabase.auth.api.getUserByCookie(req);
+  if (!user || !token) {
     return {
       redirect: {
         destination: `/`,
@@ -136,10 +147,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     };
   }
 
+  supabase.auth.setAuth(token);
+
   const { data: sources, error } = await supabase
     .from<Source[]>("sources")
-    .select("id, name, host, database, port, created_at");
-
+    .select("id, name, host, database, port, created_at, user_id");
   return {
     props: { sources: sources },
   };

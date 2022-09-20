@@ -12,8 +12,8 @@ const NewSource: React.FC<Props> = (props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user } = await supabase.auth.api.getUserByCookie(req);
-  if (!user) {
+  const { user, token } = await supabase.auth.api.getUserByCookie(req);
+  if (!user || !token) {
     return {
       redirect: {
         destination: `/`,
@@ -22,9 +22,13 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     };
   }
 
+  supabase.auth.setAuth(token);
+
   const { data: sources, error } = await supabase
     .from<Source[]>("sources")
-    .select("id, name, host, database, port, dbUser, password, created_at");
+    .select(
+      "id, name, host, database, port, dbUser, password, created_at, ssl"
+    );
 
   return {
     props: { sources: sources },

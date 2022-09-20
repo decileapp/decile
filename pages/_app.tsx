@@ -9,6 +9,7 @@ import { event } from "../utils/mixpanel";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase } from "../utils/supabaseClient";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
