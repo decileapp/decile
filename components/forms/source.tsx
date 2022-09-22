@@ -197,7 +197,11 @@ const SourceForm: React.FC<Props> = (props) => {
         title="Port"
         error={error?.port === 1 ? "Please enter port." : ""}
       />
-      <Switch setSelected={() => setSsl(!ssl)} value={ssl} title="SSL" />
+      <Switch
+        setSelected={() => setSsl(!ssl)}
+        value={ssl}
+        title={ssl ? "SSL on" : "SSL off"}
+      />
       <div className="flex mt-2 justify-between">
         <a
           type="button"

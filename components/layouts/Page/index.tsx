@@ -12,6 +12,7 @@ type Props = {
   onClick?: () => void;
   footer?: boolean;
   align?: "left" | "center";
+  padding?: boolean;
 };
 
 const Page: React.FC<Props> = (props) => {
@@ -24,10 +25,16 @@ const Page: React.FC<Props> = (props) => {
     footer,
     children,
     align,
+    padding,
   } = props;
 
   return (
-    <PageLayout pageLoading={pageLoading} footer={footer} key="page">
+    <PageLayout
+      pageLoading={pageLoading}
+      footer={footer}
+      key="page"
+      padding={padding}
+    >
       <div className={"sm:items-center sm:flex"}>
         <div
           className={classNames(

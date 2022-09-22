@@ -23,7 +23,7 @@ const dateFormatter = ({
     dateComp = moment(dateVar).format("D MMM Y");
   }
   if (dateVar !== null && type === "time") {
-    dateComp = moment(dateVar).format("dddd, D MMM Y, h:m A");
+    dateComp = moment(dateVar).format("dddd, h:mm A");
   }
 
   return dateComp;

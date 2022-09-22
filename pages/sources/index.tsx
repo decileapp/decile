@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { Source } from "../../types/Sources";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
-import TableShell from "../../components/individual/Table";
+import TableShell from "../../components/individual/table/shell";
 import { useEffect, useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";

@@ -4,6 +4,7 @@ import Script from "next/script";
 import SideBarShell from "./SidebarShell";
 import { supabase } from "../../../utils/supabaseClient";
 import Loading from "../../individual/Loading";
+import Topbar from "./Topbar";
 
 const AppLayout: React.FC = ({ children }) => {
   const user = supabase.auth.user();
@@ -46,9 +47,10 @@ const AppLayout: React.FC = ({ children }) => {
           rel="stylesheet"
         />
       </Head>
-      <div className="flex h-screen w-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-hidden">
+      <div className="flex h-screen w-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-auto">
         {loading && <Loading />}
-        {user && user.id && !loading && <SideBarShell>{children}</SideBarShell>}
+        {/* {user && user.id && !loading && <SideBarShell>{children}</SideBarShell>} */}
+        {user && user.id && !loading && <Topbar>{children}</Topbar>}
         {!user && !loading && children}
       </div>
     </div>

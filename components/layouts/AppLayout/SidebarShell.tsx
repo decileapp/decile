@@ -15,13 +15,13 @@ import Logo from "../../../public/subtable.png";
 import Image from "next/image";
 
 const sidebarNavigation = [
-  { name: "Home", href: "/queries", icon: HomeIcon, current: false },
+  { name: "Home", href: "/", icon: HomeIcon, current: false },
   { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
   { name: "Sources", href: "/sources", icon: DatabaseIcon, current: false },
 ];
 const userNavigation = [
-  { name: "Your Profile", href: "#", icon: UserIcon, current: false },
-  { name: "Sign out", href: "/auth/signout", icon: LogoutIcon, current: false },
+  { name: "Profile", href: "#", icon: UserIcon, current: false },
+  { name: "Signout", href: "/auth/signout", icon: LogoutIcon, current: false },
 ];
 
 const SideBarShell: React.FC = ({ children }) => {
@@ -42,7 +42,7 @@ const SideBarShell: React.FC = ({ children }) => {
       <div className="flex h-full w-full">
         {/* Narrow sidebar */}
 
-        <div className="hidden w-28 overflow-y-auto bg-primary-600 md:block">
+        <div className="hidden w-20 overflow-y-auto bg-primary-600 md:block">
           <div className="flex w-full h-full flex-col items-center py-6">
             <div className="flex flex-shrink-0 items-center">
               <Image src="/subtable.png" height="24" width="24" />
@@ -141,14 +141,14 @@ const SideBarShell: React.FC = ({ children }) => {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                   >
-                    <div className="absolute top-1 right-0 -mr-14 p-1">
+                    <div className="absolute top-1 right-0  p-1">
                       <button
                         type="button"
-                        className="flex h-12 w-12 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-white"
+                        className="flex h-12 w-12 items-center justify-center rounded-full "
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <XIcon
-                          className="h-6 w-6 text-white"
+                          className="h-6 w-6 text-zinc-200"
                           aria-hidden="true"
                         />
                         <span className="sr-only">Close sidebar</span>
@@ -194,7 +194,7 @@ const SideBarShell: React.FC = ({ children }) => {
                             className={classNames(
                               item.current
                                 ? "bg-primary-500 text-white"
-                                : "text-primary-100 hover:bg-primary-500 hover:text-white",
+                                : "text-white hover:bg-primary-500 hover:text-white",
                               "group py-2 px-3 rounded-md flex items-center text-sm font-medium"
                             )}
                             aria-current={item.current ? "page" : undefined}
@@ -224,12 +224,12 @@ const SideBarShell: React.FC = ({ children }) => {
         </Transition.Root>
 
         {/* Content area */}
-        <div className=" flex flex-1 flex-col overflow-hidden">
+        <div className=" flex flex-1 flex-col overflow-auto">
           <header className="md:hidden w-full">
-            <div className="relative z-10 flex h-16 flex-shrink-0 border-b border-gray-200 bg-white shadow-sm">
+            <div className="relative z-10 flex h-16 flex-shrink-0 border-b border-gray-200  shadow-sm">
               <button
                 type="button"
-                className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 "
+                className=" border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 "
                 onClick={() => setMobileMenuOpen(true)}
               >
                 <span className="sr-only">Open sidebar</span>

@@ -10,8 +10,8 @@ export default async function handle(
 ) {
   if (req.method === "POST") {
     try {
-      const { body, dbUser, host, database, password, port, ssl, special } =
-        req.body;
+      const { dbUser, host, database, password, port, ssl, special } = req.body;
+
       const pool = new Pool({
         user: dbUser,
         host: host,
@@ -20,16 +20,15 @@ export default async function handle(
         port: port,
         ssl: ssl,
       });
+      const tables = await pool.query(
+        "SELECT table_name FROM information_schema.tables where table_schema = 'public'"
+      );
 
-      try {
-        const result = await pool.query(body);
-        return res.status(200).json({ result: result });
-      } catch (e: any) {
-        return res.status(200).json({ error: e.hint });
-      }
-    } catch (e: any) {
+      return res
+        .status(200)
+        .json({ tables: tables.rows.map((r) => r.table_name) });
+    } catch (e) {
       console.log(e);
-
       throw new Error(`Something went wrong.`);
     }
   }

@@ -1,4 +1,4 @@
-import QueryForm from "../../components/forms/query";
+import QueryForm from "../../components/query";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
@@ -24,7 +24,7 @@ const EditQuery: React.FC<Props> = (props) => {
 
     const { data, error } = await supabase
       .from<Query>("queries")
-      .select(`id, created_at, name, database, body, tags, publicQuery`)
+      .select(`id, created_at, name, database, body, publicQuery`)
       .eq("id", id as string)
       .single();
     if (data) {
@@ -50,9 +50,9 @@ const EditQuery: React.FC<Props> = (props) => {
         name={query.name || ""}
         database={query.database}
         body={query.body}
-        tags={query.tags}
         publicQuery={query.publicQuery}
         sources={props.sources}
+        updated_at={query.updated_at}
       />
     )
   );
@@ -73,7 +73,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   const { data: sources, error } = await supabase
     .from<Source[]>("sources")
-    .select("id, name, host, database, port, dbUser, password, created_at");
+    .select(
+      "id, name, host, database, port, dbUser, password, ssl, created_at"
+    );
   return {
     props: { sources: sources },
   };

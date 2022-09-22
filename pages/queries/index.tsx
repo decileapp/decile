@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
-import TableShell from "../../components/individual/Table";
+import TableShell from "../../components/individual/table/shell";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
@@ -10,6 +10,8 @@ import { GetServerSideProps } from "next";
 import Cookies from "cookies";
 
 import { getUser } from "@supabase/auth-helpers-nextjs";
+import dateFormatter from "../../utils/dateFormatter";
+import TableHeader from "../../components/individual/table/header";
 
 interface Props {
   queries: Query[];
@@ -37,6 +39,9 @@ const Queries: React.FC<Props> = (props) => {
     return;
   }
 
+  // Variable map
+  const fields = ["Name", "Query", "Public", "Last run"];
+
   return (
     <Page
       title="Queries"
@@ -45,36 +50,36 @@ const Queries: React.FC<Props> = (props) => {
     >
       {queries && queries.length > 0 && (
         <TableShell>
-          <thead className="">
-            <tr>
-              {Object.keys(queries[0]).map((r: any) => {
-                return (
-                  <th
-                    scope="col"
-                    className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold  sm:pl-6 text-zinc-500"
-                    key={r}
-                  >
-                    {r}
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
+          <TableHeader labels={fields} />
 
           <tbody className="divide-y divide-gray-200 ">
             {queries.map((row: any, id: number) => {
               return (
                 <tr key={id}>
-                  {Object.keys(row).map((value, id) => {
-                    return (
-                      <td
-                        className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                        key={id}
-                      >
-                        {row[value]}
-                      </td>
-                    );
-                  })}
+                  <td
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
+                    key={id}
+                  >
+                    {row.name}
+                  </td>
+                  <td
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6 truncate"
+                    key={id}
+                  >
+                    {row.body}
+                  </td>
+                  <td
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
+                    key={id}
+                  >
+                    {row.public ? "Public" : "Private"}
+                  </td>
+                  <td
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
+                    key={id}
+                  >
+                    {dateFormatter({ dateVar: row.updated_at, type: "time" })}
+                  </td>
                   <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                     <a
                       href="#"
@@ -143,7 +148,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   const { data: queries, error } = await supabase
     .from<Query[]>("queries")
-    .select("id, name, database, body, tags, publicQuery");
+    .select("id, name, database, body, publicQuery, updated_at");
 
   return {
     props: { queries: queries },

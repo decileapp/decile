@@ -3,16 +3,19 @@ import { classNames } from "../../utils/classnames";
 import { SunIcon, MoonIcon } from "@heroicons/react/outline";
 import InputLabel from "./common/InputLabel";
 import InputDescription from "./common/InputDescription";
+import { ReactElement } from "react";
 
 type Props = {
   title?: string;
   description?: string;
   value?: boolean;
   setSelected: (e: boolean) => void;
+  trueIcon?: React.ComponentProps<"svg">;
+  falseIcon?: React.ComponentProps<"svg">;
 };
 
 const Switch: React.FC<Props> = ({ ...props }) => {
-  const { value, setSelected, title, description } = props;
+  const { value, setSelected, title, description, trueIcon, falseIcon } = props;
 
   return (
     <div>
@@ -26,13 +29,10 @@ const Switch: React.FC<Props> = ({ ...props }) => {
         }
       >
         <span className="sr-only">Use setting</span>
-
         <span
           className={classNames(
-            value
-              ? "translate-x-5 bg-slate-900 dark:bg-white"
-              : "translate-x-0 border-2 border-slate-900 dark:border-white",
-            "pointer-events-none relative inline-block h-5 w-5 rounded-full shadow transform ring-0 transition ease-in-out duration-200 "
+            value ? "translate-x-5" : "translate-x-0",
+            "pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
           )}
         >
           <span
@@ -40,10 +40,31 @@ const Switch: React.FC<Props> = ({ ...props }) => {
               value
                 ? "opacity-0 ease-out duration-100"
                 : "opacity-100 ease-in duration-200",
-              "absolute inset-0 h-full w-full flex items-center justify-center transition-opacity "
+              "absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
             )}
             aria-hidden="true"
-          ></span>
+          >
+            {falseIcon && (
+              <p className="h-3 w-3 text-primary-600">{falseIcon}</p>
+            )}
+            {!falseIcon && (
+              <div className="h-3 w-3  border border-primary-600 rounded-full"></div>
+            )}
+          </span>
+          <span
+            className={classNames(
+              value
+                ? "opacity-100 ease-in duration-200"
+                : "opacity-0 ease-out duration-100",
+              "absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+            )}
+            aria-hidden="true"
+          >
+            {trueIcon && <p className="h-3 w-3 text-primary-600">{trueIcon}</p>}
+            {!trueIcon && (
+              <div className="h-3 w-3 bg-primary-600 rounded-full"></div>
+            )}
+          </span>
         </span>
       </SwitchComp>
     </div>

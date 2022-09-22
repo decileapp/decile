@@ -2,15 +2,22 @@ import { useRouter } from "next/router";
 import { useEffect, Fragment, useState } from "react";
 import Loading from "../components/individual/Loading";
 import { event } from "../utils/mixpanel";
-import Hero from "../components/landing/Hero";
-import LandingFooter from "../components/landing/LandingFooter";
 import { supabase } from "../utils/supabaseClient";
 import queryString from "querystring";
+import { GetServerSideProps } from "next";
+import { Query } from "../types/Query";
+import Search from "../components/individual/Search";
+import { Source } from "../types/Sources";
 
-const Home: React.FC = () => {
+interface Props {
+  queries: Source[];
+}
+
+const Home: React.FC<Props> = (props) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const user = supabase.auth.user();
+  const { queries } = props;
 
   useEffect(() => {
     // setLoading(true);
@@ -34,11 +41,6 @@ const Home: React.FC = () => {
       router.push("/auth/signin");
     }
 
-    if (user) {
-      router.push("/queries");
-      return;
-    }
-
     // setLoading(false);
     return;
   }, [user?.id]);
@@ -47,24 +49,41 @@ const Home: React.FC = () => {
       {loading ? (
         <Loading />
       ) : (
-        <Fragment>
-          <div className="flex flex-col place-self-center h-full w-full lg:w-2/3 xl:w-1/2 space-y-16 md:space-y-24">
-            <Hero />
-          </div>
-
-          {/* <div className="flex flex-col items-center justify-center w-full space-y-4">
-            <p className="text-center text-xl">Level up your creator game</p>
-            <Button
-              label="Sign up"
-              onClick={() => router.push("/auth/signup")}
-              type="primary"
+        <div className="flex flex-col justify-center items-center h-full w-full space-y-4 ">
+          <p className="text-2xl">What data are you looking for?</p>
+          {queries && queries.length > 0 && (
+            <Search
+              // title="What data are you looking for?"
+              options={props.queries.map((s) => {
+                return { name: s.name, value: s.id };
+              })}
             />
-          </div> */}
-          <LandingFooter />
-        </Fragment>
+          )}
+        </div>
       )}
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { user, token } = await supabase.auth.api.getUserByCookie(req);
+  if (!user || !token) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
+  supabase.auth.setAuth(token);
+
+  const { data: queries, error } = await supabase
+    .from<Query[]>("queries")
+    .select("id, name");
+  return {
+    props: { queries: queries },
+  };
 };
 
 export default Home;

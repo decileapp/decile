@@ -5,6 +5,7 @@ import { supabase } from "../../utils/supabaseClient";
 import { Source } from "../../types/Sources";
 import Loading from "../../components/individual/Loading";
 import { GetServerSideProps } from "next";
+import { decrypt } from "../../utils/encryption";
 
 const EditSource: React.FC = () => {
   const router = useRouter();
@@ -19,7 +20,9 @@ const EditSource: React.FC = () => {
 
     const { data, error } = await supabase
       .from<Source>("sources")
-      .select(`id, created_at, name, database, host, dbUser, port, ssl`)
+      .select(
+        `id, created_at, name, database, host, dbUser, password, port, ssl`
+      )
       .eq("id", id as string)
       .single();
     if (data) {
@@ -46,7 +49,7 @@ const EditSource: React.FC = () => {
         host={source.host}
         dbUser={source.dbUser}
         database={source.database}
-        password={source.password}
+        password={decrypt(source.password)}
         port={source.port}
         ssl={source.ssl}
       />
