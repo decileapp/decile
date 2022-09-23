@@ -13,7 +13,7 @@ const TableHeader: React.FC<Props> = ({ ...props }) => {
           return (
             <th
               scope="col"
-              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold  sm:pl-6 text-zinc-500"
+              className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold  sm:pl-6  bg-zinc-700 text-zinc-100 dark:bg-zinc-200 dark: dark:text-zinc-700"
               key={id}
             >
               {l}

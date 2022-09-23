@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
+import TableHeader from "../../components/individual/table/header";
 
 interface Props {
   sources: Source[];
@@ -15,12 +16,12 @@ interface Props {
 const Sources: React.FC<Props> = (props) => {
   const router = useRouter();
   const { sources } = props;
-  const [deletedId, setDeletedId] = useState<number>();
+  const [deletedId, setDeletedId] = useState<string>();
   const [loading, setLoading] = useState(false);
   const user = supabase.auth.user();
 
   // Delete link
-  async function deleteSource(id: number) {
+  async function deleteSource(id: string) {
     setLoading(true);
 
     const { data, error } = await supabase
@@ -53,36 +54,37 @@ const Sources: React.FC<Props> = (props) => {
     >
       {sources && sources.length > 0 && (
         <TableShell>
-          <thead className="">
-            <tr>
-              {Object.keys(sources[0]).map((r: any) => {
-                return (
-                  <th
-                    scope="col"
-                    className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold  sm:pl-6 text-zinc-500"
-                    key={r}
-                  >
-                    {r}
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
+          <TableHeader labels={["Name", "Host", "Database", "Port", "", ""]} />
 
           <tbody className="divide-y divide-gray-200 ">
-            {sources.map((row: any, id: number) => {
+            {sources.map((row, id: number) => {
               return (
                 <tr key={id}>
-                  {Object.keys(row).map((value, id) => {
-                    return (
-                      <td
-                        className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                        key={id}
-                      >
-                        {row[value]}
-                      </td>
-                    );
-                  })}
+                  <td
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
+                    key={id}
+                  >
+                    {row.name}
+                  </td>
+                  <td
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
+                    key={id}
+                  >
+                    {row.host}
+                  </td>
+                  <td
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
+                    key={id}
+                  >
+                    {row.database}
+                  </td>
+                  <td
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
+                    key={id}
+                  >
+                    {row.port}
+                  </td>
+
                   <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                     <a
                       href="#"
@@ -104,7 +106,7 @@ const Sources: React.FC<Props> = (props) => {
                     <a
                       href="#"
                       className="text-red-600 hover:text-red-900"
-                      onClick={() => setDeletedId(row.id)}
+                      onClick={() => setDeletedId(row.id.toString())}
                     >
                       Delete
                       <span className="sr-only">, {row.name}</span>
@@ -125,7 +127,7 @@ const Sources: React.FC<Props> = (props) => {
         setOpen={() => setDeletedId(undefined)}
         title="Delete link?"
         description="Are sure you want to delete this source?"
-        confirmFunc={() => deleteSource(deletedId || -1)}
+        confirmFunc={() => deleteSource(deletedId || "")}
         id="popup"
         name="popup"
         buttonText="Delete"

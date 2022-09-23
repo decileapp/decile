@@ -1,4 +1,4 @@
-import QueryForm from "../../components/query";
+import QueryForm from "../../components/query/index";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
@@ -19,7 +19,7 @@ const EditQuery: React.FC<Props> = (props) => {
   const user = supabase.auth.user();
 
   // Get links
-  async function getSource() {
+  async function getQuery() {
     setLoading(true);
 
     const { data, error } = await supabase
@@ -38,7 +38,7 @@ const EditQuery: React.FC<Props> = (props) => {
     if (!user) {
       router.push("/");
     }
-    getSource();
+    getQuery();
   }, [id, user]);
 
   return loading || !query ? (

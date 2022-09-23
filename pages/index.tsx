@@ -20,7 +20,6 @@ const Home: React.FC<Props> = (props) => {
   const { queries } = props;
 
   useEffect(() => {
-    // setLoading(true);
     event("landing_page", {});
 
     // Detect auth changes
@@ -36,12 +35,6 @@ const Home: React.FC<Props> = (props) => {
       // setLoading(false);
       return;
     });
-
-    if (!user) {
-      router.push("/auth/signin");
-    }
-
-    // setLoading(false);
     return;
   }, [user?.id]);
   return (
@@ -70,7 +63,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   if (!user || !token) {
     return {
       redirect: {
-        destination: `/`,
+        destination: `/auth/signin`,
         permanent: false,
       },
     };

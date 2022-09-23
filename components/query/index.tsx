@@ -19,8 +19,9 @@ import _ from "lodash";
 import dateFormatter from "../../utils/dateFormatter";
 import { classNames } from "../../utils/classnames";
 import MiniLoading from "../individual/MiniLoading";
-import { EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
+import { DownloadIcon, EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
 import TableHeader from "../individual/table/header";
+import { CSVLink } from "react-csv";
 
 interface Props {
   id?: string;
@@ -71,8 +72,6 @@ const QueryForm: React.FC<Props> = (props) => {
 
   // Error
   const [error, setError] = useState<Props>();
-
-  const router = useRouter();
 
   // Get tables
   const getTables = async () => {
@@ -137,7 +136,7 @@ const QueryForm: React.FC<Props> = (props) => {
     setQueryLoading(true);
     if (!props.sources || !selectedSource) {
       setQueryLoading(false);
-      toast.error("Please select a source.");
+      toast.error("Please choose a database.");
       return;
     }
 
@@ -193,49 +192,30 @@ const QueryForm: React.FC<Props> = (props) => {
     return true;
   };
 
-  async function createQuery(input: Props) {
-    try {
-      setSaving(true);
-      let { data, error } = await supabase
-        .from("queries")
-        .insert(input)
-        .single();
-
-      if (data) {
-        setSavedAt(data.updated_at);
-        setQueryId(data.id);
-      }
-      setSaving(false);
-      return;
-    } catch (error: any) {
-      toast.error("Failed to save query");
-      setSaving(false);
-    }
-  }
-
   async function editQuery(input: Props) {
     try {
-      setSaving(true);
       let { data, error } = await supabase
         .from("queries")
         .update(input)
-        .match({ user_id: user?.id, id: props.id })
+        .match({ user_id: user?.id, id: queryId })
         .single();
       if (data) {
         setSavedAt(data.updated_at);
       }
-      setSaving(false);
+
       return;
     } catch (error: any) {
       toast.error("Failed to save query");
-      setSaving(false);
     }
   }
 
   // Autosave
   const debouncedSave = useCallback(
     _.debounce(async (data: Props) => {
-      queryId ? await editQuery(data) : createQuery(data);
+      await setSaving(true);
+      await editQuery(data);
+      await setSaving(false);
+      return;
     }, 500),
     []
   );
@@ -287,9 +267,10 @@ const QueryForm: React.FC<Props> = (props) => {
         {loading ? (
           <Loading />
         ) : (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full px-2">
+            {/* Top bar */}
             <div>
-              <div className="flex flex-row flex-1 space-x-4 border-b border-zinc-400 pb-4 w-full items-end justify-between px-2">
+              <div className="grid grid-cols-2 gap-4 border-b border-zinc-400 pb-4 w-full items-end justify-between">
                 <div className="flex flex-row justify-start items-start space-x-4">
                   {props.sources && (
                     <Select
@@ -333,8 +314,9 @@ const QueryForm: React.FC<Props> = (props) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-9 gap-4  h-full">
-              <div className="col-span-1 flex flex-col flex-1 h-full w-full border-r border-zinc-400 pt-2">
+            <div className="grid grid-cols-10 h-full w-full gap-4 min-h-0 overflow-hidden">
+              {/* Tables and columns */}
+              <div className="col-span-2 flex flex-col grow-0  border-r border-zinc-400 pt-2">
                 <div className="grid grid-rows-6 grid-flow-col w-full h-full">
                   <div className="row-span-2 flex flex-col justify-start border-b border-zinc-400 px-2">
                     <InputLabel title="Tables" />
@@ -389,7 +371,8 @@ const QueryForm: React.FC<Props> = (props) => {
                 </div>
               </div>
 
-              <div className="col-span-4 flex flex-col flex-1 h-full w-full space-y-4 pt-2">
+              {/* EDITOR */}
+              <div className="col-span-4 flex flex-col h-full space-y-4 pt-2">
                 <div className="flex flex-row items-start justify-between w-full">
                   <InputLabel title="Query" />
                   <Button
@@ -402,13 +385,24 @@ const QueryForm: React.FC<Props> = (props) => {
                 <Editor
                   theme="vs-dark"
                   defaultLanguage="sql"
-                  defaultValue="select * from users limit 10;"
+                  defaultValue={
+                    props.body ? body : "select * from users limit 10;"
+                  }
                   onChange={(evn) => setBody(evn)}
                 />
               </div>
 
-              <div className="col-span-4 flex flex-col flex-1 place-self-center h-full w-full overflow-auto pt-2">
-                <InputLabel title="Results" />
+              {/* RESULTS */}
+
+              <div className="col-span-4 flex flex-col h-full w-full space-y-4 pt-2 overflow-auto">
+                <div className="flex flex-row items-center justify-between w-full mb-2">
+                  <InputLabel title="Results" />
+                  {data && data.length > 0 && (
+                    <CSVLink data={data} filename={`data_${Date.now()}`}>
+                      <DownloadIcon className="block h-6 w-6 text-secondary-500" />
+                    </CSVLink>
+                  )}
+                </div>
                 {queryLoading && <Loading />}
                 {fields && data && !queryLoading && (
                   <TableShell>

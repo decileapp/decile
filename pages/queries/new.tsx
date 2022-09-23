@@ -1,5 +1,5 @@
 import { GetServerSideProps } from "next";
-import QueryForm from "../../components/query";
+import QueryForm from "../../components/query/index";
 import { Source } from "../../types/Sources";
 import { supabase } from "../../utils/supabaseClient";
 

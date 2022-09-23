@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Script from "next/script";
-import SideBarShell from "./SidebarShell";
 import { supabase } from "../../../utils/supabaseClient";
 import Loading from "../../individual/Loading";
 import Topbar from "./Topbar";
@@ -47,7 +46,7 @@ const AppLayout: React.FC = ({ children }) => {
           rel="stylesheet"
         />
       </Head>
-      <div className="flex h-screen w-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-auto">
+      <div className="flex h-screen w-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-hidden">
         {loading && <Loading />}
         {/* {user && user.id && !loading && <SideBarShell>{children}</SideBarShell>} */}
         {user && user.id && !loading && <Topbar>{children}</Topbar>}

@@ -59,7 +59,7 @@ const Topbar: React.FC = ({ children }) => {
 
   return (
     <>
-      <div className="flex flex-col grow pt-1">
+      <div className="flex flex-col h-full w-full grow pt-1">
         <ToastContainer
           position="top-right"
           autoClose={3000}
@@ -79,10 +79,7 @@ const Topbar: React.FC = ({ children }) => {
                 <div className="flex justify-between h-16">
                   <div className="flex">
                     <div className="flex-shrink-0 flex items-center">
-                      <a
-                        className="text-lg font-bold"
-                        href={user ? "/nfts" : "/"}
-                      >
+                      <a className="text-lg font-bold" href="/">
                         Subtable
                       </a>
                     </div>
@@ -197,7 +194,7 @@ const Topbar: React.FC = ({ children }) => {
           )}
         </Disclosure>
 
-        <main className="flex flex-col grow">{children}</main>
+        <main className="flex flex-col grow h-full w-full">{children}</main>
       </div>
     </>
   );
