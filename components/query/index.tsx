@@ -1,10 +1,6 @@
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import Loading from "../individual/Loading";
 import axios from "axios";
-import Button from "../individual/Button";
-import TableShell from "../individual/table/shell";
-import Editor from "@monaco-editor/react";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
@@ -14,14 +10,13 @@ import Switch from "../individual/Switch";
 import { toast, ToastContainer } from "react-toastify";
 import { decrypt, encrypt } from "../../utils/encryption";
 import { Column } from "../../types/Column";
-import InputLabel from "../individual/common/InputLabel";
 import _ from "lodash";
 import dateFormatter from "../../utils/dateFormatter";
-import { classNames } from "../../utils/classnames";
-import MiniLoading from "../individual/MiniLoading";
-import { DownloadIcon, EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
-import TableHeader from "../individual/table/header";
-import { CSVLink } from "react-csv";
+import { EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
+import Tables from "./tables";
+import Columnns from "./columns";
+import Results from "./results";
+import Editor from "./editor";
 
 interface Props {
   id?: string;
@@ -40,9 +35,6 @@ const QueryForm: React.FC<Props> = (props) => {
   const [tableLoading, setTableLoading] = useState(false);
   const [columnsLoading, setColumnsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  // Query ID (for editing)
-  const [queryId, setQueryId] = useState<string | undefined>(props.id);
 
   // Databases
   const [selectedSource, setSelectedSource] = useState<string | undefined>(
@@ -69,6 +61,10 @@ const QueryForm: React.FC<Props> = (props) => {
   const user = supabase.auth.user();
 
   const [savedAt, setSavedAt] = useState<Date | undefined>(props.updated_at);
+
+  // Query or question
+  const [question, setQuestion] = useState<string | undefined>();
+  const [queryType, setQueryType] = useState<number>(2);
 
   // Error
   const [error, setError] = useState<Props>();
@@ -170,6 +166,46 @@ const QueryForm: React.FC<Props> = (props) => {
     }
   };
 
+  // Query
+  const aiQuery = async () => {
+    setQueryLoading(true);
+    if (!props.sources || !selectedSource) {
+      setQueryLoading(false);
+      toast.error("Please choose a database.");
+      return;
+    }
+
+    try {
+      setData(null);
+      const selectedDb = props?.sources.find((s) => s.id === selectedSource);
+
+      if (!selectedDb) return;
+
+      const res = await axios.post("/api/ai", {
+        ...selectedDb,
+        question: question,
+        special: decrypt(selectedDb?.password || ""),
+        table: selectedTable,
+      });
+      if (res.data.error) {
+        toast.error(res.data.error);
+        setQueryLoading(false);
+        return;
+      }
+      if (res) {
+        setFields(res.data.result.fields.map((f: any) => f.name));
+        setData(res.data.result.rows);
+      }
+      setQueryLoading(false);
+      return;
+    } catch (e) {
+      console.log(e);
+      toast.error("Something went wrong. Please check your query.");
+      setQueryLoading(false);
+      return;
+    }
+  };
+
   // Validate inputs
   const validateLink = (input: Props) => {
     const { name, database, body } = input;
@@ -194,10 +230,12 @@ const QueryForm: React.FC<Props> = (props) => {
 
   async function editQuery(input: Props) {
     try {
+      if (!props.id) return;
+
       let { data, error } = await supabase
         .from("queries")
         .update(input)
-        .match({ user_id: user?.id, id: queryId })
+        .match({ user_id: user?.id, id: props.id })
         .single();
       if (data) {
         setSavedAt(data.updated_at);
@@ -318,116 +356,36 @@ const QueryForm: React.FC<Props> = (props) => {
               {/* Tables and columns */}
               <div className="col-span-2 flex flex-col grow-0  border-r border-zinc-400 pt-2">
                 <div className="grid grid-rows-6 grid-flow-col w-full h-full">
-                  <div className="row-span-2 flex flex-col justify-start border-b border-zinc-400 px-2">
-                    <InputLabel title="Tables" />
-                    <div className="mt-2">
-                      {tables && tables.length > 0 && (
-                        <div className="grid grid-cols-1 gap-2 overflow-auto">
-                          {tables.map((c, id) => {
-                            return (
-                              <p
-                                className={classNames(
-                                  c === selectedTable
-                                    ? "bg-primary-200 dark:bg-primary-500"
-                                    : "",
-                                  "border p-1 rounded-lg text-sm truncate"
-                                )}
-                                onClick={() => setSelectedTable(c)}
-                                key={id}
-                              >
-                                {c}
-                              </p>
-                            );
-                          })}
-                        </div>
-                      )}
-                      {tableLoading && <MiniLoading />}
-                    </div>
+                  <div className="row-span-2 flex h-full w-full">
+                    <Tables
+                      tables={tables}
+                      selectedTable={selectedTable}
+                      setSelectedTable={setSelectedTable}
+                      tableLoading={tableLoading}
+                    />
                   </div>
 
-                  <div className="row-span-4 flex flex-col overflow-auto p-2">
-                    <InputLabel title="Fields" />
-                    <div className="mt-2">
-                      {columns && columns.length > 0 && (
-                        <div className="grid grid-cols-1 gap-2">
-                          {columns.map((c, id) => {
-                            return (
-                              <div className="flex flex-row space-x-1 justify-between items-center  key={id} border p-1 rounded-lg">
-                                <p className=" text-sm truncate">{c.name}</p>
-                                <p
-                                  className=" text-xs truncate italic"
-                                  key={id}
-                                >
-                                  {c.type}
-                                </p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                      {columnsLoading && <MiniLoading />}
-                    </div>
+                  <div className="row-span-4 flex flex-col h-full w-full p-2">
+                    <Columnns
+                      columns={columns}
+                      columnsLoading={columnsLoading}
+                    />
                   </div>
                 </div>
               </div>
 
               {/* EDITOR */}
-              <div className="col-span-4 flex flex-col h-full space-y-4 pt-2">
-                <div className="flex flex-row items-start justify-between w-full">
-                  <InputLabel title="Query" />
-                  <Button
-                    label="Run"
-                    onClick={() => queryDb()}
-                    type="secondary"
-                  />
-                </div>
-
-                <Editor
-                  theme="vs-dark"
-                  defaultLanguage="sql"
-                  defaultValue={
-                    props.body ? body : "select * from users limit 10;"
-                  }
-                  onChange={(evn) => setBody(evn)}
-                />
+              <div className="col-span-4 flex flex-col h-full pt-2">
+                <Editor body={body} setBody={setBody} queryDb={queryDb} />
               </div>
 
               {/* RESULTS */}
-
-              <div className="col-span-4 flex flex-col h-full w-full space-y-4 pt-2 overflow-auto">
-                <div className="flex flex-row items-center justify-between w-full mb-2">
-                  <InputLabel title="Results" />
-                  {data && data.length > 0 && (
-                    <CSVLink data={data} filename={`data_${Date.now()}`}>
-                      <DownloadIcon className="block h-6 w-6 text-secondary-500" />
-                    </CSVLink>
-                  )}
-                </div>
-                {queryLoading && <Loading />}
-                {fields && data && !queryLoading && (
-                  <TableShell>
-                    <TableHeader labels={fields} />
-
-                    <tbody className="divide-y divide-gray-200 ">
-                      {data.map((row: any, id: number) => {
-                        return (
-                          <tr key={id}>
-                            {Object.keys(row).map((value, id) => {
-                              return (
-                                <td
-                                  className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                                  key={id}
-                                >
-                                  {row[value]}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </TableShell>
-                )}
+              <div className="col-span-4 flex flex-col h-full w-full overflow-auto pt-2">
+                <Results
+                  data={data}
+                  fields={fields}
+                  queryLoading={queryLoading}
+                />
               </div>
             </div>
           </div>

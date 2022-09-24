@@ -48,7 +48,6 @@ const AppLayout: React.FC = ({ children }) => {
       </Head>
       <div className="flex h-screen w-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-hidden">
         {loading && <Loading />}
-        {/* {user && user.id && !loading && <SideBarShell>{children}</SideBarShell>} */}
         {user && user.id && !loading && <Topbar>{children}</Topbar>}
         {!user && !loading && children}
       </div>
