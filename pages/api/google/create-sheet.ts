@@ -4,11 +4,12 @@ import {
   authoriseGoogle,
   checkExistingToken,
 } from "../../../utils/google/auth";
-import postgresQuery from "../../../utils/postgresQuery";
 import {
   createAndWriteSpreadsheet,
   createSpreadsheet,
 } from "../../../utils/google/sheets";
+import queryById from "../../../utils/postgres/queryById";
+import formatForSheets from "../../../utils/postgres/formatForSheets";
 
 // POST /api/post
 // Required fields in body: title
@@ -39,25 +40,16 @@ export default async function handle(
         res.status(200).json({ link: link });
         return;
       } else {
-        // Get data
-        const { data, error } = await supabase
-          .from("queries")
-          .select(
-            "id, database(dbUser, host, database, password, port, ssl), body"
-          )
-          .match({ id: queryId })
-          .single();
-        const queryData = await postgresQuery({
-          setup: data.database,
-          body: data.body,
+        const queryData = await queryById({
+          queryId: queryId,
+          userId: user.id,
+          orgId: user.user_metadata.org_id,
         });
 
         // If data available
         if (queryData) {
           // Format data for google sheets
-          const rowData = [Object.keys(queryData.rows[0])].concat(
-            queryData.rows.map((r: any) => Object.values(r))
-          );
+          const rowData = formatForSheets(queryData);
           // Export to Google sheet
           const createdSheet = await createAndWriteSpreadsheet({
             auth: auth,
