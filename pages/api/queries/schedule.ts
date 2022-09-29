@@ -52,7 +52,7 @@ export default async function handle(
           const rowData = await formatForSheets(data);
           const createdSheet = await createAndWriteSpreadsheet({
             auth: auth,
-            title: `Sample-${new Date(Date.now())}`,
+            title: `NewSample-${new Date(Date.now())}`,
             range: "Sheet1",
             data: rowData,
           });
