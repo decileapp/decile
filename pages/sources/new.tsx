@@ -1,5 +1,5 @@
 import { GetServerSideProps } from "next";
-import SourceForm from "../../components/forms/source";
+import SourceForm from "../../components/sources";
 import { supabase } from "../../utils/supabaseClient";
 
 const NewSource: React.FC = () => {

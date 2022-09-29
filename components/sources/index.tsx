@@ -1,11 +1,14 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
-import FormLayout from "../../components/layouts/FormLayout";
-import TextInput from "../../components/individual/TextInput";
-import Button from "../../components/individual/Button";
-import Switch from "../../components/individual/Switch";
+import FormLayout from "../layouts/FormLayout";
+import TextInput from "../individual/TextInput";
+import Button from "../individual/Button";
+import Switch from "../individual/Switch";
 import { encrypt } from "../../utils/encryption";
+import { toast } from "react-toastify";
+import axios from "axios";
+import MiniLoading from "../individual/MiniLoading";
 
 interface Props {
   id?: string;
@@ -17,6 +20,7 @@ interface Props {
   port?: number;
   ssl?: boolean;
   user_id?: string;
+  org_id?: string;
 }
 
 const SourceForm: React.FC<Props> = (props) => {
@@ -25,9 +29,10 @@ const SourceForm: React.FC<Props> = (props) => {
   const [host, setHost] = useState<string | undefined>(props.host);
   const [database, setDatabase] = useState<string | undefined>(props.database);
   const [dbUser, setDbUser] = useState<string | undefined>(props.dbUser);
-  const [password, setPassword] = useState<string | undefined>(props.password);
+  const [password, setPassword] = useState<string | undefined>();
   const [port, setPort] = useState<number | undefined>(props.port);
   const [ssl, setSsl] = useState<boolean | undefined>(props.ssl || true);
+  const [checkingDb, setCheckingDb] = useState<boolean>(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Props>();
@@ -78,24 +83,24 @@ const SourceForm: React.FC<Props> = (props) => {
         database: database,
         host: host,
         dbUser: dbUser,
-        password: encrypt(password || ""),
+        password: password,
         port: port,
         ssl: ssl,
         user_id: user?.id,
+        org_id: user?.user_metadata.org_id,
       };
       if (validateLink(input)) {
-        let { data, error } = await supabase.from("sources").insert(input);
+        const res = await axios.post("/api/sources", { ...input });
+        const { data } = res;
         if (data) {
           router.push("/sources");
-        } else {
-          console.log(error);
         }
       }
 
       return;
     } catch (error: any) {
       setLoading(false);
-      alert("Something went wrong.");
+      toast.error("Failed to save changes. Please check your credentials.");
     }
   }
 
@@ -103,31 +108,30 @@ const SourceForm: React.FC<Props> = (props) => {
     try {
       setLoading(true);
       const input = {
+        id: props.id,
         name: name,
         database: database,
         host: host,
         dbUser: dbUser,
-        password: encrypt(password || ""),
+        password: password,
         port: port,
         ssl: ssl,
         user_id: user?.id,
+        org_id: user?.user_metadata.org_id,
       };
       if (validateLink(input)) {
-        let { data, error } = await supabase
-          .from("sources")
-          .update(input)
-          .match({ user_id: user?.id, id: props.id });
+        const res = await axios.patch("/api/sources", { ...input });
+        const { data } = res;
+
         if (data) {
           router.push("/sources");
-        } else {
-          console.log(error);
         }
       }
 
       return;
     } catch (error: any) {
       setLoading(false);
-      alert("Something went wrong.");
+      toast.error("Failed to save changes. Please check your credentials.");
     }
   }
 
@@ -136,6 +140,11 @@ const SourceForm: React.FC<Props> = (props) => {
       pageLoading={loading}
       heading={props.id ? "Edit data source" : "New data source"}
     >
+      {props.id && (
+        <p className="text-sm">
+          Please re-enter your password to save changes.
+        </p>
+      )}
       <TextInput
         name="name"
         id="name"
@@ -211,11 +220,15 @@ const SourceForm: React.FC<Props> = (props) => {
         >
           Back
         </a>
-        <Button
-          label="Save"
-          onClick={() => (props.id ? editSource() : createSource())}
-          type="primary"
-        />
+        {checkingDb ? (
+          <MiniLoading />
+        ) : (
+          <Button
+            label="Save"
+            onClick={() => (props.id ? editSource() : createSource())}
+            type="primary"
+          />
+        )}
       </div>
     </FormLayout>
   );

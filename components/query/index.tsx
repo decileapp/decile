@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Loading from "../individual/Loading";
 import axios from "axios";
 import { supabase } from "../../utils/supabaseClient";
@@ -62,12 +62,11 @@ const QueryForm: React.FC<Props> = (props) => {
 
   const [savedAt, setSavedAt] = useState<Date | undefined>(props.updated_at);
 
-  // Query or question
-  const [question, setQuestion] = useState<string | undefined>();
-  const [queryType, setQueryType] = useState<number>(2);
-
   // Error
   const [error, setError] = useState<Props>();
+
+  // Cancel requests
+  const source = axios.CancelToken.source();
 
   // Get tables
   const getTables = async () => {
@@ -81,11 +80,8 @@ const QueryForm: React.FC<Props> = (props) => {
 
       if (!selectedDb) return;
 
-      const decrypted = decrypt(selectedDb?.password || "");
-
       const res = await axios.post("/api/postgres/get-tables", {
         ...selectedDb,
-        special: decrypted,
       });
       if (res) {
         setTables(res.data.tables);
@@ -110,10 +106,8 @@ const QueryForm: React.FC<Props> = (props) => {
       const selectedDb = props?.sources.find((s) => s.id === selectedSource);
 
       if (!selectedDb || !tables || !selectedTable) return;
-
       const res = await axios.post("/api/postgres/get-columns", {
         ...selectedDb,
-        special: decrypt(selectedDb?.password || ""),
         table: selectedTable,
       });
       if (res) {
@@ -141,51 +135,10 @@ const QueryForm: React.FC<Props> = (props) => {
       const selectedDb = props?.sources.find((s) => s.id === selectedSource);
 
       if (!selectedDb) return;
-
       const res = await axios.post("/api/postgres", {
         body: body,
         ...selectedDb,
-        special: decrypt(selectedDb?.password || ""),
-      });
-      if (res.data.error) {
-        toast.error(res.data.error);
-        setQueryLoading(false);
-        return;
-      }
-      if (res) {
-        setFields(res.data.result.fields.map((f: any) => f.name));
-        setData(res.data.result.rows);
-      }
-      setQueryLoading(false);
-      return;
-    } catch (e) {
-      console.log(e);
-      toast.error("Something went wrong. Please check your query.");
-      setQueryLoading(false);
-      return;
-    }
-  };
-
-  // Query
-  const aiQuery = async () => {
-    setQueryLoading(true);
-    if (!props.sources || !selectedSource) {
-      setQueryLoading(false);
-      toast.error("Please choose a database.");
-      return;
-    }
-
-    try {
-      setData(null);
-      const selectedDb = props?.sources.find((s) => s.id === selectedSource);
-
-      if (!selectedDb) return;
-
-      const res = await axios.post("/api/ai", {
-        ...selectedDb,
-        question: question,
-        special: decrypt(selectedDb?.password || ""),
-        table: selectedTable,
+        cancelToken: source.token,
       });
       if (res.data.error) {
         toast.error(res.data.error);
@@ -235,12 +188,11 @@ const QueryForm: React.FC<Props> = (props) => {
       let { data, error } = await supabase
         .from("queries")
         .update(input)
-        .match({ user_id: user?.id, id: props.id })
+        .match({ org_id: user?.user_metadata.org_id, id: props.id })
         .single();
       if (data) {
         setSavedAt(data.updated_at);
       }
-
       return;
     } catch (error: any) {
       toast.error("Failed to save query");
@@ -273,7 +225,7 @@ const QueryForm: React.FC<Props> = (props) => {
 
   useEffect(() => {
     // Run only when name, database, body are available
-    if (name && selectedSource && body && !saving) {
+    if (name && body && !saving) {
       const input = {
         name: name,
         database: selectedSource,
@@ -347,6 +299,9 @@ const QueryForm: React.FC<Props> = (props) => {
                       type: "time",
                     })}`}</p>
                   )}
+                  {!savedAt && !saving && (
+                    <p className="text-sm text-red-500">Changes not saved</p>
+                  )}
                   {saving && <p className="text-sm">Saving...</p>}
                 </div>
               </div>
@@ -376,7 +331,13 @@ const QueryForm: React.FC<Props> = (props) => {
 
               {/* EDITOR */}
               <div className="col-span-4 flex flex-col h-full pt-2">
-                <Editor body={body} setBody={setBody} queryDb={queryDb} />
+                <Editor
+                  body={body}
+                  setBody={setBody}
+                  queryDb={queryDb}
+                  queryLoading={queryLoading}
+                  stopQuery={() => source.cancel()}
+                />
               </div>
 
               {/* RESULTS */}
@@ -385,6 +346,7 @@ const QueryForm: React.FC<Props> = (props) => {
                   data={data}
                   fields={fields}
                   queryLoading={queryLoading}
+                  queryId={props.id}
                 />
               </div>
             </div>

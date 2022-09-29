@@ -52,7 +52,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     // Detect auth changes
     supabase.auth.onAuthStateChange((_event, session) => {
       handleAuthChange(_event, session);
-
       return;
     });
   }, [router.query, router.isReady]);

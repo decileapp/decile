@@ -7,9 +7,11 @@ import TextInput from "../../components/individual/TextInput";
 import PageHeading from "../../components/layouts/Page/PageHeading";
 import Button from "../../components/individual/Button";
 import validator from "validator";
+import axios from "axios";
 
 const Signup: NextPage = () => {
   const router = useRouter();
+  const { orgId, roleId } = router.query;
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState<string>();
   const [password, setPassword] = useState<string>();
@@ -63,7 +65,15 @@ const Signup: NextPage = () => {
     }
 
     if (user) {
-      router.push("/");
+      // If user has been invited, include meta data
+      if (orgId && roleId) {
+        const res = await axios.post("/api/org", {
+          orgId: orgId,
+          roleId: roleId,
+          userId: user.id,
+        });
+      }
+      setCheckEmail(true);
     } else {
       console.log(error);
     }
@@ -81,57 +91,59 @@ const Signup: NextPage = () => {
   return (
     <div className="flex flex-col flex-1 justify-center items-center">
       <FormLayout pageLoading={loading}>
-        <PageHeading title="Sign up" />
+        <PageHeading title={checkEmail ? "Thank you" : "Sign up"} />
         {error && <p className="text-sm text-red-500">{error}</p>}
         {checkEmail && (
-          <div>
-            <p>
-              <span className="text-secondary-500">
-                Please check your email to verify your account.
-              </span>
+          <div className="space-y-2">
+            <p className="text-primary-600">
+              Please check your email to verify your account and login.
             </p>
           </div>
         )}
-        <TextInput
-          name="email"
-          id="email"
-          value={email || ""}
-          handleChange={setEmail}
-          type="email"
-          label="Email"
-        />
-        <TextInput
-          name="password"
-          id="password"
-          value={password || ""}
-          handleChange={setPassword}
-          type="password"
-          label="Password"
-        />
-        <TextInput
-          name="password2"
-          id="password2"
-          value={password2 || ""}
-          handleChange={setPassword2}
-          type="password"
-          label="Confirm password"
-        />
+        {!checkEmail && (
+          <>
+            <TextInput
+              name="email"
+              id="email"
+              value={email || ""}
+              handleChange={setEmail}
+              type="email"
+              label="Email"
+            />
+            <TextInput
+              name="password"
+              id="password"
+              value={password || ""}
+              handleChange={setPassword}
+              type="password"
+              label="Password"
+            />
+            <TextInput
+              name="password2"
+              id="password2"
+              value={password2 || ""}
+              handleChange={setPassword2}
+              type="password"
+              label="Confirm password"
+            />
 
-        <p className="text-sm mt-1">
-          Already have an account?{" "}
-          <a
-            href="#"
-            onClick={() => router.push("/auth/signin")}
-            className="text-secondary-500"
-          >
-            {" "}
-            Sign in.
-          </a>
-        </p>
+            <p className="text-sm mt-1">
+              Already have an account?{" "}
+              <a
+                href="#"
+                onClick={() => router.push("/auth/signin")}
+                className="text-secondary-500"
+              >
+                {" "}
+                Sign in.
+              </a>
+            </p>
 
-        <div className="flex flex-row justify-end">
-          <Button label="Submit" onClick={() => signUp()} type="primary" />
-        </div>
+            <div className="flex flex-row justify-end">
+              <Button label="Submit" onClick={() => signUp()} type="primary" />
+            </div>
+          </>
+        )}
       </FormLayout>
     </div>
   );

@@ -8,6 +8,7 @@ const Logout: NextPage = () => {
   const router = useRouter();
   const signout = async () => {
     await supabase.auth.signOut();
+    await supabase.auth.api.signOut("");
     router.push("/");
     return;
   };

@@ -8,6 +8,7 @@ import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
 import TableHeader from "../../components/individual/table/header";
+import axios from "axios";
 
 interface Props {
   sources: Source[];
@@ -35,17 +36,6 @@ const Sources: React.FC<Props> = (props) => {
     return;
   }
 
-  const getSources = async () => {
-    const { data: sources, error } = await supabase
-      .from<Source[]>("sources")
-      .select("id, name, host, database, port, created_at, user_id");
-    return;
-  };
-
-  useEffect(() => {
-    getSources();
-  }, []);
-
   return (
     <Page
       title="Data sources"
@@ -60,28 +50,16 @@ const Sources: React.FC<Props> = (props) => {
             {sources.map((row, id: number) => {
               return (
                 <tr key={id}>
-                  <td
-                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                    key={id}
-                  >
+                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
                     {row.name}
                   </td>
-                  <td
-                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                    key={id}
-                  >
+                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
                     {row.host}
                   </td>
-                  <td
-                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                    key={id}
-                  >
+                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
                     {row.database}
                   </td>
-                  <td
-                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                    key={id}
-                  >
+                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
                     {row.port}
                   </td>
 
@@ -148,14 +126,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
       },
     };
   }
-
   supabase.auth.setAuth(token);
+  const { data, error } = await supabase
+    .from("sources")
+    .select("id, name, host, database, port, created_at, user_id, org_id")
+    .match({ org_id: user.user_metadata.org_id });
 
-  const { data: sources, error } = await supabase
-    .from<Source[]>("sources")
-    .select("id, name, host, database, port, created_at, user_id");
   return {
-    props: { sources: sources },
+    props: { sources: data },
   };
 };
 

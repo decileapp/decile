@@ -33,6 +33,7 @@ const Queries: React.FC<Props> = (props) => {
         body: "select * from TABLE;",
         publicQuery: false,
         user_id: user?.id,
+        org_id: user?.user_metadata.org_id,
         updated_at: new Date(Date.now()),
       };
       let { data, error } = await supabase
@@ -84,28 +85,16 @@ const Queries: React.FC<Props> = (props) => {
                 {queries.map((row: any, id: number) => {
                   return (
                     <tr key={id}>
-                      <td
-                        className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                        key={id}
-                      >
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
                         {row.name}
                       </td>
-                      <td
-                        className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6 truncate"
-                        key={id}
-                      >
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6 truncate">
                         {row.body}
                       </td>
-                      <td
-                        className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                        key={id}
-                      >
-                        {row.public ? "Public" : "Private"}
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
+                        {row.publicQuery ? "Public" : "Private"}
                       </td>
-                      <td
-                        className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                        key={id}
-                      >
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
                         {dateFormatter({
                           dateVar: row.updated_at,
                           type: "time",
@@ -180,11 +169,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   supabase.auth.setAuth(token);
 
   const { data: queries, error } = await supabase
-    .from<Query[]>("queries")
-    .select("id, name, database, body, publicQuery, updated_at");
-
+    .from<Query>("queries")
+    .select("id, name, database, body, publicQuery, updated_at, user_id");
   return {
-    props: { queries: queries },
+    props: {
+      queries: queries?.filter(
+        (q) => q.publicQuery === true || q.user_id === user.id
+      ),
+    },
   };
 };
 

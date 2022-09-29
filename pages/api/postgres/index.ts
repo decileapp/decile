@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Pool } from "pg";
+import { decrypt } from "../../../utils/encryption";
 
 // POST /api/post
 // Required fields in body: title
@@ -10,13 +11,12 @@ export default async function handle(
 ) {
   if (req.method === "POST") {
     try {
-      const { body, dbUser, host, database, password, port, ssl, special } =
-        req.body;
+      const { body, dbUser, host, database, password, port, ssl } = req.body;
       const pool = new Pool({
         user: dbUser,
         host: host,
         database: database,
-        password: special,
+        password: decrypt(password),
         port: port,
         ssl: ssl,
       });

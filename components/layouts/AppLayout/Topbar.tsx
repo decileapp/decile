@@ -9,7 +9,7 @@ import {
   XIcon,
   MenuIcon,
 } from "@heroicons/react/outline";
-import { LogoutIcon, UserIcon } from "@heroicons/react/solid";
+import { LogoutIcon, UserGroupIcon, UserIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
 
 import { MoonIcon, SunIcon } from "@heroicons/react/solid";
@@ -31,23 +31,21 @@ const Topbar: React.FC = ({ children }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const user = supabase.auth.user();
+  const session = supabase.auth.session();
   const { theme, setTheme } = useTheme();
 
-  let authLeft: Item[] = [
-    { name: "Home", href: "/", icon: HomeIcon, current: false },
-    { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
-    { name: "Sources", href: "/sources", icon: DatabaseIcon, current: false },
-  ];
-
-  let unAuthRight: Item[] = [
-    { name: "Profile", href: "#", icon: UserIcon, current: false },
-    {
-      name: "Signout",
-      href: "/auth/signout",
-      icon: LogoutIcon,
-      current: false,
-    },
-  ];
+  let authLeft: Item[] = user
+    ? [
+        { name: "Home", href: "/", icon: HomeIcon, current: false },
+        { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
+        {
+          name: "Sources",
+          href: "/sources",
+          icon: DatabaseIcon,
+          current: false,
+        },
+      ]
+    : [];
 
   function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(" ");
@@ -59,7 +57,7 @@ const Topbar: React.FC = ({ children }) => {
 
   return (
     <>
-      <div className="flex flex-col h-full w-full grow pt-1">
+      <div className="flex flex-col  w-full grow pt-1">
         <ToastContainer
           position="top-right"
           autoClose={3000}
@@ -103,33 +101,49 @@ const Topbar: React.FC = ({ children }) => {
                     </div>
                   </div>
                   <div className="hidden sm:ml-6 sm:flex sm:items-center">
-                    <Switch
-                      setSelected={() =>
-                        setTheme(theme === "dark" ? "light" : "dark")
-                      }
-                      value={theme === "dark" ? true : false}
-                      trueIcon={<MoonIcon />}
-                      falseIcon={<SunIcon />}
-                    />
-
                     {user && (
-                      <p
-                        className="border-transparent 
+                      <>
+                        <Switch
+                          setSelected={() =>
+                            setTheme(theme === "dark" ? "light" : "dark")
+                          }
+                          value={theme === "dark" ? true : false}
+                          trueIcon={<MoonIcon />}
+                          falseIcon={<SunIcon />}
+                        />
+
+                        {session && (
+                          <a
+                            className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                      >
-                        {user?.email}
-                      </p>
+                            href="/organisation"
+                          >
+                            {session?.user?.user_metadata.org_name}
+                          </a>
+                        )}
+                        <a
+                          className="hover:text-secondary-600 hover:bg-opacity-75 ml-4 text-base"
+                          onClick={() => {
+                            supabase.auth.signOut();
+                            location.reload();
+                          }}
+                          href="#"
+                        >
+                          Logout
+                        </a>
+                      </>
                     )}
-                    <a
-                      className="hover:text-secondary-600 hover:bg-opacity-75 ml-4 text-base"
-                      onClick={() => {
-                        supabase.auth.signOut();
-                        location.reload();
-                      }}
-                      href="#"
-                    >
-                      Logout
-                    </a>
+                    {!user && (
+                      <a
+                        className="hover:text-secondary-600 hover:bg-opacity-75 ml-4 text-base"
+                        onClick={() => {
+                          router.push("/auth/signin");
+                        }}
+                        href="#"
+                      >
+                        Signin
+                      </a>
+                    )}
                   </div>
 
                   <div className="-mr-2 flex items-center sm:hidden">
@@ -170,24 +184,44 @@ const Topbar: React.FC = ({ children }) => {
                     </Disclosure.Button>
                   ))}
                   {user && (
-                    <p
-                      className="border-transparent 
+                    <>
+                      {session && (
+                        <a
+                          className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                    >
-                      {user?.email}
-                    </p>
-                  )}
-                  <a
-                    className="border-transparent 
+                          href="/organisation"
+                        >
+                          {session?.user?.user_metadata.org_name}
+                        </a>
+                      )}
+                      {user && (
+                        <a
+                          className="border-transparent 
                           block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                    onClick={() => {
-                      supabase.auth.signOut();
-                      router.push("/");
-                    }}
-                    href="#"
-                  >
-                    Logout
-                  </a>
+                          onClick={() => {
+                            supabase.auth.signOut();
+                            location.reload();
+                          }}
+                          href="#"
+                        >
+                          Logout
+                        </a>
+                      )}
+                    </>
+                  )}
+
+                  {!user && (
+                    <a
+                      className="border-transparent 
+                          block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                      onClick={() => {
+                        router.push("auth/signin");
+                      }}
+                      href="#"
+                    >
+                      Signin
+                    </a>
+                  )}
                 </div>
               </Disclosure.Panel>
             </>

@@ -19,7 +19,10 @@ const Columnns: React.FC<Props> = (props) => {
           <div className="grid grid-cols-1 gap-2">
             {columns.map((c, id) => {
               return (
-                <div className="flex flex-row space-x-1 justify-between items-center  key={id} border p-1 rounded-lg">
+                <div
+                  className="flex flex-row space-x-1 justify-between items-center  key={id} border p-1 rounded-lg"
+                  key={id}
+                >
                   <p className=" text-sm truncate">{c.name}</p>
                   <p className=" text-xs truncate italic" key={id}>
                     {c.type}

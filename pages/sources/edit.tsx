@@ -1,4 +1,4 @@
-import SourceForm from "../../components/forms/source";
+import SourceForm from "../../components/sources";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
@@ -20,9 +20,7 @@ const EditSource: React.FC = () => {
 
     const { data, error } = await supabase
       .from<Source>("sources")
-      .select(
-        `id, created_at, name, database, host, dbUser, password, port, ssl`
-      )
+      .select(`id, created_at, name, database, host, dbUser, port, ssl`)
       .eq("id", id as string)
       .single();
     if (data) {
@@ -49,7 +47,7 @@ const EditSource: React.FC = () => {
         host={source.host}
         dbUser={source.dbUser}
         database={source.database}
-        password={decrypt(source.password)}
+        password=""
         port={source.port}
         ssl={source.ssl}
       />

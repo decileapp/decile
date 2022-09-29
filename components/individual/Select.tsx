@@ -58,7 +58,7 @@ const Select: React.FC<Props> = ({ ...props }) => {
                         key={id}
                         className={({ active }) =>
                           classNames(
-                            active ? "bg-primary-600 " : "",
+                            active ? "bg-primary-600" : "",
                             "cursor-default select-none relative py-2 pl-3 pr-9"
                           )
                         }
@@ -69,8 +69,8 @@ const Select: React.FC<Props> = ({ ...props }) => {
                             <span
                               className={classNames(
                                 selected
-                                  ? "font-semibold text-white"
-                                  : "font-normal text-zinc-900",
+                                  ? "font-semibold text-primary-600 hover:text-white"
+                                  : "font-normal text-zinc-900 hover:text-white",
                                 "block truncate "
                               )}
                             >
@@ -80,7 +80,7 @@ const Select: React.FC<Props> = ({ ...props }) => {
                             {selected ? (
                               <span
                                 className={classNames(
-                                  active ? "dark:" : "text-primary-600",
+                                  active ? "text-white" : "text-primary-600",
                                   "absolute inset-y-0 right-0 flex items-center pr-4"
                                 )}
                               >

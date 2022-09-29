@@ -5,19 +5,24 @@ export const encrypt = (text: string) => {
     JSON.stringify(text),
     process.env.SECRET_KEY || ""
   ).toString();
-  const encData = CryptoJS.enc.Base64.stringify(
-    CryptoJS.enc.Utf8.parse(encJson)
-  );
-  return encData;
+  // const encData = CryptoJS.enc.Base64.stringify(
+  //   CryptoJS.enc.Utf8.parse(encJson)
+  // );
+  return encJson;
 };
 
 export const decrypt = (ciphertext: string) => {
-  const decData = CryptoJS.enc.Base64.parse(ciphertext).toString(
-    CryptoJS.enc.Utf8
-  );
-  const bytes = CryptoJS.AES.decrypt(
-    decData,
-    process.env.SECRET_KEY || ""
-  ).toString(CryptoJS.enc.Utf8);
-  return JSON.parse(bytes);
+  // const decData = CryptoJS.enc.Base64.parse(ciphertext).toString(
+  //   CryptoJS.enc.Utf8
+  // );
+  // const bytes = CryptoJS.AES.decrypt(
+  //   decData,
+  //   process.env.SECRET_KEY || ""
+  // ).toString(CryptoJS.enc.Utf8);
+  // const response = JSON.parse(bytes);
+  // return response;
+
+  var bytes = CryptoJS.AES.decrypt(ciphertext, process.env.SECRET_KEY || "");
+  var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  return decryptedData;
 };

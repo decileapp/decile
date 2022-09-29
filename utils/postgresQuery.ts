@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import { decrypt } from "./encryption";
 
 interface Setup {
   user: string;
@@ -16,6 +17,10 @@ const postgresQuery = async ({
   setup: Setup;
   body: string;
 }) => {
+  // Decrypt
+  let decryptedSetup = setup;
+  decryptedSetup.password = decrypt(setup.password);
+
   const pool = new Pool(setup);
 
   try {

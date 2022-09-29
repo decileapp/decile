@@ -7,6 +7,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     try {
       supabase.auth.api.setAuthCookie(req, res);
+      return;
     } catch (e) {
       console.log(e);
       throw new Error(

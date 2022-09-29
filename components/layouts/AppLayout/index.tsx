@@ -1,20 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import Head from "next/head";
 import Script from "next/script";
 import { supabase } from "../../../utils/supabaseClient";
 import Loading from "../../individual/Loading";
 import Topbar from "./Topbar";
+import { useRouter } from "next/router";
 
 const AppLayout: React.FC = ({ children }) => {
   const user = supabase.auth.user();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const session = supabase.auth.session();
 
   useEffect(() => {
-    if (user) {
-      setLoading(false);
+    if (user && !session?.user?.user_metadata.org_id) {
+      router.push("/organisation/new");
     }
-    setLoading(false);
-  }, [user]);
+  }, [session, user]);
+
+  let comp: ReactNode;
+  if (loading) {
+    comp = <Loading />;
+  } else {
+    comp = <Topbar>{children}</Topbar>;
+  }
 
   return (
     <div>
@@ -47,9 +56,7 @@ const AppLayout: React.FC = ({ children }) => {
         />
       </Head>
       <div className="flex h-screen w-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-hidden">
-        {loading && <Loading />}
-        {user && user.id && !loading && <Topbar>{children}</Topbar>}
-        {!user && !loading && children}
+        {comp}
       </div>
     </div>
   );

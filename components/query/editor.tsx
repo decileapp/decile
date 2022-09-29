@@ -7,16 +7,33 @@ interface Props {
   queryDb: () => void;
   setBody: (x: string | undefined) => void;
   body?: string;
+  queryLoading?: boolean;
+  stopQuery: () => void;
 }
 
 const Results: React.FC<Props> = (props) => {
-  const { body, setBody, queryDb } = props;
+  const { body, setBody, queryDb, stopQuery, queryLoading } = props;
 
   return (
     <div className="flex flex-col h-full space-y-4">
       <div className="flex flex-row items-start justify-between w-full">
         <InputLabel title="Query" />
-        <Button label="Run" onClick={() => queryDb()} type="secondary" />
+        <div className="grid grid-cols-2 gap-2">
+          {queryLoading ? (
+            <Button
+              label="Stop"
+              onClick={() => stopQuery()}
+              type="outline-secondary"
+            />
+          ) : (
+            <div />
+          )}
+          {!queryLoading ? (
+            <Button label="Run" onClick={() => queryDb()} type="secondary" />
+          ) : (
+            <div />
+          )}
+        </div>
       </div>
 
       <Editor

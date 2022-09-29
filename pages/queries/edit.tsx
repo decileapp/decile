@@ -27,6 +27,7 @@ const EditQuery: React.FC<Props> = (props) => {
       .select(`id, created_at, name, database, body, publicQuery`)
       .eq("id", id as string)
       .single();
+
     if (data) {
       setQuery(data);
     }
@@ -74,8 +75,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { data: sources, error } = await supabase
     .from<Source[]>("sources")
     .select(
-      "id, name, host, database, port, dbUser, password, ssl, created_at"
+      "id, name, host, database, port, dbUser, password, ssl, created_at, user_id"
     );
+
   return {
     props: { sources: sources },
   };

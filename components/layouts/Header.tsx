@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import IconImage from "../../public/logo.svg";
+import IconImage from "../../public/icon.svg";
 import { useRouter } from "next/router";
 
 const Header: React.FC = () => {
