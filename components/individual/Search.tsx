@@ -30,7 +30,12 @@ const Search: React.FC<Props> = (props) => {
         });
 
   return (
-    <Combobox as="div" value={selectedPerson} onChange={setSelectedPerson}>
+    <Combobox
+      as="div"
+      value={selectedPerson}
+      onChange={setSelectedPerson}
+      className="w-full"
+    >
       {title && (
         <Combobox.Label className="block text-sm font-medium ">
           {title}

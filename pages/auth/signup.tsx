@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
@@ -147,6 +147,22 @@ const Signup: NextPage = () => {
       </FormLayout>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { user, token } = await supabase.auth.api.getUserByCookie(req);
+  if (user) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };
 
 export default Signup;

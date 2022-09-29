@@ -45,12 +45,14 @@ const Home: React.FC<Props> = (props) => {
         <div className="flex flex-col justify-center items-center h-full w-full space-y-4 ">
           <p className="text-2xl">What data are you looking for?</p>
           {queries && queries.length > 0 && (
-            <Search
-              // title="What data are you looking for?"
-              options={props.queries.map((s) => {
-                return { name: s.name, value: s.id };
-              })}
-            />
+            <div className="flex w-full sm:w-1/3">
+              <Search
+                // title="What data are you looking for?"
+                options={props.queries.map((s) => {
+                  return { name: s.name, value: s.id };
+                })}
+              />
+            </div>
           )}
         </div>
       )}

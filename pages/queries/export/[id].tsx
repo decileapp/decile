@@ -89,7 +89,7 @@ const ExportQuery: React.FC = () => {
               label="New users"
               title="Name your spreadsheet"
               type="text"
-              description="We'll export your data to Sheet1"
+              // description="We'll export your data to Sheet1"
             />
           )}
           {type === "existing" && (
@@ -101,7 +101,7 @@ const ExportQuery: React.FC = () => {
               label="e.g. https://docs.google.com/spreadsheets/d/1bkFo..."
               title="Spreadsheet ID"
               type="text"
-              description="We'll export your data to Sheet1"
+              // description="We'll export your data to Sheet1"
             />
           )}
 
