@@ -17,12 +17,14 @@ export default async function handle(
       const { user, token } = await supabase.auth.api.getUserByCookie(req);
 
       if (!user || !token) {
-        return res.status(401);
+        res.status(401);
+        return;
       }
 
       supabase.auth.setAuth(token);
 
       res.status(200).json({});
+      return;
     } catch (e: any) {
       console.log(e);
 

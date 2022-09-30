@@ -57,6 +57,14 @@ export default async function handle(
             range: range,
             data: rowData,
           });
+
+          // Add to DB
+          const { data, error } = await supabase.from("export").insert({
+            query_id: queryId,
+            spreadsheet: createdSheet,
+            user_id: user.id,
+            org_id: user.user_metadata.org_id,
+          });
           res.status(200).json({ spreadsheetId: createdSheet });
           return;
         }

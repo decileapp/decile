@@ -67,7 +67,7 @@ export default async function handle(
       });
 
       const runAllQueries = await Promise.all(runQueries);
-      res.status(200).json(runAllQueries);
+      res.status(200).json({ success: true });
       return;
     } catch (e: any) {
       console.log(e);

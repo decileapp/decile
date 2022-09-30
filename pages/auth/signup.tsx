@@ -81,6 +81,23 @@ const Signup: NextPage = () => {
     return;
   };
 
+  const googleSignUp = async () => {
+    const { user, session, error } = await supabase.auth.signIn({
+      provider: "google",
+    });
+    if (user) {
+      // If user has been invited, include meta data
+      if (orgId && roleId) {
+        const res = await axios.post("/api/org", {
+          orgId: orgId,
+          roleId: roleId,
+          userId: user.id,
+        });
+      }
+    }
+    return;
+  };
+
   useEffect(() => {
     if (user) {
       router.push("/queries");
@@ -89,63 +106,100 @@ const Signup: NextPage = () => {
   }, [user, router.query]);
 
   return (
-    <div className="flex flex-col flex-1 justify-center items-center">
-      <FormLayout pageLoading={loading}>
-        <PageHeading title={checkEmail ? "Thank you" : "Sign up"} />
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        {checkEmail && (
-          <div className="space-y-2">
-            <p className="text-primary-600">
+    <>
+      <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md space-y-4">
+          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
+            Signup
+          </h2>
+          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+          {checkEmail && (
+            <p className="text-sm text-center text-secondary-500 mt-1">
               Please check your email to verify your account and login.
             </p>
+          )}
+        </div>
+
+        {!checkEmail && (
+          <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md w-full border rounded-lg">
+            <div className="bg-white dark:bg-zinc-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 ">
+              <form className="space-y-6" action="#">
+                {!checkEmail && (
+                  <>
+                    <TextInput
+                      name="email"
+                      id="email"
+                      value={email || ""}
+                      handleChange={setEmail}
+                      type="email"
+                      label="Email"
+                    />
+                    <TextInput
+                      name="password"
+                      id="password"
+                      value={password || ""}
+                      handleChange={setPassword}
+                      type="password"
+                      label="Password"
+                    />
+                    <TextInput
+                      name="password2"
+                      id="password2"
+                      value={password2 || ""}
+                      handleChange={setPassword2}
+                      type="password"
+                      label="Confirm password"
+                    />
+
+                    <p className="text-sm mt-1">
+                      Already have an account?{" "}
+                      <a
+                        href="#"
+                        onClick={() => router.push("/auth/signin")}
+                        className="text-secondary-500"
+                      >
+                        {" "}
+                        Sign in.
+                      </a>
+                    </p>
+
+                    <div className="flex flex-row justify-end">
+                      <Button
+                        label="Submit"
+                        onClick={() => signUp()}
+                        type="primary"
+                      />
+                    </div>
+                  </>
+                )}
+              </form>
+
+              <div className="mt-6 flex flex-col space-y-4">
+                <div className="w-full border-t border-gray-300" />
+
+                <div className="relative flex justify-center text-sm">
+                  <span className=" px-2 text-zinc-500 dark:text-zinc-200">
+                    Or continue with
+                  </span>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 gap-3">
+                  <div>
+                    <a
+                      href="#"
+                      className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-zinc-500 shadow-sm hover:bg-gray-50"
+                      onClick={() => googleSignUp()}
+                    >
+                      <p>Google</p>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
-        {!checkEmail && (
-          <>
-            <TextInput
-              name="email"
-              id="email"
-              value={email || ""}
-              handleChange={setEmail}
-              type="email"
-              label="Email"
-            />
-            <TextInput
-              name="password"
-              id="password"
-              value={password || ""}
-              handleChange={setPassword}
-              type="password"
-              label="Password"
-            />
-            <TextInput
-              name="password2"
-              id="password2"
-              value={password2 || ""}
-              handleChange={setPassword2}
-              type="password"
-              label="Confirm password"
-            />
-
-            <p className="text-sm mt-1">
-              Already have an account?{" "}
-              <a
-                href="#"
-                onClick={() => router.push("/auth/signin")}
-                className="text-secondary-500"
-              >
-                {" "}
-                Sign in.
-              </a>
-            </p>
-
-            <div className="flex flex-row justify-end">
-              <Button label="Submit" onClick={() => signUp()} type="primary" />
-            </div>
-          </>
-        )}
-      </FormLayout>
-    </div>
+      </div>
+    </>
   );
 };
 

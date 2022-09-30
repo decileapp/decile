@@ -89,31 +89,20 @@ const Signin: NextPage = () => {
 
   return (
     <>
-      {/*
-  This example requires updating your template:
-
-  ```
-  <html class="h-full bg-gray-50">
-  <body class="h-full">
-  ```
-*/}
       <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md space-y-4">
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
-            Sign in to your account
+            {forgot ? "Reset your password" : "Sign in to your account"}
           </h2>
           {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
           {message && (
-            <p className="text-sm text-secondary-500 mt-1">{message}</p>
-          )}
-          {forgot && !message && (
-            <p className="text-sm mt-1">
-              Please enter your email to reset your password.
+            <p className="text-sm text-center text-secondary-500 mt-1">
+              {message}
             </p>
           )}
         </div>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md w-full border">
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md w-full border rounded-lg">
           <div className="bg-white dark:bg-zinc-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 ">
             <form className="space-y-6" action="#">
               <TextInput
@@ -157,27 +146,29 @@ const Signin: NextPage = () => {
               </div>
             </form>
 
-            <div className="mt-6 flex flex-col space-y-4">
-              <div className="w-full border-t border-gray-300" />
+            {!forgot && (
+              <div className="mt-6 flex flex-col space-y-4">
+                <div className="w-full border-t border-gray-300" />
 
-              <div className="relative flex justify-center text-sm">
-                <span className=" px-2 text-zinc-500 dark:text-zinc-200">
-                  Or continue with
-                </span>
-              </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className=" px-2 text-zinc-500 dark:text-zinc-200">
+                    Or continue with
+                  </span>
+                </div>
 
-              <div className="mt-6 grid grid-cols-1 gap-3">
-                <div>
-                  <a
-                    href="#"
-                    className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-zinc-500 shadow-sm hover:bg-gray-50"
-                    onClick={() => googleSignIn()}
-                  >
-                    <p>Sign in with Google</p>
-                  </a>
+                <div className="mt-6 grid grid-cols-1 gap-3">
+                  <div>
+                    <a
+                      href="#"
+                      className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-zinc-500 shadow-sm hover:bg-gray-50"
+                      onClick={() => googleSignIn()}
+                    >
+                      <p>Google</p>
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

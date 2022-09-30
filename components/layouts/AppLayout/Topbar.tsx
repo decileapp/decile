@@ -8,6 +8,7 @@ import {
   CodeIcon,
   XIcon,
   MenuIcon,
+  ClockIcon,
 } from "@heroicons/react/outline";
 import { LogoutIcon, UserGroupIcon, UserIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
@@ -37,11 +38,18 @@ const Topbar: React.FC = ({ children }) => {
   let authLeft: Item[] = user
     ? [
         { name: "Home", href: "/", icon: HomeIcon, current: false },
-        { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
         {
           name: "Sources",
           href: "/sources",
           icon: DatabaseIcon,
+          current: false,
+        },
+        { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
+
+        {
+          name: "Schedule",
+          href: "/schedule",
+          icon: ClockIcon,
           current: false,
         },
       ]
