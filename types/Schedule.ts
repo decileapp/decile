@@ -1,14 +1,12 @@
 export interface Schedule {
-  id: number;
-  created_at: Date;
+  id?: number;
+  created_at?: Date;
   name: string;
-  frequency: string;
-  run_at: Date;
+  periodicity: string;
+  run_at_time: number;
+  run_at_day: number;
+  run_at_month_date: number;
   user_id: string;
   org_id: number;
-  export_id: {
-    id: number;
-    queryId: { name: string; id: number };
-    spreadsheet: string;
-  };
+  export_id: number;
 }

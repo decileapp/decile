@@ -12,6 +12,8 @@ import MiniLoading from "../../../components/individual/MiniLoading";
 import { Export } from "../../../types/Export";
 import dateFormatter from "../../../utils/dateFormatter";
 import Select from "../../../components/individual/Select";
+import { hours, daysOfWeek, daysOfMonth } from "../../../utils/schedule";
+import { Schedule } from "../../../types/Schedule";
 
 interface Props {
   exports: Export[];
@@ -33,9 +35,12 @@ const ExportQuery: React.FC<Props> = (props) => {
 
   // For schedule
   const [periodicity, setPeriodicity] = useState<string | undefined>();
+  const [runAtTime, setRunAtTime] = useState<string | undefined>();
+  const [runAtDay, setRunAtDay] = useState<string | undefined>();
+  const [runAtMonthDate, setRunAtMonthDate] = useState<string | undefined>();
   const [schedule, setSchedule] = useState(false);
   const [time, setTime] = useState<Date>();
-  const [exportId, setExportId] = useState<string>();
+  const [exportId, setExportId] = useState<number>();
 
   const createSheet = async () => {
     setLoading(true);
@@ -80,16 +85,93 @@ const ExportQuery: React.FC<Props> = (props) => {
     return;
   };
 
+  // Update schedule
+  const setEveryHour = (e: string) => {
+    if (e === "hour") {
+      setRunAtTime("0");
+      setRunAtDay("0");
+      setRunAtMonthDate("0");
+    }
+
+    if (e === "day") {
+      setRunAtTime("8");
+      setRunAtDay("0");
+      setRunAtMonthDate("0");
+    }
+
+    if (e === "week") {
+      setRunAtDay("2");
+      setRunAtMonthDate("0");
+    }
+
+    if (e === "month") {
+      setRunAtMonthDate("15");
+    }
+
+    setPeriodicity(e);
+    return;
+  };
+
   const scheduleJob = async () => {
-    const { data, error } = await supabase.from("schedule").insert({
+    if (!exportId || !user || !periodicity) {
+      toast.error("Something went wrong!");
+      return;
+    }
+
+    // Format data object
+    let input: Schedule = {
       export_id: exportId,
       name: `Scheduled run for ${
-        exports.find((e) => e.id.toString() === exportId)?.spreadsheet
+        exports.find((e) => e.id === exportId)?.spreadsheet
       }`,
       user_id: user?.id,
       org_id: user?.user_metadata.org_id,
-      run_at: 1,
-    });
+      periodicity: periodicity,
+      run_at_time: 0,
+      run_at_day: 0,
+      run_at_month_date: 0,
+    };
+
+    if (periodicity === "day") {
+      if (!runAtTime) {
+        toast.error("Please choose a time.");
+        return;
+      }
+      input.run_at_time = parseInt(runAtTime, 10);
+    }
+
+    if (periodicity === "week") {
+      if (!runAtTime) {
+        toast.error("Please choose a time.");
+        return;
+      }
+      if (!runAtDay) {
+        toast.error("Please choose a day.");
+        return;
+      }
+      input.run_at_time = parseInt(runAtTime, 10);
+      input.run_at_day = parseInt(runAtDay, 10);
+    }
+
+    if (periodicity === "month") {
+      if (!runAtTime) {
+        toast.error("Please choose a time.");
+        return;
+      }
+
+      if (!runAtMonthDate) {
+        toast.error("Please choose a date.");
+        return;
+      }
+      input.run_at_time = parseInt(runAtTime, 10);
+      input.run_at_month_date = parseInt(runAtMonthDate, 10);
+    }
+
+    const { data, error } = await supabase.from("schedule").insert(input);
+    console.log(error);
+    if (data) {
+      toast.success("Successfully scheduled.");
+    }
     return;
   };
 
@@ -169,8 +251,8 @@ const ExportQuery: React.FC<Props> = (props) => {
               <div className="w-full border-b " />
               <p>Recent exports</p>
               <div className="grid grid-cols-1 gap-2">
-                {exports.map((e) => (
-                  <div className="grid grid-cols-3 gap-2">
+                {exports.map((e, id) => (
+                  <div className="grid grid-cols-3 gap-2" key={id}>
                     <a
                       className="grid-cols-1 truncate"
                       href={`https://docs.google.com/spreadsheets/d/${e.spreadsheet}/edit#gid=0`}
@@ -181,22 +263,23 @@ const ExportQuery: React.FC<Props> = (props) => {
                     <p className="grid-cols-1">
                       {dateFormatter({ dateVar: e.created_at, type: "time" })}
                     </p>
-                    {/* <a
+                    <a
                       className="grid-cols-1 text-secondary-500 text-right"
                       href="#"
                       onClick={() => {
                         setSchedule(true);
+                        setExportId(e.id);
                       }}
                     >
                       Schedule
-                    </a> */}
+                    </a>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Only show for scheduling
+          {/* Only show for scheduling */}
           {schedule && (
             <div className="space-y-6">
               <div className="space-y-2">
@@ -215,31 +298,42 @@ const ExportQuery: React.FC<Props> = (props) => {
                   { name: "Every week", value: "week" },
                   { name: "Every month", value: "month" },
                 ]}
-                setSelected={setPeriodicity}
+                setSelected={setEveryHour}
                 title="How often?"
                 value={periodicity || ""}
               />
-              {periodicity === "day" && periodicity && (
-                <Select
-                  name="runAt"
-                  id="runAt"
-                  options={Array.from(Array(24).keys()).map()}
-                  setSelected={setExportId}
-                  title="What time?"
-                  value={exportId || ""}
-                />
-              )}
               {periodicity === "week" && periodicity && (
                 <Select
-                  name="runAt"
-                  id="runAt"
-                  options={[]}
-                  setSelected={setExportId}
-                  title="What time?"
-                  value={exportId || ""}
+                  name="runAtDay"
+                  id="runAtDay"
+                  options={daysOfWeek.slice(1, hours.length)}
+                  setSelected={setRunAtDay}
+                  title="Which day of the week?"
+                  value={runAtDay || ""}
                 />
               )}
-              {periodicity && time && (
+              {periodicity === "month" && periodicity && (
+                <Select
+                  name="runAtMonthDate"
+                  id="runAtMonthDate"
+                  options={daysOfMonth.slice(1, hours.length)}
+                  setSelected={setRunAtMonthDate}
+                  title="Which day of the month?"
+                  value={runAtMonthDate || ""}
+                />
+              )}
+              {periodicity && periodicity !== "hour" && (
+                <Select
+                  name="runDay"
+                  id="runDay"
+                  options={hours.slice(1, hours.length)}
+                  setSelected={setRunAtTime}
+                  title="What time?"
+                  value={runAtTime || ""}
+                />
+              )}
+
+              {periodicity && (
                 <div className="flex flex-row justify-end ">
                   {loading ? (
                     <MiniLoading />
@@ -253,7 +347,7 @@ const ExportQuery: React.FC<Props> = (props) => {
                 </div>
               )}
             </div>
-          )} */}
+          )}
         </FormLayout>
       </Page>
     </>
