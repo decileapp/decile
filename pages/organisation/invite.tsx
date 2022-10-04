@@ -3,15 +3,15 @@ import { supabase } from "../../utils/supabaseClient";
 import { useState } from "react";
 import { GetServerSideProps } from "next";
 import { toast } from "react-toastify";
-import { Role } from "../../types/Role";
 import axios from "axios";
 import TextInput from "../../components/individual/TextInput";
 import Select from "../../components/individual/Select";
 import Button from "../../components/individual/Button";
 import FormLayout from "../../components/layouts/FormLayout";
+import { Org_User } from "../../types/Organisation";
 
 interface Props {
-  roles: Role[];
+  people: Org_User[];
 }
 
 const InviteOrganisation: React.FC<Props> = (props) => {

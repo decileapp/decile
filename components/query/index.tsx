@@ -309,9 +309,9 @@ const QueryForm: React.FC<Props> = (props) => {
 
             <div className="grid grid-cols-10 h-full w-full gap-4 min-h-0 overflow-hidden">
               {/* Tables and columns */}
-              <div className="col-span-2 flex flex-col grow-0  border-r border-zinc-400 pt-2">
-                <div className="grid grid-rows-6 grid-flow-col w-full h-full">
-                  <div className="row-span-2 flex h-full w-full">
+              <div className="col-span-2 flex flex-col  border-r border-zinc-400 pt-2 h-full w-full overflow-auto">
+                <div className="flex flex-col w-full h-full  ">
+                  <div className=" flex h-36 w-full overflow-auto">
                     <Tables
                       tables={tables}
                       selectedTable={selectedTable}
@@ -320,7 +320,7 @@ const QueryForm: React.FC<Props> = (props) => {
                     />
                   </div>
 
-                  <div className="row-span-4 flex flex-col h-full w-full p-2">
+                  <div className="flex flex-col flex-1 h-full w-full p-2 overflow-auto">
                     <Columnns
                       columns={columns}
                       columnsLoading={columnsLoading}

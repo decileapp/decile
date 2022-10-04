@@ -13,11 +13,11 @@ import { getUser } from "@supabase/auth-helpers-nextjs";
 import dateFormatter from "../../utils/dateFormatter";
 import TableHeader from "../../components/individual/table/header";
 import { toast } from "react-toastify";
-import { Role } from "../../types/Role";
 import axios from "axios";
+import { Org_User } from "../../types/Organisation";
 
 interface Props {
-  members: Role[];
+  members: Org_User[];
 }
 
 const Organisation: React.FC<Props> = (props) => {
@@ -90,7 +90,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
   supabase.auth.setAuth(token);
   const { data: members, error } = await supabase
-    .from<Role[]>("org_users")
+    .from<Org_User[]>("org_users")
     .select(`id, org_id(id, name), role_id, user_id(id, email)`)
     .match({ org_id: user.user_metadata.org_id });
 

@@ -7,10 +7,9 @@ import queryString from "querystring";
 import { GetServerSideProps } from "next";
 import { Query } from "../types/Query";
 import Search from "../components/individual/Search";
-import { Source } from "../types/Sources";
 
 interface Props {
-  queries: Source[];
+  queries: Query[];
 }
 
 const Home: React.FC<Props> = (props) => {
@@ -50,7 +49,7 @@ const Home: React.FC<Props> = (props) => {
               <Search
                 // title="What data are you looking for?"
                 options={props.queries.map((s) => {
-                  return { name: s.name, value: s.id };
+                  return { name: s.name, value: s.name };
                 })}
               />
             </div>
@@ -76,7 +75,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   const { data: queries, error } = await supabase
     .from<Query[]>("queries")
-    .select("id, name");
+    .select("id, name, user_id(id, email)");
+  console.log(queries);
   return {
     props: { queries: queries },
   };

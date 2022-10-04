@@ -4,6 +4,9 @@ export interface Query {
   database?: string;
   body?: string;
   publicQuery: boolean;
-  user_id: string;
   updated_at: Date;
+  user_id: {
+    id: string;
+    email: string;
+  };
 }

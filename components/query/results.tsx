@@ -1,17 +1,11 @@
 import InputLabel from "../individual/common/InputLabel";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
-import {
-  ChartBarIcon,
-  DownloadIcon,
-  ShareIcon,
-} from "@heroicons/react/outline";
-import Loading from "../individual/Loading";
+import { DownloadIcon, ShareIcon } from "@heroicons/react/outline";
 import TableShell from "../individual/table/shell";
 import TableHeader from "../individual/table/header";
 import { useRouter } from "next/router";
-import axios from "axios";
-import Link from "next/link";
+import Loading from "../individual/Loading";
 
 interface Props {
   data?: any;
@@ -44,7 +38,12 @@ const Results: React.FC<Props> = (props) => {
           )}
         </div>
       </div>
-      {queryLoading && <Loading />}
+
+      {queryLoading && (
+        <div className="flex h-96 w-full justify-center items-center">
+          <Loading />
+        </div>
+      )}
       {fields && data && !queryLoading && (
         <TableShell>
           <TableHeader labels={fields} />
