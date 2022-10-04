@@ -3,10 +3,14 @@ import { Pool } from "pg";
 import { Source } from "../../../types/Sources";
 import { encrypt } from "../../../utils/encryption";
 import { checkExistingToken } from "../../../utils/google/auth";
-import { createAndWriteSpreadsheet } from "../../../utils/google/sheets";
+import {
+  createAndWriteSpreadsheet,
+  writeOnSpreadsheet,
+} from "../../../utils/google/sheets";
 import formatForSheets from "../../../utils/postgres/formatForSheets";
 import queryById from "../../../utils/postgres/queryById";
 import { getServiceSupabase, supabase } from "../../../utils/supabaseClient";
+import { DateTime } from "luxon";
 
 // POST /api/post
 // Required fields in body: title
@@ -26,10 +30,24 @@ export default async function handle(
     return;
   } else if (req.method === "GET") {
     try {
+      const currentTime = DateTime.utc();
+      const currentHour = currentTime.hour;
+      const currentDay = currentTime.weekday;
+      const currentDate = currentTime.day;
+
       const serviceSupabase = await getServiceSupabase();
-      const { data, error } = await serviceSupabase
+      let query = serviceSupabase
         .from("schedule")
-        .select("run_at, query_id, user_id, org_id");
+        .select(
+          "periodicity, run_at_time, run_at_day, run_at_month_date, export_id(id, query_id, spreadsheet), user_id, org_id"
+        )
+        .or(`run_at_time.eq.-1, run_at_time.eq.${currentHour}`)
+        .or(
+          `periodicity.eq.hour, periodicity.eq.day, and(periodicity.eq.week,run_at_day.eq.${currentDay}), and(periodicity.eq.month,run_at_month_date.eq.${currentDate})`
+        );
+
+      const { data, error } = await query;
+
       if (!data) {
         res.status(200).json({});
         return;
@@ -43,7 +61,7 @@ export default async function handle(
       // Run all queries
       const runQueries = data.map(async (singleQuery) => {
         const data = await queryById({
-          queryId: singleQuery.query_id,
+          queryId: singleQuery.export_id.query_id,
           userId: singleQuery.user_id,
           orgId: singleQuery.org_id,
         });
@@ -56,13 +74,14 @@ export default async function handle(
           return;
         } else {
           const rowData = await formatForSheets(data);
-          const createdSheet = await createAndWriteSpreadsheet({
+          const updatedSheet = await writeOnSpreadsheet({
             auth: auth,
-            title: `NewSample-${new Date(Date.now())}`,
             range: "Sheet1",
             data: rowData,
+            spreadsheet: singleQuery.export_id.spreadsheet,
           });
-          return createdSheet;
+
+          return updatedSheet;
         }
       });
 

@@ -9,4 +9,7 @@ export interface Schedule {
   user_id: string;
   org_id: number;
   export_id: number;
+  timestamp_utc: string;
+  timestamp_user_zone: string;
+  timezone: string;
 }

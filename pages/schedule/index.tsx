@@ -5,15 +5,10 @@ import TableShell from "../../components/individual/table/shell";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
-import { Query } from "../../types/Query";
 import { GetServerSideProps } from "next";
-import Cookies from "cookies";
-
-import { getUser } from "@supabase/auth-helpers-nextjs";
-import dateFormatter from "../../utils/dateFormatter";
 import TableHeader from "../../components/individual/table/header";
-import { toast } from "react-toastify";
 import { Schedule } from "../../types/Schedule";
+import { formatSchedule } from "../../utils/schedule";
 
 interface Props {
   schedule: Schedule[];
@@ -37,6 +32,7 @@ const Schedule: React.FC<Props> = (props) => {
     if (data) {
       setDeletedId(undefined);
     }
+    window.location.reload();
     setLoading(false);
     return;
   }
@@ -64,10 +60,10 @@ const Schedule: React.FC<Props> = (props) => {
                         {row.name}
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6 truncate">
-                        {row.query_id.name}
+                        {row.export_id.query_id.name}
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
-                        {row.run_at}
+                        {formatSchedule(row)}
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
                         {row.export_id.spreadsheet}
@@ -143,7 +139,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { data: schedule, error } = await supabase
     .from<Schedule>("schedule")
     .select(
-      "id, name, user_id, org_id, frequency, run_at, export_id(id, spreadsheet, queryId(id, name))"
+      "id, name, user_id, org_id, periodicity, run_at_time, run_at_day, run_at_month_date, export_id(id, query_id(name), spreadsheet), timestamp_utc, timestamp_user_zone, timezone"
     )
     .match({ user_id: user.id });
   return {

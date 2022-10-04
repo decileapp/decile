@@ -15,7 +15,7 @@ interface Props {
 
 const Home: React.FC<Props> = (props) => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const user = supabase.auth.user();
   const { queries } = props;
 
@@ -32,9 +32,10 @@ const Home: React.FC<Props> = (props) => {
         });
         return;
       }
-      // setLoading(false);
+
       return;
     });
+    setLoading(false);
     return;
   }, [user?.id]);
   return (

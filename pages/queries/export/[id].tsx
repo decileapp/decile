@@ -4,7 +4,7 @@ import Page from "../../../components/layouts/Page";
 import { GetServerSideProps } from "next";
 import axios from "axios";
 import FormLayout from "../../../components/layouts/FormLayout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../../components/individual/Button";
 import TextInput from "../../../components/individual/TextInput";
 import { toast } from "react-toastify";
@@ -14,6 +14,10 @@ import dateFormatter from "../../../utils/dateFormatter";
 import Select from "../../../components/individual/Select";
 import { hours, daysOfWeek, daysOfMonth } from "../../../utils/schedule";
 import { Schedule } from "../../../types/Schedule";
+import Timezone from "../../../components/individual/timezone";
+import moment, { utc } from "moment-timezone";
+import InputLabel from "../../../components/individual/common/InputLabel";
+import { DateTime } from "luxon";
 
 interface Props {
   exports: Export[];
@@ -39,51 +43,8 @@ const ExportQuery: React.FC<Props> = (props) => {
   const [runAtDay, setRunAtDay] = useState<string | undefined>();
   const [runAtMonthDate, setRunAtMonthDate] = useState<string | undefined>();
   const [schedule, setSchedule] = useState(false);
-  const [time, setTime] = useState<Date>();
   const [exportId, setExportId] = useState<number>();
-
-  const createSheet = async () => {
-    setLoading(true);
-    if (!title) {
-      toast.error("Please enter a name for your spreadsheet.");
-    }
-    const res = await axios.post("/api/google/create-sheet", {
-      title: title,
-      queryId: id,
-      range: range,
-    });
-    if (res.data) {
-      setUpdatedSheet(res.data.spreadsheetId);
-      toast.success("Spreadsheet created and updated.");
-    }
-    setLoading(false);
-    return;
-  };
-
-  const updateSheet = async () => {
-    setLoading(true);
-    if (!spreadsheet) {
-      toast.error(
-        "Please enter the link of the spreadsheet you want to update."
-      );
-    } else {
-      const rawId = spreadsheet.split(
-        "https://docs.google.com/spreadsheets/d/"
-      );
-      const spreadsheetId = rawId[1].split("/")[0];
-      const res = await axios.post("/api/google/update-sheet", {
-        spreadsheet: spreadsheetId,
-        queryId: id,
-        range: range,
-      });
-      if (res.data) {
-        setUpdatedSheet(res.data.spreadsheetId);
-        toast.success("Spreadsheet updated.");
-      }
-    }
-    setLoading(false);
-    return;
-  };
+  const [timezone, setTimezone] = useState<string>(moment.tz.guess());
 
   // Update schedule
   const setEveryHour = (e: string) => {
@@ -112,11 +73,53 @@ const ExportQuery: React.FC<Props> = (props) => {
     return;
   };
 
+  // Returns an updated date with chosen inputs
+  const createDate = ({
+    time,
+    day,
+    dateOfMonth,
+    frequency,
+  }: {
+    time: string | undefined;
+    day: string | undefined;
+    dateOfMonth?: string | undefined;
+    frequency: string;
+  }) => {
+    let updated = DateTime.now().setZone(timezone);
+    // Set time
+    if (time) {
+      updated = updated.set({ hour: parseInt(time, 10) });
+    }
+
+    if (day && frequency === "week") {
+      // Find next week day that is the same day
+      const currentDay = updated.weekday;
+      const diff = parseInt(day, 10) - currentDay;
+      updated = updated.plus({ days: diff });
+    }
+
+    if (dateOfMonth && frequency === "month") {
+      updated = updated.set({ day: parseInt(dateOfMonth, 10) });
+    }
+
+    // Return utc time
+    const utcTime = updated.setZone("UTC");
+    return { utc: utcTime, user: updated };
+  };
+
   const scheduleJob = async () => {
     if (!exportId || !user || !periodicity) {
       toast.error("Something went wrong!");
       return;
     }
+
+    // Get date in users's chosen timzone
+    const { utc: utcDate, user: userTimestamp } = createDate({
+      time: runAtTime,
+      dateOfMonth: runAtMonthDate,
+      day: runAtDay,
+      frequency: periodicity,
+    });
 
     // Format data object
     let input: Schedule = {
@@ -127,51 +130,104 @@ const ExportQuery: React.FC<Props> = (props) => {
       user_id: user?.id,
       org_id: user?.user_metadata.org_id,
       periodicity: periodicity,
-      run_at_time: 0,
-      run_at_day: 0,
-      run_at_month_date: 0,
+      run_at_time: -1,
+      run_at_day: -1,
+      run_at_month_date: -1,
+      timestamp_utc: utcDate.toString(),
+      timestamp_user_zone: userTimestamp.toString(),
+      timezone: timezone,
     };
 
-    if (periodicity === "day") {
-      if (!runAtTime) {
+    // Handle timezone
+    const handleTime = () => {
+      if (!utcDate.day) {
         toast.error("Please choose a time.");
         return;
       }
-      input.run_at_time = parseInt(runAtTime, 10);
+
+      input.run_at_time = utcDate.hour;
+      return;
+    };
+
+    // Every day
+    if (periodicity === "day") {
+      handleTime();
     }
 
+    // Every week
     if (periodicity === "week") {
-      if (!runAtTime) {
-        toast.error("Please choose a time.");
-        return;
-      }
+      handleTime();
       if (!runAtDay) {
         toast.error("Please choose a day.");
         return;
       }
-      input.run_at_time = parseInt(runAtTime, 10);
-      input.run_at_day = parseInt(runAtDay, 10);
+      input.run_at_day = utcDate.weekday;
     }
 
+    // Every month
     if (periodicity === "month") {
-      if (!runAtTime) {
-        toast.error("Please choose a time.");
-        return;
-      }
+      handleTime();
 
       if (!runAtMonthDate) {
         toast.error("Please choose a date.");
         return;
       }
-      input.run_at_time = parseInt(runAtTime, 10);
-      input.run_at_month_date = parseInt(runAtMonthDate, 10);
+      handleTime();
+      input.run_at_month_date = utcDate.day;
     }
-
     const { data, error } = await supabase.from("schedule").insert(input);
-    console.log(error);
     if (data) {
       toast.success("Successfully scheduled.");
     }
+
+    return;
+  };
+
+  // Time options (TODO: update to allow 30 mins for certain time zones)
+  let timeOptions = hours.slice(1, hours.length);
+
+  // Create a new sheet
+  const createSheet = async () => {
+    setLoading(true);
+    if (!title) {
+      toast.error("Please enter a name for your spreadsheet.");
+    }
+    const res = await axios.post("/api/google/create-sheet", {
+      title: title,
+      queryId: id,
+      range: range,
+    });
+    if (res.data) {
+      setUpdatedSheet(res.data.spreadsheetId);
+      toast.success("Spreadsheet created and updated.");
+    }
+    setLoading(false);
+    return;
+  };
+
+  // Update an existing sheet
+  const updateSheet = async () => {
+    setLoading(true);
+    if (!spreadsheet) {
+      toast.error(
+        "Please enter the link of the spreadsheet you want to update."
+      );
+    } else {
+      const rawId = spreadsheet.split(
+        "https://docs.google.com/spreadsheets/d/"
+      );
+      const spreadsheetId = rawId[1].split("/")[0];
+      const res = await axios.post("/api/google/update-sheet", {
+        spreadsheet: spreadsheetId,
+        queryId: id,
+        range: range,
+      });
+      if (res.data) {
+        setUpdatedSheet(res.data.spreadsheetId);
+        toast.success("Spreadsheet updated.");
+      }
+    }
+    setLoading(false);
     return;
   };
 
@@ -283,7 +339,7 @@ const ExportQuery: React.FC<Props> = (props) => {
           {schedule && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <p className="text-xl">Schedule</p>
+                <p className="text-xl">Schedule</p>{" "}
                 <p className="text-sm">
                   Set up a schedule and we'll automatically export data to your
                   sheet.
@@ -323,14 +379,17 @@ const ExportQuery: React.FC<Props> = (props) => {
                 />
               )}
               {periodicity && periodicity !== "hour" && (
-                <Select
-                  name="runDay"
-                  id="runDay"
-                  options={hours.slice(1, hours.length)}
-                  setSelected={setRunAtTime}
-                  title="What time?"
-                  value={runAtTime || ""}
-                />
+                <div className="flex flex-col space-y-2">
+                  <InputLabel title="What time?" />
+                  <Timezone updateZone={setTimezone} />
+                  <Select
+                    name="runAtTime"
+                    id="runAtTime"
+                    options={timeOptions}
+                    setSelected={setRunAtTime}
+                    value={runAtTime || ""}
+                  />
+                </div>
               )}
 
               {periodicity && (
