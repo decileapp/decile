@@ -38,7 +38,7 @@
     "mixpanel-browser": "^2.45.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.37",
-    "next": "12.0.7",
+    "next": "^12.3.1",
     "next-themes": "^0.1.1",
     "node-mailjet": "^5.1.1",
     "openai": "^3.0.0",

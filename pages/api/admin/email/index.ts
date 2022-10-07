@@ -1,18 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import emailHelper from "../../../utils/emailHelper";
+import emailHelper from "../../../../utils/emailHelper";
 
-// POST /api/post
-// Required fields in body: title
-// Optional fields in body: content
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     try {
       const { email, admin, link } = req.body;
+
       const send = await emailHelper({
-        from: "krishna@subtable.app",
+        from: process.env.FROM_EMAIL || "",
         to: email,
         templateId: "Z6V0E3HEAHM63SKRA3B05RKVR9AE",
         vars: {
@@ -36,4 +31,6 @@ export default async function handle(
       `The HTTP ${req.method} method is not supported at this route.`
     );
   }
-}
+};
+
+export default handle;

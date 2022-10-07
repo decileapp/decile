@@ -1,24 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { supabase } from "../../../utils/supabaseClient";
+import { supabase } from "../../../../../utils/supabaseClient";
 import {
   authoriseGoogle,
   checkExistingToken,
-} from "../../../utils/google/auth";
-import {
-  createAndWriteSpreadsheet,
-  createSpreadsheet,
-  writeOnSpreadsheet,
-} from "../../../utils/google/sheets";
-import queryById from "../../../utils/postgres/queryById";
-import formatForSheets from "../../../utils/postgres/formatForSheets";
+} from "../../../../../utils/google/auth";
+import { createAndWriteSpreadsheet } from "../../../../../utils/google/sheets";
+import queryById from "../../../../../utils/postgres/queryById";
+import formatForSheets from "../../../../../utils/postgres/formatForSheets";
+import protectServerRoute from "../../../../../utils/auth/protectServerRoute";
 
-// POST /api/post
-// Required fields in body: title
-// Optional fields in body: content
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   // CHECK CREDS
   if (req.method === "POST") {
     try {
@@ -30,7 +21,7 @@ export default async function handle(
 
       supabase.auth.setAuth(token);
 
-      const { spreadsheet, queryId, range } = req.body;
+      const { title, queryId, range } = req.body;
 
       // Check if token exists
       const auth = await checkExistingToken(user.id);
@@ -41,7 +32,6 @@ export default async function handle(
         res.status(200).json({ link: link });
         return;
       } else {
-        // Get data
         const queryData = await queryById({
           queryId: queryId,
           userId: user.id,
@@ -53,11 +43,19 @@ export default async function handle(
           // Format data for google sheets
           const rowData = formatForSheets(queryData);
           // Export to Google sheet
-          const createdSheet = await writeOnSpreadsheet({
+          const createdSheet = await createAndWriteSpreadsheet({
             auth: auth,
-            spreadsheet: spreadsheet,
+            title: title,
             range: range,
             data: rowData,
+          });
+
+          // Add to DB
+          const { data, error } = await supabase.from("export").insert({
+            query_id: queryId,
+            spreadsheet: createdSheet,
+            user_id: user.id,
+            org_id: user.user_metadata.org_id,
           });
           res.status(200).json({ spreadsheetId: createdSheet });
           return;
@@ -70,12 +68,10 @@ export default async function handle(
 
       throw new Error(`Something went wrong.`);
     }
-  }
-
-  // GET ALL LINKS
-  else {
+  } else {
     throw new Error(
       `The HTTP ${req.method} method is not supported at this route.`
     );
   }
-}
+};
+export default protectServerRoute(handle);

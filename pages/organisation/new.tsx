@@ -124,6 +124,16 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     };
   }
 
+  // Admins only
+  if (user.user_metadata.role_id !== 1) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
   supabase.auth.setAuth(token);
 
   const { data: role, error } = await supabase

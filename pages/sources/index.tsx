@@ -3,12 +3,12 @@ import { Source } from "../../types/Sources";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import TableShell from "../../components/individual/table/shell";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
 import TableHeader from "../../components/individual/table/header";
-import axios from "axios";
+import protectSSR from "../../utils/auth/protectSSR";
 
 interface Props {
   sources: Source[];
@@ -126,11 +126,23 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
       },
     };
   }
-  supabase.auth.setAuth(token);
+
+  // Admins only
+  if (user.user_metadata.role_id !== 1) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
+  supabase.auth.setAuth(token || "");
+
   const { data, error } = await supabase
     .from("sources")
     .select("id, name, host, database, port, created_at, user_id, org_id")
-    .match({ org_id: user.user_metadata.org_id });
+    .match({ org_id: user?.user_metadata.org_id });
 
   return {
     props: { sources: data },

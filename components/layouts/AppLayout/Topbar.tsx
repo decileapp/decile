@@ -10,15 +10,14 @@ import {
   MenuIcon,
   ClockIcon,
 } from "@heroicons/react/outline";
-import { LogoutIcon, UserGroupIcon, UserIcon } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
-
 import { MoonIcon, SunIcon } from "@heroicons/react/solid";
 import { supabase } from "../../../utils/supabaseClient";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTheme } from "next-themes";
 import Switch from "../../individual/Switch";
+import { classNames } from "../../../utils/classnames";
 
 interface Item {
   name: string;
@@ -38,12 +37,7 @@ const Topbar: React.FC = ({ children }) => {
   let authLeft: Item[] = user
     ? [
         { name: "Home", href: "/", icon: HomeIcon, current: false },
-        {
-          name: "Sources",
-          href: "/sources",
-          icon: DatabaseIcon,
-          current: false,
-        },
+
         { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
 
         {
@@ -55,8 +49,13 @@ const Topbar: React.FC = ({ children }) => {
       ]
     : [];
 
-  function classNames(...classes: string[]) {
-    return classes.filter(Boolean).join(" ");
+  if (user?.user_metadata.role_id === 1) {
+    authLeft.push({
+      name: "Sources",
+      href: "/sources",
+      icon: DatabaseIcon,
+      current: false,
+    });
   }
 
   useEffect(() => {

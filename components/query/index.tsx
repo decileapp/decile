@@ -80,7 +80,7 @@ const QueryForm: React.FC<Props> = (props) => {
 
       if (!selectedDb) return;
 
-      const res = await axios.post("/api/postgres/get-tables", {
+      const res = await axios.post("/api/user/postgres/get-tables", {
         ...selectedDb,
       });
       if (res) {
@@ -106,7 +106,7 @@ const QueryForm: React.FC<Props> = (props) => {
       const selectedDb = props?.sources.find((s) => s.id === selectedSource);
 
       if (!selectedDb || !tables || !selectedTable) return;
-      const res = await axios.post("/api/postgres/get-columns", {
+      const res = await axios.post("/api/user/postgres/get-columns", {
         ...selectedDb,
         table: selectedTable,
       });
@@ -135,7 +135,7 @@ const QueryForm: React.FC<Props> = (props) => {
       const selectedDb = props?.sources.find((s) => s.id === selectedSource);
 
       if (!selectedDb) return;
-      const res = await axios.post("/api/postgres", {
+      const res = await axios.post("/api/user/postgres", {
         body: body,
         ...selectedDb,
         cancelToken: source.token,

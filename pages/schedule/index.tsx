@@ -42,11 +42,7 @@ const Schedule: React.FC<Props> = (props) => {
 
   return (
     <>
-      <Page
-        title="Schedule"
-        button="New"
-        onClick={() => router.push("/schedule/new")}
-      >
+      <Page title="Schedule">
         {schedule && schedule.length > 0 && (
           <div className="h-full">
             <TableShell>

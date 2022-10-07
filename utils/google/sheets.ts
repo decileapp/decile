@@ -1,7 +1,5 @@
-import { Credentials, OAuth2Client } from "google-auth-library";
+import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
-
-const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 
 // CREATE
 export async function createSpreadsheet({

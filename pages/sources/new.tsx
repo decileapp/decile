@@ -7,8 +7,18 @@ const NewSource: React.FC = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user } = await supabase.auth.api.getUserByCookie(req);
-  if (!user) {
+  const { user, token } = await supabase.auth.api.getUserByCookie(req);
+  if (!user || !token) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
+  // Admins only
+  if (user.user_metadata.role_id !== 1) {
     return {
       redirect: {
         destination: `/`,

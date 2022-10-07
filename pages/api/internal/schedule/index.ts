@@ -1,34 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Pool } from "pg";
-import { Source } from "../../../types/Sources";
-import { encrypt } from "../../../utils/encryption";
-import { checkExistingToken } from "../../../utils/google/auth";
-import {
-  createAndWriteSpreadsheet,
-  writeOnSpreadsheet,
-} from "../../../utils/google/sheets";
-import formatForSheets from "../../../utils/postgres/formatForSheets";
-import queryById from "../../../utils/postgres/queryById";
-import { getServiceSupabase, supabase } from "../../../utils/supabaseClient";
+import { checkExistingToken } from "../../../../utils/google/auth";
+import { writeOnSpreadsheet } from "../../../../utils/google/sheets";
+import formatForSheets from "../../../../utils/postgres/formatForSheets";
+import queryById from "../../../../utils/postgres/queryById";
+import { getServiceSupabase } from "../../../../utils/supabaseClient";
 import { DateTime } from "luxon";
+import protectServerRoute from "../../../../utils/auth/protectServerRoute";
 
-// POST /api/post
-// Required fields in body: title
-// Optional fields in body: content
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  // No token reject
-  if (!req.headers["authorization"]) {
-    res.status(401).json({ error: "Not authorised" });
-    return;
-  }
-
-  if (req.headers["authorization"] !== `Bearer ${process.env.BEARER_TOKEN}`) {
-    res.status(401).json({ error: "Not authorised" });
-    return;
-  } else if (req.method === "GET") {
+const handle = async (req: NextApiRequest, res: NextApiResponse) => {
+  if (req.method === "GET") {
     try {
       const currentTime = DateTime.utc();
       const currentHour = currentTime.hour;
@@ -100,4 +80,6 @@ export default async function handle(
       `The HTTP ${req.method} method is not supported at this route.`
     );
   }
-}
+};
+
+export default protectServerRoute(handle);

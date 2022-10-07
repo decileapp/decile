@@ -1,14 +1,8 @@
-// pages/pages/api/auth.ts
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServiceSupabase, supabase } from "../../../utils/supabaseClient";
+import protectServerRoute from "../../../../utils/auth/protectServerRoute";
+import { getServiceSupabase } from "../../../../utils/supabaseClient";
 
-// POST /api/post
-// Required fields in body: title
-// Optional fields in body: content
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     try {
       const { orgId, userId, roleId } = req.body;
@@ -38,4 +32,6 @@ export default async function handle(
       `The HTTP ${req.method} method is not supported at this route.`
     );
   }
-}
+};
+
+export default protectServerRoute(handle);

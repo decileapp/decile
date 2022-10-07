@@ -93,6 +93,16 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     };
   }
 
+  // Admins only
+  if (user.user_metadata.role_id !== 1) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
   return {
     props: {},
   };

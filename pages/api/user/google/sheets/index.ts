@@ -1,17 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { supabase } from "../../../utils/supabaseClient";
+import { supabase } from "../../../../../utils/supabaseClient";
 import {
   authoriseGoogle,
   checkExistingToken,
-} from "../../../utils/google/auth";
+} from "../../../../../utils/google/auth";
+import protectServerRoute from "../../../../../utils/auth/protectServerRoute";
 
-// POST /api/post
-// Required fields in body: title
-// Optional fields in body: content
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   // CHECK CREDS
   if (req.method === "GET") {
     try {
@@ -20,8 +15,6 @@ export default async function handle(
       if (!user || !token) {
         return res.status(401);
       }
-
-      supabase.auth.setAuth(token);
 
       // Check if token exists
       const auth = await checkExistingToken(user.id);
@@ -40,12 +33,10 @@ export default async function handle(
 
       throw new Error(`Something went wrong.`);
     }
-  }
-
-  // GET ALL LINKS
-  else {
+  } else {
     throw new Error(
       `The HTTP ${req.method} method is not supported at this route.`
     );
   }
-}
+};
+export default protectServerRoute(handle);

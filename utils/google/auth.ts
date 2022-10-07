@@ -10,7 +10,7 @@ export async function authoriseGoogle() {
   const oAuth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.NEXT_PUBLIC_ORIGIN}api/auth/google/callback`
+    `${process.env.NEXT_PUBLIC_ORIGIN}api/user/google/callback`
   );
 
   const authUrl = oAuth2Client.generateAuthUrl({
@@ -26,7 +26,7 @@ export async function getNewToken(code: string) {
   const oAuth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    `${process.env.NEXT_PUBLIC_ORIGIN}api/auth/google/callback`
+    `${process.env.NEXT_PUBLIC_ORIGIN}api/user/google/callback`
   );
   const token: Credentials = await new Promise((resolve, reject) => {
     oAuth2Client.getToken(code, (err: any, token: any) => {
@@ -51,7 +51,7 @@ export async function checkExistingToken(userId: string) {
     const oAuth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      `${process.env.NEXT_PUBLIC_ORIGIN}api/auth/google/callback`
+      `${process.env.NEXT_PUBLIC_ORIGIN}api/user/google/callback`
     );
 
     // if (data.refresh_token < new Date(Date.now()).getTime()) {

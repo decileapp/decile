@@ -1,17 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Pool } from "pg";
-import { Source } from "../../../../types/Sources";
 import { encrypt } from "../../../../utils/encryption";
 import { getServiceSupabase, supabase } from "../../../../utils/supabaseClient";
-import { authoriseGoogle, getNewToken } from "../../../../utils/google/auth";
+import { getNewToken } from "../../../../utils/google/auth";
+import protectServerRoute from "../../../../utils/auth/protectServerRoute";
 
-// POST /api/post
-// Required fields in body: title
-// Optional fields in body: content
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   // CREATE NEW SOURCE
   if (req.method === "GET") {
     try {
@@ -53,4 +46,6 @@ export default async function handle(
       `The HTTP ${req.method} method is not supported at this route.`
     );
   }
-}
+};
+
+export default protectServerRoute(handle);

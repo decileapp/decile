@@ -90,7 +90,7 @@ const SourceForm: React.FC<Props> = (props) => {
         org_id: user?.user_metadata.org_id,
       };
       if (validateLink(input)) {
-        const res = await axios.post("/api/sources", { ...input });
+        const res = await axios.post("/api/admin/sources", { ...input });
         const { data } = res;
         if (data) {
           router.push("/sources");
@@ -120,7 +120,7 @@ const SourceForm: React.FC<Props> = (props) => {
         org_id: user?.user_metadata.org_id,
       };
       if (validateLink(input)) {
-        const res = await axios.patch("/api/sources", { ...input });
+        const res = await axios.patch("/api/admin/sources", { ...input });
         const { data } = res;
 
         if (data) {

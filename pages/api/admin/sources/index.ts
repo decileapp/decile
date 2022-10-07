@@ -1,23 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Pool } from "pg";
-import { Source } from "../../../types/Sources";
-import { encrypt } from "../../../utils/encryption";
-import { getServiceSupabase, supabase } from "../../../utils/supabaseClient";
+import { Source } from "../../../../types/Sources";
+import { encrypt } from "../../../../utils/encryption";
+import protectServerRoute from "../../../../utils/auth/protectServerRoute";
+import { getServiceSupabase, supabase } from "../../../../utils/supabaseClient";
 
-// POST /api/post
-// Required fields in body: title
-// Optional fields in body: content
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   // GET SOURCES
   if (req.method === "GET") {
     try {
       const { user, token } = await supabase.auth.api.getUserByCookie(req);
-
       if (!user || !token) {
-        res.status(401);
+        res.status(401).json({ error: "Not authorised" });
         return;
       }
 
@@ -150,12 +144,11 @@ export default async function handle(
 
       throw new Error(`Something went wrong.`);
     }
-  }
-
-  // GET ALL LINKS
-  else {
+  } else {
     throw new Error(
       `The HTTP ${req.method} method is not supported at this route.`
     );
   }
-}
+};
+
+export default protectServerRoute(handle);

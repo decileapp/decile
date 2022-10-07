@@ -188,47 +188,73 @@ const ExportQuery: React.FC<Props> = (props) => {
 
   // Create a new sheet
   const createSheet = async () => {
-    setLoading(true);
-    if (!title) {
-      toast.error("Please enter a name for your spreadsheet.");
+    try {
+      setLoading(true);
+      if (!title) {
+        toast.error("Please enter a name for your spreadsheet.");
+      }
+      const res = await axios.post("/api/user/google/sheets/create-sheet", {
+        title: title,
+        queryId: id,
+        range: range,
+      });
+
+      // If not authenticated open new tab for auth
+      if (res.data.link) {
+        window.open(res.data.link);
+        setLoading(false);
+        return;
+      }
+
+      if (res.data.spreadsheetId) {
+        setUpdatedSheet(res.data.spreadsheetId);
+        toast.success("Spreadsheet created and updated.");
+      }
+      setLoading(false);
+      return;
+    } catch (e) {
+      toast.error("Something went wrong!");
+      setLoading(false);
+      return;
     }
-    const res = await axios.post("/api/google/create-sheet", {
-      title: title,
-      queryId: id,
-      range: range,
-    });
-    if (res.data) {
-      setUpdatedSheet(res.data.spreadsheetId);
-      toast.success("Spreadsheet created and updated.");
-    }
-    setLoading(false);
-    return;
   };
 
   // Update an existing sheet
   const updateSheet = async () => {
-    setLoading(true);
-    if (!spreadsheet) {
-      toast.error(
-        "Please enter the link of the spreadsheet you want to update."
-      );
-    } else {
-      const rawId = spreadsheet.split(
-        "https://docs.google.com/spreadsheets/d/"
-      );
-      const spreadsheetId = rawId[1].split("/")[0];
-      const res = await axios.post("/api/google/update-sheet", {
-        spreadsheet: spreadsheetId,
-        queryId: id,
-        range: range,
-      });
-      if (res.data) {
-        setUpdatedSheet(res.data.spreadsheetId);
-        toast.success("Spreadsheet updated.");
+    try {
+      setLoading(true);
+      if (!spreadsheet) {
+        toast.error(
+          "Please enter the link of the spreadsheet you want to update."
+        );
+      } else {
+        const rawId = spreadsheet.split(
+          "https://docs.google.com/spreadsheets/d/"
+        );
+        const spreadsheetId = rawId[1].split("/")[0];
+        const res = await axios.post("/api/user/google/sheets/update-sheet", {
+          spreadsheet: spreadsheetId,
+          queryId: id,
+          range: range,
+        });
+        // If not authenticated open new tab for auth
+        if (res.data.link) {
+          window.open(res.data.link);
+          setLoading(false);
+          return;
+        }
+        if (res.data.spreadsheetId) {
+          setUpdatedSheet(res.data.spreadsheetId);
+          toast.success("Spreadsheet updated.");
+        }
       }
+      setLoading(false);
+      return;
+    } catch (e) {
+      toast.error("Something went wrong!");
+      setLoading(false);
+      return;
     }
-    setLoading(false);
-    return;
   };
 
   return (
