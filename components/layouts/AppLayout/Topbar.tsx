@@ -34,7 +34,6 @@ const Topbar: React.FC = ({ children }) => {
   const user = supabase.auth.user();
   const session = supabase.auth.session();
   const { theme, setTheme } = useTheme();
-
   let authLeft: Item[] = user
     ? [
         { name: "Home", href: "/", icon: HomeIcon, current: false },

@@ -4,14 +4,22 @@ import axios from "axios";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
+import Button from "../individual/Button";
+import TextInput from "../individual/TextInput";
+import Select from "../individual/Select";
+import Switch from "../individual/Switch";
 import { toast, ToastContainer } from "react-toastify";
+import { decrypt, encrypt } from "../../utils/encryption";
 import { Column } from "../../types/Column";
 import _ from "lodash";
+import dateFormatter from "../../utils/dateFormatter";
+import { EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
 import Tables from "./tables";
 import Columnns from "./columns";
 import Results from "./results";
 import Editor from "./editor";
-import QueryTopbar from "./queryBuilder/QueryTopbar";
+import TextArea from "../individual/TextArea";
+import InputLabel from "../individual/common/InputLabel";
 
 interface Props {
   id?: string;
@@ -24,7 +32,7 @@ interface Props {
   sources?: Source[];
 }
 
-const QueryForm: React.FC<Props> = (props) => {
+const SmartEditor: React.FC<Props> = (props) => {
   const [loading, setLoading] = useState(false);
   const [queryLoading, setQueryLoading] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
@@ -46,6 +54,8 @@ const QueryForm: React.FC<Props> = (props) => {
   // Query
   const [name, setName] = useState<string | undefined>(props.name);
   const [body, setBody] = useState<string | undefined>(props.body);
+  const [prompt, setPrompt] = useState<string | undefined>();
+  const [showQuery, setShowQuery] = useState(false);
   const [publicQuery, setPublicQuery] = useState<boolean | undefined>(
     props.publicQuery || false
   );
@@ -194,6 +204,34 @@ const QueryForm: React.FC<Props> = (props) => {
     }
   }
 
+  const generatePrompt = (request: string) => {
+    return `### Postgres SQL table, with their properties:
+  #
+  # ${selectedTable}(${columns?.join(",")})
+  #
+  ### ${request}`;
+  };
+
+  async function getQuery() {
+    try {
+      if (!prompt) {
+        toast.error("No prompt entered.");
+        return;
+      }
+      const res = await axios.post("/api/ai", {
+        query: generatePrompt(prompt),
+      });
+      console.log(res.data);
+      if (res.data) {
+        setBody(res.data.sql);
+        setShowQuery(true);
+      }
+      return;
+    } catch (error: any) {
+      toast.error("Failed to generate query");
+    }
+  }
+
   // Autosave
   const debouncedSave = useCallback(
     _.debounce(async (data: Props) => {
@@ -254,18 +292,53 @@ const QueryForm: React.FC<Props> = (props) => {
         ) : (
           <div className="flex flex-col h-full px-2">
             {/* Top bar */}
-            <QueryTopbar
-              selectedSource={selectedSource}
-              setSelectedSource={setSelectedSource}
-              sources={props.sources}
-              name={name}
-              setName={setName}
-              publicQuery={publicQuery}
-              setPublicQuery={setPublicQuery}
-              savedAt={savedAt}
-              saving={saving}
-              error={error?.name}
-            />
+            {/* <div>
+              <div className="grid grid-cols-2 gap-4 border-b border-zinc-400 pb-4 w-full items-end justify-between">
+                <div className="flex flex-row justify-start items-start space-x-4">
+                  {props.sources && (
+                    <Select
+                      title="Database"
+                      value={selectedSource || ""}
+                      id="database"
+                      name="database"
+                      setSelected={setSelectedSource}
+                      options={props.sources.map((s) => {
+                        return { name: s.name, value: s.id };
+                      })}
+                    />
+                  )}
+                  <TextInput
+                    name="name"
+                    id="name"
+                    handleChange={setName}
+                    label="Supabase"
+                    value={name || ""}
+                    type="text"
+                    title="Name"
+                    error={error?.name}
+                  />
+                  <Switch
+                    setSelected={() => setPublicQuery(!publicQuery)}
+                    value={publicQuery}
+                    title={publicQuery ? "Public query" : "Private query"}
+                    trueIcon={<EyeIcon />}
+                    falseIcon={<EyeOffIcon />}
+                  />
+                </div>
+                <div className="flex flex-row justify-end items-end">
+                  {savedAt && !saving && (
+                    <p className="text-sm">{`Last saved: ${dateFormatter({
+                      dateVar: savedAt,
+                      type: "time",
+                    })}`}</p>
+                  )}
+                  {!savedAt && !saving && (
+                    <p className="text-sm text-red-500">Changes not saved</p>
+                  )}
+                  {saving && <p className="text-sm">Saving...</p>}
+                </div>
+              </div>
+            </div> */}
 
             <div className="grid grid-cols-10 h-full w-full gap-4 min-h-0 overflow-hidden">
               {/* Tables and columns */}
@@ -290,24 +363,42 @@ const QueryForm: React.FC<Props> = (props) => {
               </div>
 
               {/* EDITOR */}
-              <div className="col-span-4 flex flex-col h-full pt-2">
-                <Editor
-                  body={body}
-                  setBody={setBody}
-                  queryDb={queryDb}
-                  queryLoading={queryLoading}
-                  stopQuery={() => source.cancel()}
-                />
-              </div>
+              <div className="col-span-8 flex flex-1 flex-col h-full w-full  p-2 overflow-auto">
+                {/* AI prompt */}
+                {!showQuery && (
+                  <div className="flex flex-col w-full">
+                    <div className="flex flex-row justify-between items-start w-full">
+                      <InputLabel title="Plain text query" />
+                      {selectedTable && columns && columns.length > 0 && (
+                        <Button
+                          label="Run"
+                          onClick={() => getQuery()}
+                          type="secondary"
+                        />
+                      )}
+                    </div>
+                    <TextArea
+                      name="prompt"
+                      id="prompt"
+                      handleChange={setPrompt}
+                      value={prompt || ""}
+                      label="Write a query that shows emissions by country in 2020"
+                    />
+                  </div>
+                )}
 
-              {/* RESULTS */}
-              <div className="col-span-4 flex flex-col h-full w-full overflow-auto pt-2">
-                <Results
-                  data={data}
-                  fields={fields}
-                  queryLoading={queryLoading}
-                  queryId={props.id}
-                />
+                {/* Editor */}
+                {showQuery && <p>{body}</p>}
+
+                {/* </div> */}
+                <div className="flex flex-col h-full mt-6">
+                  <Results
+                    data={data}
+                    fields={fields}
+                    queryLoading={queryLoading}
+                    queryId={props.id}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -317,4 +408,4 @@ const QueryForm: React.FC<Props> = (props) => {
   );
 };
 
-export default QueryForm;
+export default SmartEditor;

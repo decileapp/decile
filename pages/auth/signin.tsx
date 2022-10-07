@@ -178,6 +178,7 @@ const Signin: NextPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { user, token } = await supabase.auth.api.getUserByCookie(req);
+
   if (user) {
     return {
       redirect: {

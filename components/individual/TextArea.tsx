@@ -17,7 +17,7 @@ const TextArea: React.FC<Props> = ({ ...props }) => {
   const { title, description, id, name, label, value, handleChange, disabled } =
     props;
   return (
-    <div>
+    <>
       {title && <InputLabel title={title} />}
       {description && <InputDescription description={description} />}
       <div className="mt-1">
@@ -31,7 +31,7 @@ const TextArea: React.FC<Props> = ({ ...props }) => {
           value={value}
         />
       </div>
-    </div>
+    </>
   );
 };
 

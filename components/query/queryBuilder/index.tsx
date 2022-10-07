@@ -1,17 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import Loading from "../individual/Loading";
+import Loading from "../../individual/Loading";
 import axios from "axios";
-import { supabase } from "../../utils/supabaseClient";
-import Page from "../layouts/Page";
-import { Source } from "../../types/Sources";
+import { supabase } from "../../../utils/supabaseClient";
+import Page from "../../layouts/Page";
+import { Source } from "../../../types/Sources";
 import { toast, ToastContainer } from "react-toastify";
-import { Column } from "../../types/Column";
+import { Column } from "../../../types/Column";
 import _ from "lodash";
-import Tables from "./tables";
-import Columnns from "./columns";
-import Results from "./results";
-import Editor from "./editor";
-import QueryTopbar from "./queryBuilder/QueryTopbar";
+import Tables from "../tables";
+import Results from "../results";
+import Editor from "../editor";
+import queryBuilder, {
+  FilterBy,
+  SortBy,
+  Table,
+  QueryVar,
+} from "../../../utils/query";
+import VariableSelector from "./QueryVariableSelector";
+import Filter from "../Filter";
+import QueryTopbar from "./QueryTopbar";
+import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
+import MiniSelect from "../../individual/MiniSelect";
+import QueryFilterSelector from "./QueryFilterSelector";
 
 interface Props {
   id?: string;
@@ -24,7 +34,7 @@ interface Props {
   sources?: Source[];
 }
 
-const QueryForm: React.FC<Props> = (props) => {
+const QueryBuilder: React.FC<Props> = (props) => {
   const [loading, setLoading] = useState(false);
   const [queryLoading, setQueryLoading] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
@@ -46,6 +56,8 @@ const QueryForm: React.FC<Props> = (props) => {
   // Query
   const [name, setName] = useState<string | undefined>(props.name);
   const [body, setBody] = useState<string | undefined>(props.body);
+  const [prompt, setPrompt] = useState<string | undefined>();
+  const [showQuery, setShowQuery] = useState(false);
   const [publicQuery, setPublicQuery] = useState<boolean | undefined>(
     props.publicQuery || false
   );
@@ -54,6 +66,14 @@ const QueryForm: React.FC<Props> = (props) => {
   const [fields, setFields] = useState<string[]>();
   const [data, setData] = useState<any | null>();
   const user = supabase.auth.user();
+
+  // Query building
+  const [queryTables, setQueryTables] = useState<Table>();
+  const [queryVars, setQueryVars] = useState<QueryVar[]>();
+  const [queryGroupBy, setQueryGroupBy] = useState<string[]>();
+  const [querySortBy, setQuerySortBy] = useState<SortBy[]>();
+  const [queryFilterBy, setQueryFilterBy] = useState<FilterBy[]>([]);
+  const [queryLimit, setQueryLimit] = useState<string>();
 
   const [savedAt, setSavedAt] = useState<Date | undefined>(props.updated_at);
 
@@ -119,6 +139,7 @@ const QueryForm: React.FC<Props> = (props) => {
   // Query
   const queryDb = async () => {
     setQueryLoading(true);
+
     if (!props.sources || !selectedSource) {
       setQueryLoading(false);
       toast.error("Please choose a database.");
@@ -235,6 +256,22 @@ const QueryForm: React.FC<Props> = (props) => {
     }
   }, [debouncedSave, name, selectedSource, body, publicQuery]);
 
+  // Update query
+  const updateQuery = () => {
+    if (!selectedTable) return;
+    if (!queryVars) return;
+    setQueryVars(queryVars);
+    setBody(
+      queryBuilder({
+        vars: queryVars,
+        limit: "50",
+        tables: [{ name: selectedTable, join: "inner" }],
+        filterBy: queryFilterBy,
+      })
+    );
+    return;
+  };
+
   return (
     <>
       <ToastContainer
@@ -252,25 +289,11 @@ const QueryForm: React.FC<Props> = (props) => {
         {loading ? (
           <Loading />
         ) : (
-          <div className="flex flex-col h-full px-2">
-            {/* Top bar */}
-            <QueryTopbar
-              selectedSource={selectedSource}
-              setSelectedSource={setSelectedSource}
-              sources={props.sources}
-              name={name}
-              setName={setName}
-              publicQuery={publicQuery}
-              setPublicQuery={setPublicQuery}
-              savedAt={savedAt}
-              saving={saving}
-              error={error?.name}
-            />
-
-            <div className="grid grid-cols-10 h-full w-full gap-4 min-h-0 overflow-hidden">
+          <div className="flex flex-col h-full ">
+            <div className="grid grid-cols-10 h-full w-full  min-h-0 overflow-hidden ">
               {/* Tables and columns */}
-              <div className="col-span-2 flex flex-col  border-r border-zinc-400 pt-2 h-full w-full overflow-auto">
-                <div className="flex flex-col w-full h-full  ">
+              <div className="col-span-2 flex flex-col  border-r pt-2  h-full w-full overflow-auto ">
+                <div className="flex flex-col w-full h-full  divide-y border-zinc-400 ">
                   <div className=" flex h-36 w-full overflow-auto">
                     <Tables
                       tables={tables}
@@ -280,34 +303,59 @@ const QueryForm: React.FC<Props> = (props) => {
                     />
                   </div>
 
-                  <div className="flex flex-col flex-1 h-full w-full p-2 overflow-auto">
-                    <Columnns
+                  <div className="flex flex-col flex-1 h=full w-full p-2 overflow-auto">
+                    <VariableSelector
                       columns={columns}
                       columnsLoading={columnsLoading}
+                      updateParent={updateQuery}
                     />
                   </div>
                 </div>
               </div>
 
               {/* EDITOR */}
-              <div className="col-span-4 flex flex-col h-full pt-2">
-                <Editor
-                  body={body}
-                  setBody={setBody}
-                  queryDb={queryDb}
-                  queryLoading={queryLoading}
-                  stopQuery={() => source.cancel()}
-                />
-              </div>
+              <div className="col-span-8 flex flex-1 flex-col h-full w-full  overflow-scroll   divide-y border-zinc-400">
+                {/* <QueryTopbar
+                  selectedSource={selectedSource}
+                  setSelectedSource={setSelectedSource}
+                  sources={props.sources}
+                  name={name}
+                  setName={setName}
+                  publicQuery={publicQuery}
+                  setPublicQuery={setPublicQuery}
+                  savedAt={savedAt}
+                  saving={saving}
+                  error={error?.name}
+                  run={true}
+                  runFunc={queryDb}
+                /> */}
+                {/* {!showQuery && (
+                    <div className="col-span-4 flex flex-col h-full p-2">
+                      <Editor
+                        body={body}
+                        setBody={setBody}
+                        queryLoading={queryLoading}
+                        stopQuery={() => source.cancel()}
+                      />
+                    </div>
+                  )} */}
+                {queryVars && (
+                  <QueryFilterSelector
+                    queryFilterBy={queryFilterBy}
+                    setQueryFilterBy={setQueryFilterBy}
+                    queryVars={queryVars}
+                    updateQuery={updateQuery}
+                  />
+                )}
 
-              {/* RESULTS */}
-              <div className="col-span-4 flex flex-col h-full w-full overflow-auto pt-2">
-                <Results
+                <p>{body}</p>
+
+                {/* <Results
                   data={data}
                   fields={fields}
                   queryLoading={queryLoading}
                   queryId={props.id}
-                />
+                /> */}
               </div>
             </div>
           </div>
@@ -317,4 +365,4 @@ const QueryForm: React.FC<Props> = (props) => {
   );
 };
 
-export default QueryForm;
+export default QueryBuilder;

@@ -15,20 +15,20 @@ export default async function handle(
   // CREATE NEW SOURCE
   if (req.method === "POST") {
     try {
-      // const { user, token } = await supabase.auth.api.getUserByCookie(req);
+      const { user, token } = await supabase.auth.api.getUserByCookie(req);
 
-      // if (!user || !token) {
-      //   res.status(401);
-      //   return;
-      // }
+      if (!user || !token) {
+        res.status(401);
+        return;
+      }
 
-      // supabase.auth.setAuth(token);
+      supabase.auth.setAuth(token);
 
       const { query } = req.body;
 
       // Get text and convert to sql
       const response = await getResponse(query);
-
+      console.log(response);
       if (response) {
         if (response.choices)
           res.status(200).json({ sql: response.choices[0].text });

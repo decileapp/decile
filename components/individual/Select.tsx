@@ -5,7 +5,7 @@ import { classNames } from "../../utils/classnames";
 import InputLabel from "./common/InputLabel";
 import InputDescription from "./common/InputDescription";
 
-type Option = {
+export type Option = {
   name: string;
   value: string;
 };

@@ -36,15 +36,18 @@ const Page: React.FC<Props> = (props) => {
       padding={padding}
     >
       <div className={"sm:items-center sm:flex"}>
-        <div
-          className={classNames(
-            align === "center" ? "items-center" : "",
-            "flex flex-col sm:flex-auto mb-4"
-          )}
-        >
-          {title && <PageHeading title={title} />}
-          {description && <PageDescription description={description} />}
-        </div>
+        {title ||
+          (description && (
+            <div
+              className={classNames(
+                align === "center" ? "items-center" : "",
+                "flex flex-col sm:flex-auto mb-4"
+              )}
+            >
+              {title && <PageHeading title={title} />}
+              {description && <PageDescription description={description} />}
+            </div>
+          ))}
         {button && onClick && (
           <Button label={button} onClick={() => onClick()} type="primary" />
         )}

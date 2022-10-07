@@ -24,7 +24,6 @@ export default async function handle(
       const tables = await pool.query(
         "SELECT table_name FROM information_schema.tables where table_schema = 'public'"
       );
-
       return res
         .status(200)
         .json({ tables: tables.rows.map((r) => r.table_name) });
