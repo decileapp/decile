@@ -173,9 +173,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     .select("id, name, database, body, publicQuery, updated_at, user_id");
   return {
     props: {
-      queries: queries?.filter(
-        (q) => q.publicQuery === true || q.user_id === user.id
-      ),
+      queries:
+        queries && queries.length > 0
+          ? queries.filter(
+              (q) => q.publicQuery === true || q.user_id === user.id
+            )
+          : [],
     },
   };
 };
