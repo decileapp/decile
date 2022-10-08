@@ -52,7 +52,7 @@ const Select: React.FC<Props> = ({ ...props }) => {
                   leaveFrom="opacity-100"
                   leaveTo="opacity-0"
                 >
-                  <Listbox.Options className="absolute z-10 mt-1 w-full shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm bg-white">
+                  <Listbox.Options className="absolute z-10 mt-1 w-full shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm bg-white dark:bg-zinc-800">
                     {options.map((option, id) => (
                       <Listbox.Option
                         key={id}
@@ -68,9 +68,13 @@ const Select: React.FC<Props> = ({ ...props }) => {
                           <>
                             <span
                               className={classNames(
-                                selected
-                                  ? "font-semibold text-primary-600 hover:text-white"
-                                  : "font-normal text-zinc-900 hover:text-white",
+                                selected && active
+                                  ? "font-semibold text-white"
+                                  : selected
+                                  ? "font-semibold text-primary-600 "
+                                  : active
+                                  ? "font-normal text-white "
+                                  : "font-normal",
                                 "block truncate "
                               )}
                             >

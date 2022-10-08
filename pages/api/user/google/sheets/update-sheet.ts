@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { supabase } from "../../../../../utils/supabaseClient";
+import {
+  getServiceSupabase,
+  supabase,
+} from "../../../../../utils/supabaseClient";
 import {
   authoriseGoogle,
   checkExistingToken,
@@ -23,7 +26,6 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
 
       const { spreadsheet, queryId, range } = req.body;
 
-      // Check if token exists
       const auth = await checkExistingToken(user.id);
 
       // If no auth redir
@@ -52,10 +54,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           });
           res.status(200).json({ spreadsheetId: createdSheet });
           return;
+        } else {
+          throw new Error("No query found");
         }
       }
-      res.status(200).json({});
-      return;
     } catch (e: any) {
       console.log(e);
 

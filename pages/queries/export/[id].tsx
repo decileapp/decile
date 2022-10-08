@@ -49,23 +49,30 @@ const ExportQuery: React.FC<Props> = (props) => {
   // Update schedule
   const setEveryHour = (e: string) => {
     if (e === "hour") {
-      setRunAtTime("0");
-      setRunAtDay("0");
-      setRunAtMonthDate("0");
+      setRunAtTime("-1");
+      setRunAtDay("-1");
+      setRunAtMonthDate("-1");
     }
 
     if (e === "day") {
       setRunAtTime("8");
-      setRunAtDay("0");
-      setRunAtMonthDate("0");
+      setRunAtDay("-1");
+      setRunAtMonthDate("-1");
     }
 
     if (e === "week") {
       setRunAtDay("2");
-      setRunAtMonthDate("0");
+      if (!runAtTime) {
+        setRunAtTime("8");
+      }
+      setRunAtMonthDate("-1");
     }
 
     if (e === "month") {
+      setRunAtDay("-1");
+      if (!runAtTime) {
+        setRunAtTime("8");
+      }
       setRunAtMonthDate("15");
     }
 

@@ -47,14 +47,13 @@ export async function checkExistingToken(userId: string) {
     .match({ user_id: userId })
     .single();
 
-  if (data) {
+  if (data && data.expiry_date > new Date(Date.now()).getTime()) {
     const oAuth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
       `${process.env.NEXT_PUBLIC_ORIGIN}api/user/google/callback`
     );
 
-    // if (data.refresh_token < new Date(Date.now()).getTime()) {
     oAuth2Client.setCredentials({
       access_token: decrypt(data.access_token),
       refresh_token: decrypt(data.refresh_token),
@@ -62,9 +61,7 @@ export async function checkExistingToken(userId: string) {
       token_type: "Bearer",
       scope: data.scope,
     });
-    // } else {
-    //   // Need refresh token
-    // }
+
     return oAuth2Client;
   } else {
     return null;

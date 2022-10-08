@@ -15,23 +15,29 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!code) {
         res.status(400).json({ error: "Something went wrong" });
         return;
-      } else {
-        const tokenData = await getNewToken(code as string);
-        const serviceSupabase = getServiceSupabase();
-        // Store data in DB
-        const { data, error } = await serviceSupabase
-          .from("integration_credentials")
-          .insert({
-            user_id: user?.id,
-            access_token: encrypt(tokenData.credentials.access_token || ""),
-            refresh_token: encrypt(tokenData.credentials.refresh_token || ""),
-            expiry_date: tokenData.credentials.expiry_date,
-            scope: tokenData.credentials.scope,
-            provider: "google",
-          });
-        res.redirect("/google").json({});
       }
 
+      const tokenData = await getNewToken(code as string);
+      const serviceSupabase = getServiceSupabase();
+
+      // Delete existing tokens
+      const { data: deleted } = await serviceSupabase
+        .from("integration_credentials")
+        .delete()
+        .match({ user_id: user?.id });
+
+      // Store data in DB
+      const { data, error } = await serviceSupabase
+        .from("integration_credentials")
+        .insert({
+          user_id: user?.id,
+          access_token: encrypt(tokenData.credentials.access_token || ""),
+          refresh_token: encrypt(tokenData.credentials.refresh_token || ""),
+          expiry_date: tokenData.credentials.expiry_date,
+          scope: tokenData.credentials.scope,
+          provider: "google",
+        });
+      res.redirect("/google").json({});
       return;
     } catch (e: any) {
       console.log(e);
