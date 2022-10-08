@@ -261,7 +261,7 @@ const QueryForm: React.FC<Props> = (props) => {
             {/* Top bar */}
             <div>
               <div className="grid grid-cols-2 gap-4 border-b border-zinc-400 pb-4 w-full items-end justify-between">
-                <div className="flex flex-row justify-start items-start space-x-4">
+                <div className="flex flex-row justify-start items-start space-x-4 px-2">
                   {props.sources && (
                     <Select
                       title="Database"
