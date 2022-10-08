@@ -18,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useTheme } from "next-themes";
 import Switch from "../../individual/Switch";
 import { classNames } from "../../../utils/classnames";
+import axios from "axios";
 
 interface Item {
   name: string;
@@ -57,6 +58,14 @@ const Topbar: React.FC = ({ children }) => {
       current: false,
     });
   }
+
+  // Signout
+  const signout = async () => {
+    const res = await axios.get("/api/auth/signout");
+    await supabase.auth.signOut();
+    location.reload();
+    return;
+  };
 
   useEffect(() => {
     setCurrentLoc(router.pathname);
@@ -130,10 +139,7 @@ const Topbar: React.FC = ({ children }) => {
                         )}
                         <a
                           className="hover:text-secondary-600 hover:bg-opacity-75 ml-4 text-base"
-                          onClick={() => {
-                            supabase.auth.signOut();
-                            location.reload();
-                          }}
+                          onClick={() => signout()}
                           href="#"
                         >
                           Logout
@@ -205,10 +211,7 @@ const Topbar: React.FC = ({ children }) => {
                         <a
                           className="border-transparent 
                           block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                          onClick={() => {
-                            supabase.auth.signOut();
-                            location.reload();
-                          }}
+                          onClick={() => signout()}
                           href="#"
                         >
                           Logout
