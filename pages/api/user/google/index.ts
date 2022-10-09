@@ -1,42 +1,36 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { encrypt } from "../../../../utils/encryption";
 import { getServiceSupabase, supabase } from "../../../../utils/supabaseClient";
-import { getNewToken } from "../../../../utils/google/auth";
+import { authoriseGoogle, getNewToken } from "../../../../utils/google/auth";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     try {
       const { user, token } = await supabase.auth.api.getUserByCookie(req);
-
-      const { code } = req.query;
-
-      if (!code) {
-        res.status(400).json({ error: "Something went wrong" });
+      if (!user) {
+        res.status(401).json({});
         return;
       }
 
-      const tokenData = await getNewToken(code as string);
+      // Check if creds are valid
       const serviceSupabase = getServiceSupabase();
-
-      // Delete existing tokens
-      const { data: deleted } = await serviceSupabase
-        .from("integration_credentials")
-        .delete()
-        .match({ user_id: user?.id });
-
-      // Store data in DB
       const { data, error } = await serviceSupabase
         .from("integration_credentials")
-        .insert({
+        .select("id")
+        .match({
           user_id: user?.id,
-          access_token: encrypt(tokenData.credentials.access_token || ""),
-          refresh_token: encrypt(tokenData.credentials.refresh_token || ""),
-          expiry_date: tokenData.credentials.expiry_date,
-          scope: tokenData.credentials.scope,
           provider: "google",
-        });
-      res.redirect("/google").json({});
+        })
+        .single();
+
+      if (data) {
+        res.status(200).json({});
+        return;
+      }
+
+      const auth = await authoriseGoogle();
+      res.status(200).json({ link: auth });
       return;
     } catch (e: any) {
       console.log(e);

@@ -13,15 +13,19 @@ interface Props {
     | "text-primary"
     | "text-secondary";
   id?: string;
+  disabled?: boolean;
 }
 
 const Button: React.FC<Props> = (props) => {
-  const { label, onClick, type, id } = props;
+  const { label, onClick, type, id, disabled } = props;
   const router = useRouter();
 
   const format = () => {
-    const common =
-      "inline-flex items-center justify-center rounded-md  px-4 py-2 font-medium  shadow-sm   sm:w-auto";
+    const common = classNames(
+      disabled ? "opacity-50" : "",
+      "inline-flex items-center justify-center rounded-md  px-4 py-2 font-medium  shadow-sm   sm:w-auto"
+    );
+
     let result: string;
     switch (type) {
       case "primary":
@@ -79,6 +83,7 @@ const Button: React.FC<Props> = (props) => {
       type="button"
       className={format()}
       onClick={() => onClick()}
+      disabled={disabled}
     >
       {label}
     </button>

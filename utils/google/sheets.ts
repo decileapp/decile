@@ -11,12 +11,6 @@ export async function createSpreadsheet({
 }) {
   const service = google.sheets({ version: "v4", auth });
   try {
-    const resource = {
-      properties: {
-        title,
-      },
-    };
-
     const spreadsheet = await service.spreadsheets.create({
       requestBody: {
         properties: {
@@ -25,6 +19,7 @@ export async function createSpreadsheet({
       },
       fields: "spreadsheetId",
     });
+
     return spreadsheet.data.spreadsheetId;
   } catch (err) {
     throw err;
@@ -45,6 +40,21 @@ export async function writeOnSpreadsheet({
 }) {
   const service = google.sheets({ version: "v4", auth });
   try {
+    // Check if sheet exists
+    try {
+      const read = await readSpreadsheet({
+        auth: auth,
+        spreadsheet: spreadsheet,
+        range: range,
+      });
+    } catch (e) {
+      const added = await createTab({
+        auth: auth,
+        spreadsheet: spreadsheet,
+        tabName: range,
+      });
+    }
+
     const updated = await service.spreadsheets.values.update({
       spreadsheetId: spreadsheet,
       range: range,
@@ -101,6 +111,45 @@ export async function readSpreadsheet({
     const r = await sheets.spreadsheets.values.get({
       spreadsheetId: spreadsheet,
       range: range,
+    });
+
+    if (r.data.values) {
+      return r.data.values;
+    } else {
+      return;
+    }
+  } catch (e) {
+    throw e;
+  }
+}
+
+export async function createTab({
+  auth,
+  spreadsheet,
+  tabName,
+}: {
+  auth: OAuth2Client;
+  spreadsheet: string;
+  tabName: string;
+}) {
+  try {
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const request = [
+      {
+        addSheet: {
+          properties: {
+            title: tabName,
+          },
+        },
+      },
+    ];
+
+    const r = await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: spreadsheet,
+      requestBody: {
+        requests: request,
+      },
     });
 
     return r;

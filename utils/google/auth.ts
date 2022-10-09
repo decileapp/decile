@@ -1,6 +1,6 @@
 import { Credentials, OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
-import { decrypt } from "../encryption";
+import { decrypt, encrypt } from "../encryption";
 import { getServiceSupabase } from "../supabaseClient";
 
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
@@ -47,21 +47,20 @@ export async function checkExistingToken(userId: string) {
     .match({ user_id: userId })
     .single();
 
-  if (data && data.expiry_date > new Date(Date.now()).getTime()) {
-    const oAuth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      `${process.env.NEXT_PUBLIC_ORIGIN}api/user/google/callback`
-    );
+  const oAuth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    `${process.env.NEXT_PUBLIC_ORIGIN}api/user/google/callback`
+  );
 
+  // Refresh token expires when its a test app
+  if (data) {
     oAuth2Client.setCredentials({
-      access_token: decrypt(data.access_token),
       refresh_token: decrypt(data.refresh_token),
       expiry_date: data.expiry_date,
       token_type: "Bearer",
       scope: data.scope,
     });
-
     return oAuth2Client;
   } else {
     return null;

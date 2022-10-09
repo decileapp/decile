@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { supabase } from "../../../utils/supabaseClient";
+import { getServiceSupabase, supabase } from "../../../utils/supabaseClient";
 import Page from "../../../components/layouts/Page";
 import { GetServerSideProps } from "next";
 import axios from "axios";
@@ -11,13 +11,7 @@ import { toast } from "react-toastify";
 import MiniLoading from "../../../components/individual/MiniLoading";
 import { Export } from "../../../types/Export";
 import dateFormatter from "../../../utils/dateFormatter";
-import Select from "../../../components/individual/Select";
-import { hours, daysOfWeek, daysOfMonth } from "../../../utils/schedule";
-import { Schedule } from "../../../types/Schedule";
-import Timezone from "../../../components/individual/timezone";
-import moment, { utc } from "moment-timezone";
-import InputLabel from "../../../components/individual/common/InputLabel";
-import { DateTime } from "luxon";
+import ScheduleForm from "../../../components/schedule";
 
 interface Props {
   exports: Export[];
@@ -33,165 +27,12 @@ const ExportQuery: React.FC<Props> = (props) => {
   const [type, setType] = useState<string>("create");
   const [spreadsheet, setSpreadsheet] = useState<string | undefined>();
   const [title, setTitle] = useState<string | undefined>();
-  const [range, setRange] = useState<string | undefined>("Sheet1");
   const [updatedSheet, setUpdatedSheet] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
 
   // For schedule
-  const [periodicity, setPeriodicity] = useState<string | undefined>();
-  const [runAtTime, setRunAtTime] = useState<string | undefined>();
-  const [runAtDay, setRunAtDay] = useState<string | undefined>();
-  const [runAtMonthDate, setRunAtMonthDate] = useState<string | undefined>();
   const [schedule, setSchedule] = useState(false);
-  const [exportId, setExportId] = useState<number>();
-  const [timezone, setTimezone] = useState<string>(moment.tz.guess());
-
-  // Update schedule
-  const setEveryHour = (e: string) => {
-    if (e === "hour") {
-      setRunAtTime("-1");
-      setRunAtDay("-1");
-      setRunAtMonthDate("-1");
-    }
-
-    if (e === "day") {
-      setRunAtTime("8");
-      setRunAtDay("-1");
-      setRunAtMonthDate("-1");
-    }
-
-    if (e === "week") {
-      setRunAtDay("2");
-      if (!runAtTime) {
-        setRunAtTime("8");
-      }
-      setRunAtMonthDate("-1");
-    }
-
-    if (e === "month") {
-      setRunAtDay("-1");
-      if (!runAtTime) {
-        setRunAtTime("8");
-      }
-      setRunAtMonthDate("15");
-    }
-
-    setPeriodicity(e);
-    return;
-  };
-
-  // Returns an updated date with chosen inputs
-  const createDate = ({
-    time,
-    day,
-    dateOfMonth,
-    frequency,
-  }: {
-    time: string | undefined;
-    day: string | undefined;
-    dateOfMonth?: string | undefined;
-    frequency: string;
-  }) => {
-    let updated = DateTime.now().setZone(timezone);
-    // Set time
-    if (time) {
-      updated = updated.set({ hour: parseInt(time, 10) });
-    }
-
-    if (day && frequency === "week") {
-      // Find next week day that is the same day
-      const currentDay = updated.weekday;
-      const diff = parseInt(day, 10) - currentDay;
-      updated = updated.plus({ days: diff });
-    }
-
-    if (dateOfMonth && frequency === "month") {
-      updated = updated.set({ day: parseInt(dateOfMonth, 10) });
-    }
-
-    // Return utc time
-    const utcTime = updated.setZone("UTC");
-    return { utc: utcTime, user: updated };
-  };
-
-  const scheduleJob = async () => {
-    if (!exportId || !user || !periodicity) {
-      toast.error("Something went wrong!");
-      return;
-    }
-
-    // Get date in users's chosen timzone
-    const { utc: utcDate, user: userTimestamp } = createDate({
-      time: runAtTime,
-      dateOfMonth: runAtMonthDate,
-      day: runAtDay,
-      frequency: periodicity,
-    });
-
-    // Format data object
-    let input: Schedule = {
-      export_id: exportId,
-      name: `Scheduled run for ${
-        exports.find((e) => e.id === exportId)?.spreadsheet
-      }`,
-      user_id: user?.id,
-      org_id: user?.user_metadata.org_id,
-      periodicity: periodicity,
-      run_at_time: -1,
-      run_at_day: -1,
-      run_at_month_date: -1,
-      timestamp_utc: utcDate.toString(),
-      timestamp_user_zone: userTimestamp.toString(),
-      timezone: timezone,
-    };
-
-    // Handle timezone
-    const handleTime = () => {
-      if (!utcDate.day) {
-        toast.error("Please choose a time.");
-        return;
-      }
-
-      input.run_at_time = utcDate.hour;
-      return;
-    };
-
-    // Every day
-    if (periodicity === "day") {
-      handleTime();
-    }
-
-    // Every week
-    if (periodicity === "week") {
-      handleTime();
-      if (!runAtDay) {
-        toast.error("Please choose a day.");
-        return;
-      }
-      input.run_at_day = utcDate.weekday;
-    }
-
-    // Every month
-    if (periodicity === "month") {
-      handleTime();
-
-      if (!runAtMonthDate) {
-        toast.error("Please choose a date.");
-        return;
-      }
-      handleTime();
-      input.run_at_month_date = utcDate.day;
-    }
-    const { data, error } = await supabase.from("schedule").insert(input);
-    if (data) {
-      toast.success("Successfully scheduled.");
-    }
-
-    return;
-  };
-
-  // Time options (TODO: update to allow 30 mins for certain time zones)
-  let timeOptions = hours.slice(1, hours.length);
+  const [chosenExport, setchosenExport] = useState<Export>();
 
   // Create a new sheet
   const createSheet = async () => {
@@ -199,11 +40,12 @@ const ExportQuery: React.FC<Props> = (props) => {
       setLoading(true);
       if (!title) {
         toast.error("Please enter a name for your spreadsheet.");
+        return;
       }
       const res = await axios.post("/api/user/google/sheets/create-sheet", {
         title: title,
         queryId: id,
-        range: range,
+        range: "From_Subtable",
       });
 
       // If not authenticated open new tab for auth
@@ -226,6 +68,16 @@ const ExportQuery: React.FC<Props> = (props) => {
     }
   };
 
+  const getSpreadsheetId = () => {
+    if (!spreadsheet) return;
+    if (spreadsheet.search("https://docs.google.com/spreadsheets/d/") < 0) {
+      return;
+    }
+    const rawId = spreadsheet.split("https://docs.google.com/spreadsheets/d/");
+    const spreadsheetId = rawId[1].split("/")[0];
+    return spreadsheetId;
+  };
+
   // Update an existing sheet
   const updateSheet = async () => {
     try {
@@ -234,15 +86,13 @@ const ExportQuery: React.FC<Props> = (props) => {
         toast.error(
           "Please enter the link of the spreadsheet you want to update."
         );
+        return;
       } else {
-        const rawId = spreadsheet.split(
-          "https://docs.google.com/spreadsheets/d/"
-        );
-        const spreadsheetId = rawId[1].split("/")[0];
+        const spreadsheetId = getSpreadsheetId();
         const res = await axios.post("/api/user/google/sheets/update-sheet", {
           spreadsheet: spreadsheetId,
           queryId: id,
-          range: range,
+          range: "From_Subtable",
         });
         // If not authenticated open new tab for auth
         if (res.data.link) {
@@ -303,10 +153,15 @@ const ExportQuery: React.FC<Props> = (props) => {
                   label="e.g. https://docs.google.com/spreadsheets/d/1bkFo..."
                   title="Spreadsheet ID"
                   type="text"
+
                   // description="We'll export your data to Sheet1"
                 />
               )}
-
+              <p className="text-sm text-zinc-700">
+                {type === "create"
+                  ? "We'll export your data to a tab called From_Subtable."
+                  : "We'll export your data to a tab called From_Subtable. All existing data in the tab will be replaced."}
+              </p>
               {/* <TextInput
             name="sheetRange"
             id="sheetRange"
@@ -328,6 +183,12 @@ const ExportQuery: React.FC<Props> = (props) => {
                       type === "create" ? createSheet() : updateSheet()
                     }
                     type={"secondary"}
+                    disabled={
+                      (type === "create" && title) ||
+                      (type === "existing" && spreadsheet)
+                        ? false
+                        : true
+                    }
                   />
                 )}
               </div>
@@ -357,7 +218,7 @@ const ExportQuery: React.FC<Props> = (props) => {
                       href="#"
                       onClick={() => {
                         setSchedule(true);
-                        setExportId(e.id);
+                        setchosenExport(e);
                       }}
                     >
                       Schedule
@@ -369,77 +230,7 @@ const ExportQuery: React.FC<Props> = (props) => {
           )}
 
           {/* Only show for scheduling */}
-          {schedule && (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <p className="text-xl">Schedule</p>{" "}
-                <p className="text-sm">
-                  Set up a schedule and we'll automatically export data to your
-                  sheet.
-                </p>
-              </div>
-              <Select
-                name="periodicity"
-                id="periodicity"
-                options={[
-                  { name: "Every hour", value: "hour" },
-                  { name: "Every day", value: "day" },
-                  { name: "Every week", value: "week" },
-                  { name: "Every month", value: "month" },
-                ]}
-                setSelected={setEveryHour}
-                title="How often?"
-                value={periodicity || ""}
-              />
-              {periodicity === "week" && periodicity && (
-                <Select
-                  name="runAtDay"
-                  id="runAtDay"
-                  options={daysOfWeek.slice(1, hours.length)}
-                  setSelected={setRunAtDay}
-                  title="Which day of the week?"
-                  value={runAtDay || ""}
-                />
-              )}
-              {periodicity === "month" && periodicity && (
-                <Select
-                  name="runAtMonthDate"
-                  id="runAtMonthDate"
-                  options={daysOfMonth.slice(1, hours.length)}
-                  setSelected={setRunAtMonthDate}
-                  title="Which day of the month?"
-                  value={runAtMonthDate || ""}
-                />
-              )}
-              {periodicity && periodicity !== "hour" && (
-                <div className="flex flex-col space-y-2">
-                  <InputLabel title="What time?" />
-                  <Timezone updateZone={setTimezone} />
-                  <Select
-                    name="runAtTime"
-                    id="runAtTime"
-                    options={timeOptions}
-                    setSelected={setRunAtTime}
-                    value={runAtTime || ""}
-                  />
-                </div>
-              )}
-
-              {periodicity && (
-                <div className="flex flex-row justify-end ">
-                  {loading ? (
-                    <MiniLoading />
-                  ) : (
-                    <Button
-                      label="Schedule"
-                      onClick={() => scheduleJob()}
-                      type={"secondary"}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+          {schedule && <ScheduleForm selectedExport={chosenExport} />}
         </FormLayout>
       </Page>
     </>
@@ -466,6 +257,24 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       user_id: user.id,
       query_id: ctx.query.id,
     });
+
+  // Setup up supabase using my service key
+  const serviceSupabase = getServiceSupabase();
+  const { data } = await serviceSupabase
+    .from("integration_credentials")
+    .select("id")
+    .match({ user_id: user.id, provider: "google" })
+    .single();
+
+  // No data set to Google setup
+  if (!data) {
+    return {
+      redirect: {
+        destination: `/google`,
+        permanent: false,
+      },
+    };
+  }
 
   return {
     props: { exports: exports },
