@@ -141,7 +141,6 @@ const ExportQuery: React.FC<Props> = (props) => {
                   label="New users"
                   title="Name your spreadsheet"
                   type="text"
-                  // description="We'll export your data to Sheet1"
                 />
               )}
               {type === "existing" && (
@@ -153,8 +152,6 @@ const ExportQuery: React.FC<Props> = (props) => {
                   label="e.g. https://docs.google.com/spreadsheets/d/1bkFo..."
                   title="Spreadsheet ID"
                   type="text"
-
-                  // description="We'll export your data to Sheet1"
                 />
               )}
               <p className="text-sm text-zinc-700">
@@ -162,16 +159,6 @@ const ExportQuery: React.FC<Props> = (props) => {
                   ? "We'll export your data to a tab called From_Subtable."
                   : "We'll export your data to a tab called From_Subtable. All existing data in the tab will be replaced."}
               </p>
-              {/* <TextInput
-            name="sheetRange"
-            id="sheetRange"
-            value={range || "From_subtable!A1"}
-            handleChange={setRange}
-            label="Sheet1!A1"
-            title="Range"
-            description="Where you want the data exported (e.g. Sheet1!A1)"
-            type="text"
-          /> */}
 
               <div className="flex flex-row justify-end ">
                 {loading ? (
