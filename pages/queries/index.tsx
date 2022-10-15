@@ -102,52 +102,44 @@ const Queries: React.FC<Props> = (props) => {
                   className="grid grid-cols-10 gap-2 border p-2 rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800"
                 >
                   <a
-                    className="col-span-2"
+                    className="col-span-2 text-sm"
                     onClick={() => toQuery(row)}
                     href="#"
                   >
                     {row.name}
                   </a>
                   <a
-                    className="col-span-3 truncate"
+                    className="col-span-3 truncate text-sm"
                     onClick={() => toQuery(row)}
                     href="#"
                   >
                     {row.body}
                   </a>
                   <a
-                    className="col-span-1"
+                    className="col-span-1 text-sm"
                     onClick={() => toQuery(row)}
                     href="#"
                   >
                     {row.publicQuery ? "Yes" : "No"}
                   </a>
-                  <p className="col-span-2">
+                  <p className="col-span-2 text-sm">
                     {dateFormatter({
                       dateVar: row.updated_at,
                       type: "time",
                     })}
                   </p>
-                  <p className="">
-                    <a
-                      href="#"
-                      className="col-span-1 text-primary-600 hover:text-primary-900 justify-end flex"
-                      onClick={() => toQuery(row)}
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                      <span className="sr-only">, {row.name}</span>
+                  <div className="col-span-1 justify-end flex">
+                    <a href="#" onClick={() => toQuery(row)}>
+                      <PencilIcon className="h-5 w-5 text-zinc-600 hover:text-primary-600 dark:hover:text-primary-400 " />
                     </a>
-                  </p>
-                  <p className="col-span-1">
-                    <a
-                      href="#"
-                      className="col-span-1 text-red-600 hover:text-red-900 justify-end flex"
-                      onClick={() => setDeletedId(row.id)}
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                      <span className="sr-only">, {row.name}</span>
+                    <span className="sr-only">, {row.name}</span>
+                  </div>
+                  <div className="col-span-1 justify-end flex">
+                    <a href="#" onClick={() => setDeletedId(row.id)}>
+                      <TrashIcon className="h-5 w-5 text-zinc-600 hover:text-red-600 dark:hover:text-red-400  " />
                     </a>
-                  </p>
+                    <span className="sr-only">, {row.name}</span>
+                  </div>
                 </div>
               );
             })}

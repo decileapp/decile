@@ -48,14 +48,14 @@ const Sources: React.FC<Props> = (props) => {
             return (
               <div
                 key={id}
-                className="flex flex-col h-full space-y-2 border border-zinc-400 rounded-lg bg-white dark:bg-zinc-700 p-2"
+                className="flex flex-col h-full space-y-2 border border-zinc-400 rounded-lg bg-white dark:bg-zinc-800 p-2"
               >
                 <div className="grid grid-cols-2 ">
                   <p className="text-lg font-bold">{row.name}</p>
                   <div className="flex flex-row justify-end space-x-2">
                     <a
                       href="#"
-                      className="text-primary-600 hover:text-primary-900 dark:text-primary-500 dark:hover:text-primary-400"
+                      className="text-zinc-600 hover:text-primary-600 dark:text-zinc-400 dark:hover:text-primary-400"
                       onClick={() =>
                         router.push({
                           pathname: "/sources/edit",
@@ -71,7 +71,7 @@ const Sources: React.FC<Props> = (props) => {
 
                     <a
                       href="#"
-                      className="text-red-600 hover:text-red-900 dark:text-red-500 dark:hover:text-red-400"
+                      className="text-zinc-600 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
                       onClick={() => setDeletedId(row.id.toString())}
                     >
                       <TrashIcon className="h-5 w-5" />
