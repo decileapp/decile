@@ -73,7 +73,7 @@ const Topbar: React.FC = ({ children }) => {
 
   return (
     <>
-      <div className="flex flex-col  w-full grow pt-1">
+      <div className="flex flex-col  w-full grow ">
         <ToastContainer
           position="top-right"
           autoClose={3000}
@@ -89,12 +89,12 @@ const Topbar: React.FC = ({ children }) => {
         <Disclosure as="nav">
           {({ open }) => (
             <>
-              <div className="mx-auto px-4 sm:px-6 border-b border-zinc-200">
+              <div className="mx-auto px-4 border-b border-zinc-200 bg-white dark:bg-zinc-800">
                 <div className="flex justify-between h-16">
                   <div className="flex">
                     <div className="flex-shrink-0 flex items-center">
                       <a className="text-lg font-bold" href="/">
-                        Subtable
+                        Decile
                       </a>
                     </div>
 
@@ -106,7 +106,7 @@ const Topbar: React.FC = ({ children }) => {
                           className={classNames(
                             currentLoc === item.href
                               ? " text-primary-500"
-                              : "hover:text-primary-300 hover:bg-opacity-75",
+                              : "hover:text-primary-600 hover:bg-opacity-75",
                             "group flex items-center px-2 py-2 text-base rounded-md"
                           )}
                           aria-current={item.current ? "page" : undefined}
@@ -128,17 +128,17 @@ const Topbar: React.FC = ({ children }) => {
                           falseIcon={<SunIcon />}
                         />
 
-                        {session && (
+                        {user.user_metadata.role_id === 1 && (
                           <a
                             className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
                             href="/organisation"
                           >
-                            {session?.user?.user_metadata.org_name}
+                            {user?.user_metadata.org_name}
                           </a>
                         )}
                         <a
-                          className="hover:text-secondary-600 hover:bg-opacity-75 ml-4 text-base"
+                          className="hover:text-primary-600 hover:bg-opacity-75 ml-4 text-base"
                           onClick={() => signout()}
                           href="#"
                         >
@@ -148,7 +148,7 @@ const Topbar: React.FC = ({ children }) => {
                     )}
                     {!user && (
                       <a
-                        className="hover:text-secondary-600 hover:bg-opacity-75 ml-4 text-base"
+                        className="hover:text-primary-600 hover:bg-opacity-75 ml-4 text-base"
                         onClick={() => {
                           router.push("/auth/signin");
                         }}
@@ -198,13 +198,13 @@ const Topbar: React.FC = ({ children }) => {
                   ))}
                   {user && (
                     <>
-                      {session && (
+                      {user?.user_metadata.role_id === 1 && (
                         <a
                           className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
                           href="/organisation"
                         >
-                          {session?.user?.user_metadata.org_name}
+                          {user?.user_metadata.org_name}
                         </a>
                       )}
                       {user && (

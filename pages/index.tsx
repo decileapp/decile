@@ -47,9 +47,9 @@ const Home: React.FC<Props> = (props) => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col justify-start items-center h-full w-full space-y-12 ">
-          <p className="text-2xl">Welcome!</p>
-          <div className="flex flex-col justify-center align-center space-y-1">
+        <div className="flex flex-col justify-start items-center h-full w-full space-y-12 p-4 mt-4">
+          <p className="text-2xl font-semibold">Welcome!</p>
+          <div className="flex flex-col justify-center align-center space-y-2">
             <p className="text-center text-lg">Get started in under 2 mins:</p>
             <p className="text-center">Set up a data source</p>
             <p className="text-center">Write your first query</p>
@@ -57,34 +57,40 @@ const Home: React.FC<Props> = (props) => {
           </div>
           <div className="grid grid-cols-3 gap-12">
             <a
-              className="grid-cols-1 px-12 py-8 bg-zinc-200 dark:bg-zinc-800 rounded-lg space-y-4"
+              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-lg space-y-4"
               href="/sources"
             >
-              <p className="text-primary-500 text-center text-xl">Sources</p>
+              <p className="text-primary-500 text-center text-xl font-semibold">
+                Sources
+              </p>
               <p className="text-center text-lg">
                 {sources && sources.length > 0 ? sources.length : "No sources"}
               </p>
             </a>
 
             <a
-              className="grid-cols-1 px-12 py-8 bg-zinc-200 dark:bg-zinc-800 rounded-lg space-y-4"
+              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-lg space-y-4 "
               href="/queries"
             >
-              <p className="text-primary-500 text-center text-xl">Queries</p>
+              <p className="text-primary-500 text-center text-xl font-semibold">
+                Queries
+              </p>
               <p className="text-center text-lg">
                 {queries && queries.length > 0 ? queries.length : "No queries"}
               </p>
             </a>
 
             <a
-              className="grid-cols-1 px-12 py-8 bg-zinc-200 dark:bg-zinc-800 rounded-lg space-y-4"
+              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-lg space-y-4"
               href="/schedule"
             >
-              <p className="text-primary-500 text-center text-xl">Schedules</p>
+              <p className="text-primary-500 text-center text-xl font-semibold">
+                Schedules
+              </p>
               <p className="text-center text-lg">
                 {schedule && schedule.length > 0
                   ? schedule.length
-                  : "No schedule"}
+                  : "No schedules"}
               </p>
             </a>
           </div>

@@ -5,7 +5,7 @@ import Page from "../../components/layouts/Page";
 import TableShell from "../../components/individual/table/shell";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
-import { TrashIcon } from "@heroicons/react/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
 import TableHeader from "../../components/individual/table/header";
 import protectSSR from "../../utils/auth/protectSSR";
@@ -43,30 +43,19 @@ const Sources: React.FC<Props> = (props) => {
       onClick={() => router.push("sources/new")}
     >
       {sources && sources.length > 0 && (
-        <TableShell>
-          <TableHeader labels={["Name", "Host", "Database", "Port", "", ""]} />
-
-          <tbody className="divide-y divide-gray-200 ">
-            {sources.map((row, id: number) => {
-              return (
-                <tr key={id}>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
-                    {row.name}
-                  </td>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
-                    {row.host}
-                  </td>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
-                    {row.database}
-                  </td>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
-                    {row.port}
-                  </td>
-
-                  <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+        <div className="grid grid-cols-4">
+          {sources.map((row, id: number) => {
+            return (
+              <div
+                key={id}
+                className="flex flex-col h-full space-y-2 border border-zinc-400 rounded-lg bg-white dark:bg-zinc-700 p-2"
+              >
+                <div className="grid grid-cols-2 ">
+                  <p className="text-lg font-bold">{row.name}</p>
+                  <div className="flex flex-row justify-end space-x-2">
                     <a
                       href="#"
-                      className="text-primary-600 hover:text-primary-900"
+                      className="text-primary-600 hover:text-primary-900 dark:text-primary-500 dark:hover:text-primary-400"
                       onClick={() =>
                         router.push({
                           pathname: "/sources/edit",
@@ -76,26 +65,47 @@ const Sources: React.FC<Props> = (props) => {
                         })
                       }
                     >
-                      Edit
+                      <PencilIcon className="h-5 w-5" />
                       <span className="sr-only">, {row.name}</span>
                     </a>
-                  </td>
-                  <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+
                     <a
                       href="#"
-                      className="text-red-600 hover:text-red-900"
+                      className="text-red-600 hover:text-red-900 dark:text-red-500 dark:hover:text-red-400"
                       onClick={() => setDeletedId(row.id.toString())}
                     >
-                      Delete
+                      <TrashIcon className="h-5 w-5" />
                       <span className="sr-only">, {row.name}</span>
                     </a>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </TableShell>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 items-center">
+                  <p className="text-base text-zinc-600 dark:text-zinc-400">
+                    Host
+                  </p>
+                  <p className="text-base">{row.host}</p>
+                </div>
+
+                <div className="grid grid-cols-2 items-center">
+                  <p className="text-base text-zinc-600 dark:text-zinc-400">
+                    Database
+                  </p>
+                  <p className="text-base">{row.database}</p>
+                </div>
+
+                <div className="grid grid-cols-2 items-center">
+                  <p className="text-base text-zinc-600 dark:text-zinc-400">
+                    Port
+                  </p>
+                  <p className="text-base">{row.port}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
+
       {sources?.length === 0 && (
         <p className="mt-4 text-md"> No sources created.</p>
       )}
@@ -103,7 +113,7 @@ const Sources: React.FC<Props> = (props) => {
       <ConfirmDialog
         open={deletedId ? true : false}
         setOpen={() => setDeletedId(undefined)}
-        title="Delete link?"
+        title="Delete source?"
         description="Are sure you want to delete this source?"
         confirmFunc={() => deleteSource(deletedId || "")}
         id="popup"

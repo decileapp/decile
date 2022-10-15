@@ -45,7 +45,7 @@ const ExportQuery: React.FC<Props> = (props) => {
       const res = await axios.post("/api/user/google/sheets/create-sheet", {
         title: title,
         queryId: id,
-        range: "From_Subtable",
+        range: "From_Decile",
       });
 
       // If not authenticated open new tab for auth
@@ -92,7 +92,7 @@ const ExportQuery: React.FC<Props> = (props) => {
         const res = await axios.post("/api/user/google/sheets/update-sheet", {
           spreadsheet: spreadsheetId,
           queryId: id,
-          range: "From_Subtable",
+          range: "From_Decile",
         });
         // If not authenticated open new tab for auth
         if (res.data.link) {
@@ -156,8 +156,8 @@ const ExportQuery: React.FC<Props> = (props) => {
               )}
               <p className="text-sm text-zinc-700">
                 {type === "create"
-                  ? "We'll export your data to a tab called From_Subtable."
-                  : "We'll export your data to a tab called From_Subtable. All existing data in the tab will be replaced."}
+                  ? "We'll export your data to a tab called From_Decile."
+                  : "We'll export your data to a tab called From_Decile. All existing data in the tab will be replaced."}
               </p>
 
               <div className="flex flex-row justify-end ">

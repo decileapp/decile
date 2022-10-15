@@ -47,7 +47,7 @@ const Organisation: React.FC<Props> = (props) => {
                         {row.user_id.email}
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6 truncate">
-                        {row.role}
+                        {row.role_id.name}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <a
@@ -102,9 +102,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   supabase.auth.setAuth(token);
   const { data: members, error } = await supabase
     .from<Org_User[]>("org_users")
-    .select(`id, org_id(id, name), role_id, user_id(id, email)`)
+    .select(`id, org_id(id, name), role_id(id, name), user_id(id, email)`)
     .match({ org_id: user.user_metadata.org_id });
-
   return {
     props: { members: members },
   };

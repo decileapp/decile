@@ -1,9 +1,9 @@
 <p align="center">
-<h1 align="center"><b>Subtable</b></h1>
+<h1 align="center"><b>Decile</b></h1>
 <p align="center">
   Your Data OS
     <br />
-    <a href="https://subtable.app"><strong>Early access</strong></a>
+    <a href="https://decile.app"><strong>Early access</strong></a>
   </p>
 </p>
 
@@ -13,17 +13,17 @@ Connect any postgres database. Query using our online SQL editor or query builde
 
 <p align="center">
   <br />
-  <a href="https://subtable.app">
+  <a href="https://decile.app">
     <img src="https://img.shields.io/badge/We're%20open%20for%20beta!-Join-%2322c55e" />
   </a> 
   <br />
 </p>
 
-This repo contains the open-source code to host your own version of Subtable. Otherwise, join the waitlist for our [hosted version](https://subtable.app).
+This repo contains the open-source code to host your own version of Decile. Otherwise, join the waitlist for our [hosted version](https://decile.app).
 
 Contributions welcome!
 
-**Have suggestions for what to work on next? We'd love to hear from you. Sign up for [early access](https://subtable.app)!**
+**Have suggestions for what to work on next? We'd love to hear from you. Sign up for [early access](https://decile.app)!**
 
 ---
 
@@ -59,8 +59,8 @@ We use the GNU GPL V3 license. See LICENSE for more details.
 **1. Clone this repository**
 
 ```bash
-git clone https://github.com/subtable
-cd subtable
+git clone https://github.com/decile
+cd decile
 ```
 
 **2. Configure your environment variables.**

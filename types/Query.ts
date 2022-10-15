@@ -1,5 +1,5 @@
 export interface Query {
-  id: string;
+  id: number;
   name: string;
   database?: string;
   body?: string;

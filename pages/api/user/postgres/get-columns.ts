@@ -6,7 +6,16 @@ import protectServerRoute from "../../../../utils/auth/protectServerRoute";
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     try {
-      const { dbUser, host, database, password, port, ssl, table } = req.body;
+      const {
+        dbUser,
+        host,
+        database,
+        password,
+        port,
+        ssl,
+        table_schema,
+        table_name,
+      } = req.body;
 
       const pool = new Pool({
         user: dbUser,
@@ -20,8 +29,8 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       const columns = await pool.query(
         `SELECT *
         FROM information_schema.columns
-       WHERE table_schema = 'public'
-         AND table_name   = '${table}'
+       WHERE table_schema = '${table_schema}'
+         AND table_name   = '${table_name}'
            ;`
       );
 

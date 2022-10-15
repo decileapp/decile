@@ -1,26 +1,30 @@
-import InputLabel from "../individual/common/InputLabel";
+import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
 import { DownloadIcon, ShareIcon } from "@heroicons/react/outline";
-import TableShell from "../individual/table/shell";
-import TableHeader from "../individual/table/header";
+import TableShell from "../../individual/table/shell";
+import TableHeader from "../../individual/table/header";
 import { useRouter } from "next/router";
-import Loading from "../individual/Loading";
+import Loading from "../../individual/Loading";
+import Button from "../../individual/Button";
+import { useRecoilState } from "recoil";
+import { dataState, fieldsState } from "../../../utils/contexts/query/state";
 
 interface Props {
-  data?: any;
-  fields?: string[];
   queryLoading?: boolean;
   queryId?: string;
+  queryDb?: () => void;
 }
 
 const Results: React.FC<Props> = (props) => {
-  const { data, fields, queryLoading, queryId } = props;
+  const [fields, setFields] = useRecoilState(fieldsState);
+  const [data, setData] = useRecoilState(dataState);
+  const { queryLoading, queryId, queryDb } = props;
   const router = useRouter();
 
   return (
-    <div className="flex flex-col h-full w-full space-y-4  overflow-auto">
-      <div className="flex flex-row items-center justify-between w-full mb-2">
+    <div className="flex flex-col h-full w-full space-y-4  overflow-auto p-4">
+      <div className="flex flex-row items-center justify-between w-full ">
         <InputLabel title="Results" />
         <div className="flex flex-row items-center justify-center space-x-4">
           {data && data.length > 0 && (
@@ -35,6 +39,11 @@ const Results: React.FC<Props> = (props) => {
             >
               <ShareIcon className="block h-6 w-6 text-secondary-500" />
             </a>
+          )}
+          {!queryLoading && queryDb ? (
+            <Button label="Run" onClick={() => queryDb()} type="secondary" />
+          ) : (
+            <div />
           )}
         </div>
       </div>

@@ -18,7 +18,7 @@ const Header: React.FC = () => {
         height="24"
         width="24"
       />
-      <h1 className="tracking-tight font-extrabold text-2xl ml-2">Subtable</h1>
+      <h1 className="tracking-tight font-extrabold text-2xl ml-2">Decile</h1>
     </div>
   );
 };

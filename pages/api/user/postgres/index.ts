@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Pool } from "pg";
 import { decrypt } from "../../../../utils/encryption";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
-import { supabase } from "../../../../utils/supabaseClient";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
@@ -16,10 +15,11 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         port: port,
         ssl: ssl,
       });
-
       try {
         const result = await pool.query(body);
-        return res.status(200).json({ result: result });
+        return res
+          .status(200)
+          .json({ rows: result.rows, fields: result.fields });
       } catch (e: any) {
         return res.status(200).json({ error: e.hint });
       }

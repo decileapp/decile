@@ -7,7 +7,7 @@ type Props = {
 
 const InputLabel: React.FC<Props> = ({ ...props }) => {
   return (
-    <label htmlFor="email" className="block text-md font-bold mb-1">
+    <label htmlFor="email" className="block text-md font-bold">
       {props.title}
     </label>
   );

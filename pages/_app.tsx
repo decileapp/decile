@@ -9,6 +9,7 @@ import { event } from "../utils/mixpanel";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase } from "../utils/supabaseClient";
 import axios from "axios";
+import { RecoilRoot } from "recoil";
 import "react-toastify/dist/ReactToastify.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -58,9 +59,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <ThemeProvider attribute="class">
-      <AppLayout>
-        <Component {...pageProps} />
-      </AppLayout>
+      <RecoilRoot>
+        <AppLayout>
+          <Component {...pageProps} />
+        </AppLayout>
+      </RecoilRoot>
     </ThemeProvider>
   );
 }

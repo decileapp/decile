@@ -4,19 +4,30 @@ import axios from "axios";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
-import TextInput from "../individual/TextInput";
-import Select from "../individual/Select";
-import Switch from "../individual/Switch";
 import { toast, ToastContainer } from "react-toastify";
-import { decrypt, encrypt } from "../../utils/encryption";
 import { Column } from "../../types/Column";
 import _ from "lodash";
-import dateFormatter from "../../utils/dateFormatter";
-import { EyeIcon, EyeOffIcon } from "@heroicons/react/outline";
-import Tables from "./tables";
-import Columnns from "./columns";
-import Results from "./results";
-import Editor from "./editor";
+import Results from "./common/results";
+import QueryBuilder from "./builder";
+import { classNames } from "../../utils/classnames";
+import {
+  bodyState,
+  buildQueryState,
+  columnsLoadingState,
+  columnsState,
+  dataState,
+  fieldsState,
+  nameState,
+  publicQueryState,
+  queryVarsState,
+  selectedSourceState,
+  selectedTableState,
+  tableLoadingState,
+  tablesState,
+} from "../../utils/contexts/query/state";
+import { useRecoilState, useRecoilValue } from "recoil";
+import QueryTopBar from "./common/Topbar";
+import QueryEditor from "./editor";
 
 interface Props {
   id?: string;
@@ -30,36 +41,44 @@ interface Props {
 }
 
 const QueryForm: React.FC<Props> = (props) => {
-  const [loading, setLoading] = useState(false);
-  const [queryLoading, setQueryLoading] = useState(false);
-  const [tableLoading, setTableLoading] = useState(false);
-  const [columnsLoading, setColumnsLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  // Type
+  const [queryBuilder, setQueryBuilder] = useState(true);
 
-  // Databases
-  const [selectedSource, setSelectedSource] = useState<string | undefined>(
-    props.database
-  );
+  /* Global states */
+
+  const [selectedSource, setSelectedSource] =
+    useRecoilState(selectedSourceState);
 
   // Tables
-  const [tables, setTables] = useState<string[]>();
-  const [selectedTable, setSelectedTable] = useState<string>();
+  const [tables, setTables] = useRecoilState(tablesState);
+  const [selectedTable, setSelectedTable] = useRecoilState(selectedTableState);
+  const [tableLoading, setTableLoading] = useRecoilState(tableLoadingState);
 
   // Columns
-  const [columns, setColumns] = useState<Column[]>();
+  const [columns, setColumns] = useRecoilState(columnsState);
+  const [columnsLoading, setColumnsLoading] =
+    useRecoilState(columnsLoadingState);
 
   // Query
-  const [name, setName] = useState<string | undefined>(props.name);
-  const [body, setBody] = useState<string | undefined>(props.body);
-  const [publicQuery, setPublicQuery] = useState<boolean | undefined>(
-    props.publicQuery || false
-  );
+  const [name, setName] = useRecoilState(nameState);
+  const [body, setBody] = useRecoilState(bodyState);
+  const [publicQuery, setPublicQuery] = useRecoilState(publicQueryState);
+  const [queryVars, setQueryVars] = useRecoilState(queryVarsState);
 
   // Data
-  const [fields, setFields] = useState<string[]>();
-  const [data, setData] = useState<any | null>();
+  const [fields, setFields] = useRecoilState(fieldsState);
+  const [data, setData] = useRecoilState(dataState);
+
+  // Output of query builder
+  const buildQuery = useRecoilValue(buildQueryState);
+
   const user = supabase.auth.user();
 
+  /* Local states */
+
+  const [loading, setLoading] = useState(true);
+  const [queryLoading, setQueryLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | undefined>(props.updated_at);
 
   // Error
@@ -85,6 +104,10 @@ const QueryForm: React.FC<Props> = (props) => {
       });
       if (res) {
         setTables(res.data.tables);
+        // Set first table
+        if (res.data.tables && !selectedTable) {
+          setSelectedTable(res.data.tables[0]);
+        }
       }
       setTableLoading(false);
       return;
@@ -108,10 +131,19 @@ const QueryForm: React.FC<Props> = (props) => {
       if (!selectedDb || !tables || !selectedTable) return;
       const res = await axios.post("/api/user/postgres/get-columns", {
         ...selectedDb,
-        table: selectedTable,
+        table_schema: selectedTable.schema,
+        table_name: selectedTable.name,
       });
-      if (res) {
-        setColumns(res.data.columns);
+      if (res.data.columns) {
+        await setColumns(res.data.columns);
+        await setQueryVars(
+          res.data.columns.map((c: Column) => {
+            return {
+              name: c.name,
+              type: c.type,
+            };
+          })
+        );
       }
       setColumnsLoading(false);
       return;
@@ -120,7 +152,6 @@ const QueryForm: React.FC<Props> = (props) => {
       return;
     }
   };
-
   // Query
   const queryDb = async () => {
     setQueryLoading(true);
@@ -129,25 +160,35 @@ const QueryForm: React.FC<Props> = (props) => {
       toast.error("Please choose a database.");
       return;
     }
-
     try {
       setData(null);
       const selectedDb = props?.sources.find((s) => s.id === selectedSource);
 
+      // If using query builder, get the latest query
+      if (queryBuilder) {
+        setBody(buildQuery);
+      }
+
       if (!selectedDb) return;
-      const res = await axios.post("/api/user/postgres", {
-        body: body,
-        ...selectedDb,
-        cancelToken: source.token,
-      });
+      const res = await axios.post<{ rows: any[]; fields: any[]; error: any }>(
+        "/api/user/postgres",
+        {
+          body: queryBuilder ? buildQuery : body,
+          ...selectedDb,
+          cancelToken: source.token,
+        }
+      );
+
       if (res.data.error) {
         toast.error(res.data.error);
         setQueryLoading(false);
         return;
       }
-      if (res) {
-        setFields(res.data.result.fields.map((f: any) => f.name));
-        setData(res.data.result.rows);
+      if (res.data.fields && res.data.rows) {
+        const fields: string[] = res.data.fields.map((f: any) => f.name);
+        const rows: {}[] = res.data.rows;
+        setFields(fields);
+        setData(rows);
       }
       setQueryLoading(false);
       return;
@@ -210,21 +251,65 @@ const QueryForm: React.FC<Props> = (props) => {
     []
   );
 
+  const initialLoad = async () => {
+    setLoading(true);
+    setTableLoading(true);
+    setColumnsLoading(true);
+    if (props.body) {
+      await setBody(props.body);
+    }
+    if (props.publicQuery) {
+      await setPublicQuery(props.publicQuery);
+    }
+    if (props.name) {
+      await setName(props.name);
+    }
+    if (props.database) {
+      await setSelectedSource(props.database);
+    }
+    if (tables && !selectedTable) {
+      await setSelectedTable(tables[0]);
+    }
+    setLoading(false);
+    setTableLoading(false);
+    setColumnsLoading(false), [];
+  };
+
   // Effects
+  // On load update with query details
+  useEffect(() => {
+    initialLoad();
+  }, []);
+
+  // Change source
   useEffect(() => {
     if (selectedSource) {
       getTables();
     }
   }, [selectedSource]);
 
+  // const updateTable = async () => {
+  //   await getColumns();
+  //   setFields(undefined);
+  //   setData(undefined);
+
+  //   // only query if in querybuilding mode
+  //   if (queryBuilder && selectedTable) {
+  //     await queryDb();
+  //   }
+
+  //   return;
+  // };
+
+  // When table changes
   useEffect(() => {
     if (selectedSource && selectedTable) {
       getColumns();
     }
   }, [selectedTable]);
 
+  // Auto save
   useEffect(() => {
-    // Run only when name, database, body are available
     if (name && body && !saving) {
       const input = {
         name: name,
@@ -238,7 +323,7 @@ const QueryForm: React.FC<Props> = (props) => {
         debouncedSave(input);
       }
     }
-  }, [debouncedSave, name, selectedSource, body, publicQuery]);
+  }, [debouncedSave, name, selectedSource, body, publicQuery, selectedTable]);
 
   return (
     <>
@@ -257,96 +342,53 @@ const QueryForm: React.FC<Props> = (props) => {
         {loading ? (
           <Loading />
         ) : (
-          <div className="flex flex-col h-full px-2">
+          <div className="flex flex-col h-full overflow-hidden">
             {/* Top bar */}
-            <div>
-              <div className="grid grid-cols-2 gap-4 border-b border-zinc-400 pb-4 w-full items-end justify-between">
-                <div className="flex flex-row justify-start items-start space-x-4 px-2">
-                  {props.sources && (
-                    <Select
-                      title="Database"
-                      value={selectedSource || ""}
-                      id="database"
-                      name="database"
-                      setSelected={setSelectedSource}
-                      options={props.sources.map((s) => {
-                        return { name: s.name, value: s.id };
-                      })}
-                    />
-                  )}
-                  <TextInput
-                    name="name"
-                    id="name"
-                    handleChange={setName}
-                    label="Supabase"
-                    value={name || ""}
-                    type="text"
-                    title="Name"
-                    error={error?.name}
+            {props.sources && props.sources.length > 0 && (
+              <QueryTopBar
+                name={name}
+                setName={setName}
+                savedAt={savedAt}
+                saving={saving}
+                publicQuery={publicQuery}
+                setPublicQuery={setPublicQuery}
+                queryBuilder={queryBuilder}
+                setQueryBuilder={setQueryBuilder}
+                sources={props.sources}
+              />
+            )}
+
+            <div className="grid grid-cols-10 h-full w-full min-h-0 overflow-hidden">
+              {/* Tables and columns for SQL EDITOR */}
+              <div
+                className={classNames(
+                  queryBuilder ? "col-span-4" : "col-span-6",
+                  "flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden"
+                )}
+              >
+                {!queryBuilder && (
+                  <QueryEditor
+                    queryDb={queryDb}
+                    queryLoading={queryLoading}
+                    stopQuery={() => source.cancel()}
                   />
-                  <Switch
-                    setSelected={() => setPublicQuery(!publicQuery)}
-                    value={publicQuery}
-                    title={publicQuery ? "Public query" : "Private query"}
-                    trueIcon={<EyeIcon />}
-                    falseIcon={<EyeOffIcon />}
-                  />
-                </div>
-                <div className="flex flex-row justify-end items-end">
-                  {savedAt && !saving && (
-                    <p className="text-sm">{`Last saved: ${dateFormatter({
-                      dateVar: savedAt,
-                      type: "time",
-                    })}`}</p>
-                  )}
-                  {!savedAt && !saving && (
-                    <p className="text-sm text-red-500">Changes not saved</p>
-                  )}
-                  {saving && <p className="text-sm">Saving...</p>}
-                </div>
-              </div>
-            </div>
+                )}
 
-            <div className="grid grid-cols-10 h-full w-full gap-4 min-h-0 overflow-hidden">
-              {/* Tables and columns */}
-              <div className="col-span-2 flex flex-col  border-r border-zinc-400 pt-2 h-full w-full overflow-auto">
-                <div className="flex flex-col w-full h-full  ">
-                  <div className=" flex h-36 w-full overflow-auto">
-                    <Tables
-                      tables={tables}
-                      selectedTable={selectedTable}
-                      setSelectedTable={setSelectedTable}
-                      tableLoading={tableLoading}
-                    />
-                  </div>
-
-                  <div className="flex flex-col flex-1 h-full w-full p-2 overflow-auto">
-                    <Columnns
-                      columns={columns}
-                      columnsLoading={columnsLoading}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* EDITOR */}
-              <div className="col-span-4 flex flex-col h-full pt-2">
-                <Editor
-                  body={body}
-                  setBody={setBody}
-                  queryDb={queryDb}
-                  queryLoading={queryLoading}
-                  stopQuery={() => source.cancel()}
-                />
+                {/* Query builder */}
+                {queryBuilder && <QueryBuilder />}
               </div>
 
               {/* RESULTS */}
-              <div className="col-span-4 flex flex-col h-full w-full overflow-auto pt-2">
+              <div
+                className={classNames(
+                  queryBuilder ? "col-span-6" : "col-span-4",
+                  "flex flex-col h-full w-full overflow-auto"
+                )}
+              >
                 <Results
-                  data={data}
-                  fields={fields}
                   queryLoading={queryLoading}
                   queryId={props.id}
+                  queryDb={queryBuilder ? () => queryDb() : undefined}
                 />
               </div>
             </div>

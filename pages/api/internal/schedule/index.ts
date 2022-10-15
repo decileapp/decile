@@ -56,7 +56,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           const rowData = await formatForSheets(data);
           const updatedSheet = await writeOnSpreadsheet({
             auth: auth,
-            range: "From_Subtable",
+            range: "From_Decile",
             data: rowData,
             spreadsheet: singleQuery.export_id.spreadsheet,
           });

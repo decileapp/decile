@@ -17,11 +17,13 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         ssl: ssl,
       });
       const tables = await pool.query(
-        "SELECT table_name FROM information_schema.tables where table_schema = 'public'"
+        "SELECT * FROM information_schema.tables where table_schema = 'public'"
       );
-      return res
-        .status(200)
-        .json({ tables: tables.rows.map((r) => r.table_name) });
+      return res.status(200).json({
+        tables: tables.rows.map((r) => {
+          return { name: r.table_name, schema: r.table_schema };
+        }),
+      });
     } catch (e) {
       console.log(e);
       throw new Error(`Something went wrong.`);

@@ -1,15 +1,16 @@
-import { Column } from "../../types/Column";
-import InputLabel from "../individual/common/InputLabel";
+import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
-import MiniLoading from "../individual/MiniLoading";
+import MiniLoading from "../../individual/MiniLoading";
+import { useRecoilState } from "recoil";
+import {
+  columnsLoadingState,
+  columnsState,
+} from "../../../utils/contexts/query/state";
 
-interface Props {
-  columns?: Column[];
-  columnsLoading?: boolean;
-}
-
-const Columnns: React.FC<Props> = (props) => {
-  const { columns, columnsLoading } = props;
+const Columnns: React.FC = () => {
+  const [columnsLoading, setColumnsLoading] =
+    useRecoilState(columnsLoadingState);
+  const [columns, setColumns] = useRecoilState(columnsState);
 
   return (
     <>
@@ -20,7 +21,7 @@ const Columnns: React.FC<Props> = (props) => {
             {columns.map((c, id) => {
               return (
                 <div
-                  className="flex flex-row space-x-1 justify-between items-center  key={id} border p-1 rounded-lg"
+                  className="flex flex-row space-x-1 justify-between items-center  key={id} border rounded-lg p-1"
                   key={id}
                 >
                   <p className=" text-sm truncate">{c.name}</p>
