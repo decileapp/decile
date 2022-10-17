@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { encrypt } from "../../../../utils/encryption";
 import { getServiceSupabase, supabase } from "../../../../utils/supabaseClient";
-import { authoriseGoogle, getNewToken } from "../../../../utils/google/auth";
+import { authoriseGoogle } from "../../../../utils/google/auth";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {

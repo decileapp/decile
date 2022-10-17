@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Pool } from "pg";
-import { Source } from "../../../../types/Sources";
 import { encrypt } from "../../../../utils/encryption";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
-import { getServiceSupabase, supabase } from "../../../../utils/supabaseClient";
+import { supabase } from "../../../../utils/supabaseClient";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   // GET SOURCES

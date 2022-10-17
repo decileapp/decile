@@ -5,7 +5,6 @@ import FormLayout from "../layouts/FormLayout";
 import TextInput from "../individual/TextInput";
 import Button from "../individual/Button";
 import Switch from "../individual/Switch";
-import { encrypt } from "../../utils/encryption";
 import { toast } from "react-toastify";
 import axios from "axios";
 import MiniLoading from "../individual/MiniLoading";

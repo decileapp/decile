@@ -5,7 +5,6 @@ import { supabase } from "../../utils/supabaseClient";
 import { Source } from "../../types/Sources";
 import Loading from "../../components/individual/Loading";
 import { GetServerSideProps } from "next";
-import { decrypt } from "../../utils/encryption";
 
 const EditSource: React.FC = () => {
   const router = useRouter();
