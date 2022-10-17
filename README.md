@@ -1,5 +1,5 @@
 <p align="center">
-<img width="150" src="./public/decile-logo.png"/>
+<img width="150" src="./public/decile_logo.png"/>
 <h1 align="center"><b>Decile</b></h1>
 <p align="center">
   Query builder and scheduler for Postgres.
