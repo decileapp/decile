@@ -35,8 +35,63 @@ export interface QueryInputs {
 }
 
 // Objects
-export const fitlerOperators = ["=", ">", "<", ">=", "<=", "!="];
-export const filterComboOperators = ["AND", "OR"];
+export const textFilterOperators = [
+  {
+    title: "=",
+    description: "Equal to.",
+    value: "=",
+    current: false,
+  },
+  {
+    title: "!=",
+    description: "Not equal to.",
+    value: "!=",
+    current: false,
+  },
+];
+
+export const numericalFilterOperators = textFilterOperators.concat([
+  {
+    title: ">",
+    description: "Greater than.",
+    value: ">",
+    current: false,
+  },
+  {
+    title: ">=",
+    description: "Greater than or equal to",
+    value: ">=",
+    current: false,
+  },
+  {
+    title: "<",
+    description: "Less than.",
+    value: "<",
+    current: false,
+  },
+  {
+    title: "<=",
+    description: "Less than or equal to",
+    value: "<=",
+    current: false,
+  },
+]);
+
+export const filterComboOperators = [
+  {
+    title: "and",
+    description: "",
+    value: "AND",
+    current: false,
+  },
+  {
+    title: "or",
+    description: "",
+    value: "OR",
+    current: false,
+  },
+];
+
 export const textSummarise = [
   {
     title: "Group",
@@ -80,15 +135,25 @@ export const numericalSummarise = textSummarise.concat([
 
 // Functions
 export const isNumerical = (x: string) => {
-  if (x === "bigint") {
+  if (
+    [
+      "smallint",
+      "integer",
+      "bigint",
+      "decimal",
+      "numeric",
+      "real",
+      "double precision",
+      "smallserial",
+      "serial",
+      "bigserial",
+      "money",
+    ].includes(x)
+  ) {
     return true;
+  } else {
+    return false;
   }
-
-  if (x === "double precission") {
-    return true;
-  }
-
-  return false;
 };
 
 const queryBuilder = ({

@@ -107,7 +107,7 @@ const QueryGroupBy = () => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full space-y-2">
+    <div className="flex flex-col  w-full ">
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row justify-start items-center space-x-2">
           <InputLabel title="Summarise" />

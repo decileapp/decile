@@ -1,16 +1,23 @@
 import _ from "lodash";
-import { filterComboOperators, fitlerOperators } from "../../../utils/query";
+import {
+  filterComboOperators,
+  isNumerical,
+  numericalFilterOperators,
+  textFilterOperators,
+} from "../../../utils/query";
 import { PlusIcon, TrashIcon } from "@heroicons/react/outline";
 import MiniSelect from "../../individual/MiniSelect";
 import { classNames } from "../../../utils/classnames";
 import { useRecoilState } from "recoil";
 import {
+  columnsState,
   queryFilterState,
   queryVarsState,
 } from "../../../utils/contexts/query/state";
 import InputLabel from "../../individual/common/InputLabel";
 
 const QueryFilterSelector: React.FC = () => {
+  const [columns, setColumns] = useRecoilState(columnsState);
   const [queryVars, setQueryVars] = useRecoilState(queryVarsState);
   const [queryFilterBy, setQueryFilterBy] = useRecoilState(queryFilterState);
 
@@ -97,37 +104,13 @@ const QueryFilterSelector: React.FC = () => {
     return;
   };
   const filterVarOptions =
-    queryVars && queryVars.length > 0
-      ? queryVars.map((q) => {
+    columns && columns.length > 0
+      ? columns.map((q) => {
           return {
             title: q.name,
             description: "",
             current: false,
             value: q.name,
-          };
-        })
-      : [];
-
-  const filterOperatorOptions =
-    queryVars && queryVars.length > 0
-      ? fitlerOperators.map((q) => {
-          return {
-            title: q,
-            description: "",
-            current: false,
-            value: q,
-          };
-        })
-      : [];
-
-  const filterComboOptions =
-    queryVars && queryVars.length > 0
-      ? filterComboOperators.map((q) => {
-          return {
-            title: q,
-            description: "",
-            current: false,
-            value: q,
           };
         })
       : [];
@@ -143,7 +126,7 @@ const QueryFilterSelector: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col flex-shrink-0 h-full w-full">
+    <div className="flex flex-col  w-full ">
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row justify-start items-center space-x-2">
           <InputLabel title="Filters" />
@@ -162,9 +145,16 @@ const QueryFilterSelector: React.FC = () => {
         )}
       </div>
 
-      {queryVars && queryFilterBy && queryFilterBy.length > 0 && (
-        <div className="grid grid-cols-1 gap-2 mt-2">
+      {queryFilterBy && queryFilterBy && queryFilterBy.length > 0 && (
+        <div className="grid grid-cols-1 gap-2 mt-2 ">
           {queryFilterBy?.map((q, id) => {
+            // Find var
+            const foundVar = columns?.find((c) => c.name === q.var);
+            const operators =
+              foundVar && isNumerical(foundVar?.type)
+                ? numericalFilterOperators
+                : textFilterOperators;
+
             return (
               <div className="grid grid-cols-12 gap-2 w-full" key={id}>
                 <div className="col-span-4 flex flex-row justify-start items-center w-full">
@@ -178,14 +168,12 @@ const QueryFilterSelector: React.FC = () => {
                 {/* {!excluded && icons} */}
                 <div className="col-span-1 flex flex-row justify-center items-center w-full">
                   <MiniSelect
-                    options={filterOperatorOptions}
-                    selected={filterOperatorOptions.find(
-                      (f) => f.value === q.operator
-                    )}
+                    options={operators}
+                    selected={operators.find((f) => f.value === q.operator)}
                     setSelected={(e) => updateOperator(e.value, id)}
                   />
                 </div>
-                <div className="col-span-4 flex flex-row justify-center items-center w-full overflow-hidden">
+                <div className="col-span-4 flex flex-row justify-center items-center w-full">
                   <input
                     className="flex p-1 border rounded-md truncate text-sm"
                     value={q.value}
@@ -196,8 +184,8 @@ const QueryFilterSelector: React.FC = () => {
                 <div className="col-span-2 flex flex-row justify-center items-center w-full ">
                   {queryFilterBy.length > id + 1 && (
                     <MiniSelect
-                      options={filterComboOptions}
-                      selected={filterComboOptions.find(
+                      options={filterComboOperators}
+                      selected={filterComboOperators.find(
                         (f) => f.value === q.combo
                       )}
                       setSelected={(e) => updateComboOption(e.value, id)}

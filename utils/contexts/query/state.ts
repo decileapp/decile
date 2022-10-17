@@ -90,7 +90,7 @@ export const querySortByState = atom<SortBy[]>({
 
 export const queryLimitState = atom<string>({
   key: "queryLimit",
-  default: "500",
+  default: "50",
 });
 
 export const buildQueryState = selector({

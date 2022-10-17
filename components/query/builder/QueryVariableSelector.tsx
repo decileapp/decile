@@ -64,7 +64,7 @@ const QueryVariableSelector: React.FC = (props) => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col  w-full ">
       <div className="flex flex-row justify-between items-center">
         <InputLabel title="Choose variables" />
         <a className="text-sm" href="#" onClick={() => selectAllNone()}>
@@ -72,7 +72,7 @@ const QueryVariableSelector: React.FC = (props) => {
         </a>
       </div>
       {columns && columns.length > 0 && (
-        <div className="grid grid-cols-6 gap-2  mt-2  overflow-scroll">
+        <div className="grid grid-cols-6 gap-2  mt-2">
           {sortedColumns &&
             sortedColumns.map((c, id) => {
               let excluded = true;

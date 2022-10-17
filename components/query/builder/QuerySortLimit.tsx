@@ -101,7 +101,7 @@ const QuerySortLimit: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col w-full">
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row justify-start items-center space-x-2">
           <InputLabel title="Sort by" />

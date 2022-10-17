@@ -360,29 +360,30 @@ const QueryForm: React.FC<Props> = (props) => {
 
             <div className="grid grid-cols-10 h-full w-full min-h-0 overflow-hidden">
               {/* Tables and columns for SQL EDITOR */}
-              <div
-                className={classNames(
-                  queryBuilder ? "col-span-4" : "col-span-6",
-                  "flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden"
-                )}
-              >
-                {!queryBuilder && (
+              {!queryBuilder && (
+                <div
+                  className="col-span-6
+                    flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden"
+                >
                   <QueryEditor
                     queryDb={queryDb}
                     queryLoading={queryLoading}
                     stopQuery={() => source.cancel()}
                   />
-                )}
-
-                {/* Query builder */}
-                {queryBuilder && <QueryBuilder />}
-              </div>
+                </div>
+              )}
+              {/* Query builder */}
+              {queryBuilder && (
+                <div className="col-span-4 flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden">
+                  <QueryBuilder />
+                </div>
+              )}
 
               {/* RESULTS */}
               <div
                 className={classNames(
                   queryBuilder ? "col-span-6" : "col-span-4",
-                  "flex flex-col h-full w-full overflow-auto"
+                  "flex flex-col h-full w-full overflow-hidden"
                 )}
               >
                 <Results

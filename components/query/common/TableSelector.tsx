@@ -29,7 +29,7 @@ const TableSelector: React.FC<{ queryBuilder?: boolean }> = (props) => {
       : [];
   return (
     <>
-      <div className="flex flex-col h-full w-full overflow-hidden">
+      <div className="flex flex-col w-full ">
         <div className="flex flex-row justify-between items-center mb-1 w-full ">
           <div className="flex flex-row justify-start items-center">
             <InputLabel title="Select Table" />

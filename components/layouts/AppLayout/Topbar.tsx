@@ -73,7 +73,7 @@ const Topbar: React.FC = ({ children }) => {
 
   return (
     <>
-      <div className="flex flex-col  w-full grow ">
+      <div className="flex flex-col  w-full grow overflow-hidden">
         <ToastContainer
           position="top-right"
           autoClose={3000}
@@ -238,7 +238,9 @@ const Topbar: React.FC = ({ children }) => {
           )}
         </Disclosure>
 
-        <main className="flex flex-col grow h-full w-full">{children}</main>
+        <main className="flex flex-col grow h-full w-full overflow-hidden">
+          {children}
+        </main>
       </div>
     </>
   );
