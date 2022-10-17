@@ -8,6 +8,12 @@ import { Query } from "../../types/Query";
 import { GetServerSideProps } from "next";
 import dateFormatter from "../../utils/dateFormatter";
 import { toast } from "react-toastify";
+import { Export } from "../../types/Export";
+import { Schedule } from "../../types/Schedule";
+import PageHeading from "../../components/layouts/Page/PageHeading";
+import Button from "../../components/individual/Button";
+import Search from "../../components/individual/Search";
+import TextInput from "../../components/individual/TextInput";
 
 interface Props {
   queries: Query[];
@@ -18,6 +24,7 @@ const Queries: React.FC<Props> = (props) => {
   const { queries } = props;
   const [deletedId, setDeletedId] = useState<number>();
   const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState<string>();
   const user = supabase.auth.user();
 
   // New queri
@@ -54,13 +61,38 @@ const Queries: React.FC<Props> = (props) => {
   async function deleteQuery(id: number) {
     setLoading(true);
 
+    // Check if there are exports
+    // First delete any exports
+    const { data: exportIds, error: exportError } = await supabase
+      .from<Export>("export")
+      .select("id")
+      .match({ user_id: user?.id || "", query_id: id });
+
+    if (exportIds && exportIds.length > 0) {
+      // First delete any exports
+      const { data: schedules, error: scheduleError } = await supabase
+        .from<Schedule>("schedule")
+        .delete()
+        .in(
+          "export_id",
+          exportIds.map((e) => e.id)
+        );
+
+      const { data: exports, error: exportError } = await supabase
+        .from<Export>("export")
+        .delete()
+        .match({ user_id: user?.id || "", query_id: id });
+    }
+
     const { data, error } = await supabase
       .from<Query>("queries")
       .delete()
       .match({ user_id: user?.id || "", id: id });
+
     if (data) {
       setDeletedId(undefined);
     }
+    window.location.reload();
     setLoading(false);
     return;
   }
@@ -75,46 +107,71 @@ const Queries: React.FC<Props> = (props) => {
     return;
   };
 
+  const searchFunc = (name: string, str: string) => {
+    const pattern = str
+      .split("")
+      .map((x) => {
+        return `(?=.*${x})`;
+      })
+      .join("");
+    var regex = new RegExp(`${pattern}`, "g");
+    return name.match(regex);
+  };
+
+  let filteredQueries: Query[] | undefined = queries;
+  if (searchText && queries && queries.length > 0) {
+    filteredQueries = queries.filter((q) => searchFunc(q.name, searchText));
+  }
+
   return (
     <>
-      <Page title="Queries" button="New" onClick={() => createQuery()}>
-        {queries && queries.length > 0 && (
-          <div className="grid grid-cols-1 gap-2 mt-2 ">
-            <div className="grid grid-cols-10 gap-2 ">
-              <p className="col-span-2 font-bold text-md">Name</p>
-              <p className="col-span-3  font-bold text-md">Query</p>
-              <p className="col-span-1  font-bold text-md">Public</p>
-              <p className="col-span-2  font-bold text-md">Last run</p>
+      <Page>
+        <div className="flex flex-row justify-between items-center">
+          <PageHeading title="Queries" />
+          <div className="flex flex-row justify-end items-center mb-4 mt-4 space-x-4">
+            <TextInput
+              value={searchText || ""}
+              handleChange={setSearchText}
+              label="Search.."
+              id="search"
+              name="search"
+              type="text"
+            />
+            <Button label="New" onClick={() => createQuery()} type="primary" />
+          </div>
+        </div>
 
-              <p className="col-span-1 justify-end flex  font-bold text-md">
-                Edit
-              </p>
+        <div className="grid grid-cols-1 gap-2 mt-2 ">
+          <div className="grid grid-cols-10 gap-2 ">
+            <p className="col-span-3 font-bold text-md">Name</p>
+            <p className="col-span-1  font-bold text-md">Public</p>
+            <p className="col-span-3  font-bold text-md">Last run</p>
 
-              <p className="col-span-1 justify-end flex  font-bold text-md">
-                Delete
-              </p>
-            </div>
+            <p className="col-span-1 justify-end flex  font-bold text-md">
+              Edit
+            </p>
 
-            {queries.map((row, id) => {
+            <p className="col-span-1 justify-end flex  font-bold text-md">
+              Delete
+            </p>
+          </div>
+
+          {filteredQueries &&
+            filteredQueries.length > 0 &&
+            filteredQueries.map((row, id) => {
               return (
                 <div
                   key={id}
                   className="grid grid-cols-10 gap-2 border p-2 rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800"
                 >
                   <a
-                    className="col-span-2 text-sm"
+                    className="col-span-3 text-sm"
                     onClick={() => toQuery(row)}
                     href="#"
                   >
                     {row.name}
                   </a>
-                  <a
-                    className="col-span-3 truncate text-sm"
-                    onClick={() => toQuery(row)}
-                    href="#"
-                  >
-                    {row.body}
-                  </a>
+
                   <a
                     className="col-span-1 text-sm"
                     onClick={() => toQuery(row)}
@@ -122,7 +179,7 @@ const Queries: React.FC<Props> = (props) => {
                   >
                     {row.publicQuery ? "Yes" : "No"}
                   </a>
-                  <p className="col-span-2 text-sm">
+                  <p className="col-span-3 text-sm">
                     {dateFormatter({
                       dateVar: row.updated_at,
                       type: "time",
@@ -143,17 +200,17 @@ const Queries: React.FC<Props> = (props) => {
                 </div>
               );
             })}
-          </div>
-        )}
-        {queries?.length === 0 && (
-          <p className="mt-4 text-md"> No queries created.</p>
+        </div>
+
+        {filteredQueries?.length === 0 && (
+          <p className="mt-4 text-md"> No queries found.</p>
         )}
 
         <ConfirmDialog
           open={deletedId ? true : false}
           setOpen={() => setDeletedId(undefined)}
-          title="Delete link?"
-          description="Are sure you want to delete this query?"
+          title="Delete query?"
+          description="Are sure you want to delete this query? This will delete any scheduled exports."
           confirmFunc={() => deleteQuery(deletedId || -1)}
           id="popup"
           name="popup"

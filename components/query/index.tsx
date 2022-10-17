@@ -19,6 +19,10 @@ import {
   fieldsState,
   nameState,
   publicQueryState,
+  queryFilterState,
+  queryGroupByState,
+  queryLimitState,
+  querySortByState,
   queryVarsState,
   selectedSourceState,
   selectedTableState,
@@ -28,6 +32,8 @@ import {
 import { useRecoilState, useRecoilValue } from "recoil";
 import QueryTopBar from "./common/Topbar";
 import QueryEditor from "./editor";
+import { FilterBy, GroupBy, QueryVar, SortBy } from "../../utils/query";
+import { string } from "yup";
 
 interface Props {
   id?: string;
@@ -38,6 +44,11 @@ interface Props {
   user_id?: string;
   updated_at?: Date;
   sources?: Source[];
+  query_vars?: QueryVar[];
+  query_filter_by?: FilterBy[];
+  query_sort_by?: SortBy[];
+  query_group_by?: GroupBy[];
+  query_limit?: string;
 }
 
 const QueryForm: React.FC<Props> = (props) => {
@@ -64,6 +75,10 @@ const QueryForm: React.FC<Props> = (props) => {
   const [body, setBody] = useRecoilState(bodyState);
   const [publicQuery, setPublicQuery] = useRecoilState(publicQueryState);
   const [queryVars, setQueryVars] = useRecoilState(queryVarsState);
+  const [queryFilterBy, setQueryFilterBy] = useRecoilState(queryFilterState);
+  const [queryGroupBy, setQueryGroupBy] = useRecoilState(queryGroupByState);
+  const [querySortBy, setQuerySortBy] = useRecoilState(querySortByState);
+  const [queryLimit, setQueryLimit] = useRecoilState(queryLimitState);
 
   // Data
   const [fields, setFields] = useRecoilState(fieldsState);
@@ -136,14 +151,6 @@ const QueryForm: React.FC<Props> = (props) => {
       });
       if (res.data.columns) {
         await setColumns(res.data.columns);
-        await setQueryVars(
-          res.data.columns.map((c: Column) => {
-            return {
-              name: c.name,
-              type: c.type,
-            };
-          })
-        );
       }
       setColumnsLoading(false);
       return;
@@ -270,6 +277,21 @@ const QueryForm: React.FC<Props> = (props) => {
     if (tables && !selectedTable) {
       await setSelectedTable(tables[0]);
     }
+    if (props.query_vars) {
+      await setQueryVars(props.query_vars);
+    }
+    if (props.query_filter_by) {
+      await setQueryFilterBy(props.query_filter_by);
+    }
+    if (props.query_group_by) {
+      await setQueryGroupBy(props.query_group_by);
+    }
+    if (props.query_sort_by) {
+      await setQuerySortBy(props.query_sort_by);
+    }
+    if (props.query_limit) {
+      await setQueryLimit(props.query_limit);
+    }
     setLoading(false);
     setTableLoading(false);
     setColumnsLoading(false), [];
@@ -288,19 +310,6 @@ const QueryForm: React.FC<Props> = (props) => {
     }
   }, [selectedSource]);
 
-  // const updateTable = async () => {
-  //   await getColumns();
-  //   setFields(undefined);
-  //   setData(undefined);
-
-  //   // only query if in querybuilding mode
-  //   if (queryBuilder && selectedTable) {
-  //     await queryDb();
-  //   }
-
-  //   return;
-  // };
-
   // When table changes
   useEffect(() => {
     if (selectedSource && selectedTable) {
@@ -318,12 +327,29 @@ const QueryForm: React.FC<Props> = (props) => {
         publicQuery: publicQuery,
         user_id: user?.id,
         updated_at: new Date(Date.now()),
+        query_vars: queryVars,
+        query_filter_by: queryFilterBy,
+        query_group_by: queryGroupBy,
+        query_sort_by: querySortBy,
+        query_limit: queryLimit,
       };
       if (validateLink(input)) {
         debouncedSave(input);
       }
     }
-  }, [debouncedSave, name, selectedSource, body, publicQuery, selectedTable]);
+  }, [
+    debouncedSave,
+    name,
+    selectedSource,
+    body,
+    publicQuery,
+    selectedTable,
+    queryVars,
+    queryFilterBy,
+    queryGroupBy,
+    queryLimit,
+    querySortBy,
+  ]);
 
   return (
     <>

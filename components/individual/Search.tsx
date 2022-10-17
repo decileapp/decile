@@ -15,12 +15,13 @@ interface Option {
 interface Props {
   options: Option[];
   title?: string;
+  value: string;
+  setSelectedValue: (x: string) => void;
 }
 
 const Search: React.FC<Props> = (props) => {
   const [query, setQuery] = useState("");
-  const [selectedPerson, setSelectedPerson] = useState();
-  const { options, title } = props;
+  const { options, title, value, setSelectedValue } = props;
 
   const filteredPeople =
     query === ""
@@ -32,8 +33,8 @@ const Search: React.FC<Props> = (props) => {
   return (
     <Combobox
       as="div"
-      value={selectedPerson}
-      onChange={setSelectedPerson}
+      value={value}
+      onChange={setSelectedValue}
       className="w-full"
     >
       {title && (

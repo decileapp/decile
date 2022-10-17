@@ -43,19 +43,19 @@ const Sources: React.FC<Props> = (props) => {
       onClick={() => router.push("sources/new")}
     >
       {sources && sources.length > 0 && (
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-4 gap-8">
           {sources.map((row, id: number) => {
             return (
               <div
                 key={id}
-                className="flex flex-col h-full space-y-2 border border-zinc-400 rounded-lg bg-white dark:bg-zinc-800 p-2"
+                className="flex flex-col h-full space-y-2 border border-zinc-400 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden"
               >
-                <div className="grid grid-cols-2 ">
-                  <p className="text-lg font-bold">{row.name}</p>
+                <div className="grid grid-cols-2  ">
+                  <p className="text-lg font-bold truncate">{row.name}</p>
                   <div className="flex flex-row justify-end space-x-2">
                     <a
                       href="#"
-                      className="text-zinc-600 hover:text-primary-600 dark:text-zinc-400 dark:hover:text-primary-400"
+                      className="text-zinc-600 hover:text-primary-600 dark:text-zinc-400 dark:hover:text-primary-400 truncate"
                       onClick={() =>
                         router.push({
                           pathname: "/sources/edit",
@@ -81,24 +81,24 @@ const Sources: React.FC<Props> = (props) => {
                 </div>
 
                 <div className="grid grid-cols-2 items-center">
-                  <p className="text-base text-zinc-600 dark:text-zinc-400">
+                  <p className="text-base text-zinc-600 dark:text-zinc-400 truncate">
                     Host
                   </p>
-                  <p className="text-base">{row.host}</p>
+                  <p className="text-base truncate">{row.host}</p>
                 </div>
 
                 <div className="grid grid-cols-2 items-center">
-                  <p className="text-base text-zinc-600 dark:text-zinc-400">
+                  <p className="text-base text-zinc-600 dark:text-zinc-400 truncate">
                     Database
                   </p>
-                  <p className="text-base">{row.database}</p>
+                  <p className="text-base truncate">{row.database}</p>
                 </div>
 
                 <div className="grid grid-cols-2 items-center">
-                  <p className="text-base text-zinc-600 dark:text-zinc-400">
+                  <p className="text-base text-zinc-600 dark:text-zinc-400 truncate">
                     Port
                   </p>
-                  <p className="text-base">{row.port}</p>
+                  <p className="text-base truncate">{row.port}</p>
                 </div>
               </div>
             );

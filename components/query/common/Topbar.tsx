@@ -114,16 +114,19 @@ const QueryTopBar: React.FC<Props> = (props) => {
               trueIcon={<TableIcon />}
               falseIcon={<CodeIcon />}
             />
-            {savedAt && !saving && (
-              <p className="text-sm mt-2">{`Last saved: ${dateFormatter({
-                dateVar: savedAt,
-                type: "time",
-              })}`}</p>
-            )}
-            {!savedAt && !saving && (
-              <p className="text-sm text-red-500">Changes not saved</p>
-            )}
-            {saving && <p className="text-sm">Saving...</p>}
+
+            <div className="text-sm mt-2">
+              {!savedAt && !saving && (
+                <p className=" text-red-500">Changes not saved</p>
+              )}
+              {savedAt && !saving && (
+                <p className="text-sm ">{`Last saved: ${dateFormatter({
+                  dateVar: savedAt,
+                  type: "time",
+                })}`}</p>
+              )}
+              {saving && <p className="text-sm">Saving...</p>}
+            </div>
           </div>
         </div>
       </div>
