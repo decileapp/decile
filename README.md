@@ -1,15 +1,16 @@
 <p align="center">
+<img width="150" src="./assets/decile-logo.png"/>
 <h1 align="center"><b>Decile</b></h1>
 <p align="center">
-  Your Data OS
+  Query builder and scheduler for Postgres.
     <br />
     <a href="https://decile.app"><strong>Early access</strong></a>
   </p>
 </p>
 
-Allow anyone in your company to get the data they need. Manage access to data.
+Decile lets anyone get the data they need.
 
-Connect any postgres database. Query using our online SQL editor or query builder. Save and share queries with your team. Export to Google Sheets using our integration. Schedule automatic exports to update your reports.
+Connect any postgres database. Query using our online SQL editor or query builder. Save and share queries with your team. Export to Google Sheets. Schedule queries and automatically update your Google Sheet.
 
 <p align="center">
   <br />
@@ -19,7 +20,7 @@ Connect any postgres database. Query using our online SQL editor or query builde
   <br />
 </p>
 
-This repo contains the open-source code to host your own version of Decile. Otherwise, join the waitlist for our [hosted version](https://decile.app).
+This repo contains the open-source code to host your own version of Decile. Join the waitlist for our [hosted version](https://decile.app).
 
 Contributions welcome!
 
@@ -40,14 +41,16 @@ We use the GNU GPL V3 license. See LICENSE for more details.
 - [x] Authentication UIs including sign in and sign up
 - [x] Google sign in
 - [x] Invite your team to share queries
+- [x] Admin and user roles
 - [x] Add any Postgres database
 - [x] Online SQL Edior
+- [x] Query without SQL
 - [x] Export to Google Sheets
 - [x] Schedule queries by hour, day, week or month
 
 ### In-progress
 
-- [ ] Query builder for people who don't know SQL
+- [ ] Email notifications
 
 ### Backlog
 
@@ -59,7 +62,7 @@ We use the GNU GPL V3 license. See LICENSE for more details.
 **1. Clone this repository**
 
 ```bash
-git clone https://github.com/decile
+git clone https://github.com/decileapp/decile
 cd decile
 ```
 
