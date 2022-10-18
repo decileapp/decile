@@ -124,8 +124,7 @@ const QuerySortLimit: React.FC = () => {
         queryVars.length > 0 &&
         querySortBy &&
         querySortBy.length > 0 && (
-          <div className="grid grid-cols-1 gap-2 mt-2">
-            {" "}
+          <div className="grid grid-cols-1 gap-2 mt-2 relative">
             {querySortBy?.map((q, id) => {
               return (
                 <div className="grid grid-cols-12 gap-2 justify-start" key={id}>

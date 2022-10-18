@@ -72,7 +72,7 @@ const QueryVariableSelector: React.FC = (props) => {
         </a>
       </div>
       {columns && columns.length > 0 && (
-        <div className="grid grid-cols-6 gap-2  mt-2">
+        <div className="grid grid-cols-6 gap-2  mt-2 ">
           {sortedColumns &&
             sortedColumns.map((c, id) => {
               let excluded = true;

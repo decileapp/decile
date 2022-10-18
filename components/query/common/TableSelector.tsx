@@ -35,7 +35,7 @@ const TableSelector: React.FC<{ queryBuilder?: boolean }> = (props) => {
             <InputLabel title="Select Table" />
           </div>
           {props.queryBuilder && (
-            <div className="flex flex-row justify-end items-center space-x-1 ">
+            <div className="flex flex-row justify-end items-center space-x-2 ">
               <p className="text-sm font-bold">Rows</p>
               <input
                 className="border rounded-md text-sm p-1 flex-grow-0 w-20"

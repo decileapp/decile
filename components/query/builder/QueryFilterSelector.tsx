@@ -146,7 +146,7 @@ const QueryFilterSelector: React.FC = () => {
       </div>
 
       {queryFilterBy && queryFilterBy && queryFilterBy.length > 0 && (
-        <div className="grid grid-cols-1 gap-2 mt-2 ">
+        <div className="grid grid-cols-1 gap-2 mt-2 relative">
           {queryFilterBy?.map((q, id) => {
             // Find var
             const foundVar = columns?.find((c) => c.name === q.var);

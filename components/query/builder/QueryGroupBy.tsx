@@ -133,7 +133,10 @@ const QueryGroupBy = () => {
               : textSummarise;
 
             return (
-              <div className="grid grid-cols-12 gap-2 justify-start" key={id}>
+              <div
+                className="grid grid-cols-12 gap-2 justify-start relative"
+                key={id}
+              >
                 <div className="col-span-4 flex flex-row justify-start items-center w-full">
                   <MiniSelect
                     options={filterVarOptions}
