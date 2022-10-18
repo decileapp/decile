@@ -55,7 +55,7 @@ const AppLayout: React.FC = ({ children }) => {
           rel="stylesheet"
         />
       </Head>
-      <div className="flex h-screen w-screen bg-slate-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-hidden">
+      <div className="flex h-screen w-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-white overflow-hidden">
         {comp}
       </div>
     </div>

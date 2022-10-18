@@ -22,7 +22,7 @@ const PageLayout: React.FC<Props> = ({
     <div
       className={classNames(
         padding ? "px-4 " : "",
-        "flex flex-col flex-grow h-full "
+        "flex flex-col flex-grow h-full overflow-hidden"
       )}
     >
       {children}

@@ -2,15 +2,19 @@
 <img width="150" src="./public/decile_logo.png"/>
 <h1 align="center"><b>Decile</b></h1>
 <p align="center">
-  Query builder and scheduler for Postgres.
-    <br />
-    <a href="https://decile.app"><strong>Early access</strong></a>
-  </p>
+Simple, open-source analytics tool for any Postgres database.
+<br />
+<a href="https://decile.app" align="center"><strong>Early access</strong></a>
+<br />
+</p>
+<p >
+Connect any postgres database. Query using our online SQL editor or query builder. Save and share queries with your team. Export to Google Sheets. Schedule queries and automatically update your Google Sheet.
+<br />
+
 </p>
 
-Decile lets anyone get the data they need.
-
-Connect any postgres database. Query using our online SQL editor or query builder. Save and share queries with your team. Export to Google Sheets. Schedule queries and automatically update your Google Sheet.
+<br />
+  <img src="./public/screenshot.png" style="border-radius: 10px;" />
 
 <p align="center">
   <br />
@@ -54,7 +58,8 @@ We use the GNU GPL V3 license. See LICENSE for more details.
 
 ### Backlog
 
-- [ ] Built-in analytics
+- [ ] Charts and graphs
+- [ ] Dashboards
 - [ ] Database access management
 
 ## Getting Started
