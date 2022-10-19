@@ -33,7 +33,6 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import QueryTopBar from "./common/Topbar";
 import QueryEditor from "./editor";
 import { FilterBy, GroupBy, QueryVar, SortBy } from "../../utils/query";
-import { string } from "yup";
 
 interface Props {
   id?: string;
@@ -171,12 +170,10 @@ const QueryForm: React.FC<Props> = (props) => {
       setData(null);
       const selectedDb = props?.sources.find((s) => s.id === selectedSource);
 
-      // If using query builder, get the latest query
-      if (queryBuilder) {
-        setBody(buildQuery);
+      if (!selectedDb) {
+        toast.error("Database not found.");
       }
 
-      if (!selectedDb) return;
       const res = await axios.post<{ rows: any[]; fields: any[]; error: any }>(
         "/api/user/postgres",
         {
@@ -191,6 +188,7 @@ const QueryForm: React.FC<Props> = (props) => {
         setQueryLoading(false);
         return;
       }
+
       if (res.data.fields && res.data.rows) {
         const fields: string[] = res.data.fields.map((f: any) => f.name);
         const rows: {}[] = res.data.rows;
@@ -208,7 +206,7 @@ const QueryForm: React.FC<Props> = (props) => {
   };
 
   // Validate inputs
-  const validateLink = (input: Props) => {
+  const validateQuery = (input: Props) => {
     const { name, database, body } = input;
     // Validation
     if (!name) {
@@ -246,7 +244,6 @@ const QueryForm: React.FC<Props> = (props) => {
       toast.error("Failed to save query");
     }
   }
-
   // Autosave
   const debouncedSave = useCallback(
     _.debounce(async (data: Props) => {
@@ -319,7 +316,7 @@ const QueryForm: React.FC<Props> = (props) => {
 
   // Auto save
   useEffect(() => {
-    if (name && body && !saving) {
+    if (!saving) {
       const input = {
         name: name,
         database: selectedSource,
@@ -333,7 +330,10 @@ const QueryForm: React.FC<Props> = (props) => {
         query_sort_by: querySortBy,
         query_limit: queryLimit,
       };
-      if (validateLink(input)) {
+      if (queryBuilder) {
+        setBody(buildQuery);
+      }
+      if (validateQuery(input)) {
         debouncedSave(input);
       }
     }

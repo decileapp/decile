@@ -107,7 +107,6 @@ export const buildQueryState = selector({
     // Validate
     if (!table) return;
     if (!vars) return;
-    if (!limit) return;
 
     let query: QueryInputs;
     query = {
@@ -139,7 +138,6 @@ export const buildQueryState = selector({
       }
       query.sortBy = sort;
     }
-
     return queryBuilder(query);
   },
 });

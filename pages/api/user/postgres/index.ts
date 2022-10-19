@@ -15,17 +15,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         port: port,
         ssl: ssl,
       });
-      try {
-        const result = await pool.query(body);
-        return res
-          .status(200)
-          .json({ rows: result.rows, fields: result.fields });
-      } catch (e: any) {
-        return res.status(200).json({ error: e.hint });
-      }
+      const result = await pool.query(body);
+      return res.status(200).json({ rows: result.rows, fields: result.fields });
     } catch (e: any) {
       console.log(e);
-
       throw new Error(`Something went wrong.`);
     }
   } else {
