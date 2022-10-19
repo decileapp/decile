@@ -37,7 +37,6 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           userId: user.id,
           orgId: user.user_metadata.org_id,
         });
-
         // If data available
         if (queryData) {
           // Format data for google sheets
@@ -49,7 +48,6 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
             range: range,
             data: rowData,
           });
-
           // Add to DB
           const { data, error } = await supabase.from("export").insert({
             query_id: queryId,
@@ -59,10 +57,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           });
           res.status(200).json({ spreadsheetId: createdSheet });
           return;
+        } else {
+          throw new Error("Something went wrong with your query.");
         }
       }
-      res.status(200).json({});
-      return;
     } catch (e: any) {
       console.log(e);
 

@@ -2,13 +2,10 @@ import { useRouter } from "next/router";
 import { Source } from "../../types/Sources";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
-import TableShell from "../../components/individual/table/shell";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
-import TableHeader from "../../components/individual/table/header";
-import protectSSR from "../../utils/auth/protectSSR";
 
 interface Props {
   sources: Source[];
@@ -25,6 +22,38 @@ const Sources: React.FC<Props> = (props) => {
   async function deleteSource(id: string) {
     setLoading(true);
 
+    // Check if there are queries
+    const { data: foundQueries, error: queryError } = await supabase
+      .from("queries")
+      .select("id")
+      .match({ user_id: user?.id || "", database: parseInt(id, 10) });
+
+    if (foundQueries && foundQueries?.length > 0) {
+      // Exports
+      const { data: exports } = await supabase
+        .from("export")
+        .delete()
+        .in(
+          "query_id",
+          foundQueries.map((e) => e.id)
+        );
+      if (exports && exports.length > 0) {
+        // Schedule
+        const { data: schedules } = await supabase
+          .from("schedule")
+          .delete()
+          .in(
+            "export_id",
+            exports.map((e) => e.id)
+          );
+      }
+      // Check if there are queries
+      const { data: deletedQueries, error: queryError } = await supabase
+        .from("queries")
+        .delete()
+        .match({ user_id: user?.id || "", database: parseInt(id, 10) });
+    }
+
     const { data, error } = await supabase
       .from<Source>("sources")
       .delete()
@@ -32,6 +61,7 @@ const Sources: React.FC<Props> = (props) => {
     if (data) {
       setDeletedId(undefined);
     }
+    window.location.reload();
     setLoading(false);
     return;
   }
@@ -114,7 +144,7 @@ const Sources: React.FC<Props> = (props) => {
         open={deletedId ? true : false}
         setOpen={() => setDeletedId(undefined)}
         title="Delete source?"
-        description="Are sure you want to delete this source?"
+        description="Are sure you want to delete this source? All queries, exports and schedules will be removed."
         confirmFunc={() => deleteSource(deletedId || "")}
         id="popup"
         name="popup"
