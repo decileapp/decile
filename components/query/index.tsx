@@ -5,7 +5,6 @@ import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
 import { toast, ToastContainer } from "react-toastify";
-import { Column } from "../../types/Column";
 import _ from "lodash";
 import Results from "./common/results";
 import QueryBuilder from "./builder";
@@ -158,14 +157,52 @@ const QueryForm: React.FC<Props> = (props) => {
       return;
     }
   };
+
+  // Validate inputs
+  const validateQuery = () => {
+    // Validation
+    if (!selectedSource) {
+      toast.error("Please choose a database.");
+      return false;
+    }
+
+    if (!selectedTable) {
+      toast.error("Please choose a table.");
+      return false;
+    }
+
+    // if query builder
+    if (queryBuilder) {
+      if (queryVars.length === 0) {
+        toast.error("No variables selected");
+        return false;
+      }
+    } else {
+      if (!body) {
+        setError({ body: "Please enter a query" });
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   // Query
   const queryDb = async () => {
     setQueryLoading(true);
-    if (!props.sources || !selectedSource) {
+    if (!validateQuery()) {
       setQueryLoading(false);
-      toast.error("Please choose a database.");
       return;
     }
+
+    if (!props.sources) {
+      return;
+    }
+
+    if (props.sources.length === 0) {
+      return;
+    }
+
     try {
       setData(null);
       const selectedDb = props?.sources.find((s) => s.id === selectedSource);
@@ -206,7 +243,7 @@ const QueryForm: React.FC<Props> = (props) => {
   };
 
   // Validate inputs
-  const validateQuery = (input: Props) => {
+  const validateSave = (input: Props) => {
     const { name, database, body } = input;
     // Validation
     if (!name) {
@@ -310,6 +347,11 @@ const QueryForm: React.FC<Props> = (props) => {
   // When table changes
   useEffect(() => {
     if (selectedSource && selectedTable) {
+      setQueryVars([]);
+      setQueryFilterBy([]);
+      setQueryGroupBy([]);
+      setQuerySortBy([]);
+      setQueryLimit("50");
       getColumns();
     }
   }, [selectedTable]);
@@ -333,7 +375,7 @@ const QueryForm: React.FC<Props> = (props) => {
       if (queryBuilder) {
         setBody(buildQuery);
       }
-      if (validateQuery(input)) {
+      if (validateSave(input)) {
         debouncedSave(input);
       }
     }
