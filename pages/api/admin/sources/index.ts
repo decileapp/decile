@@ -54,6 +54,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
 
       if (!tables) {
         res.status(500).json({ error: "Failed to connect to DB" });
+        return;
       }
 
       let { data, error } = await supabase
@@ -77,6 +78,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       res.status(200).json({ id: data?.id });
+      return;
     } catch (e: any) {
       console.log(e);
 
