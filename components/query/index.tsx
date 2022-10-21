@@ -177,6 +177,35 @@ const QueryForm: React.FC<Props> = (props) => {
         toast.error("No variables selected");
         return false;
       }
+
+      // Check no filters are empty
+      if (queryFilterBy.length > 0) {
+        const badFilters = queryFilterBy.find(
+          (q) => !q.combo || !q.operator || !q.value || !q.var
+        );
+        if (badFilters) {
+          toast.error("Please check your filters.");
+          return false;
+        }
+      }
+
+      // Check no summarise is empty
+      if (queryGroupBy.length > 0) {
+        const badGroupBy = queryGroupBy.find((q) => !q.name || q.function);
+        if (badGroupBy) {
+          toast.error("Please check your summarise fields.");
+          return false;
+        }
+      }
+
+      // Check sort by is not empty
+      if (querySortBy.length > 0) {
+        const badSort = querySortBy.find((q) => !q.name || q.type);
+        if (badSort) {
+          toast.error("Please check your sort fields.");
+          return false;
+        }
+      }
     } else {
       if (!body) {
         setError({ body: "Please enter a query" });

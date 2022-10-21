@@ -1,6 +1,6 @@
 import _ from "lodash";
 import QueryFilterSelector from "./QueryFilterSelector";
-import QueryTableSelector from "../common/TableSelector";
+import QueryTableSelector from "./TableSelector";
 import QueryVariableSelector from "./QueryVariableSelector";
 import QuerySortLimit from "./QuerySortLimit";
 import QueryGroupBy from "./QueryGroupBy";

@@ -1,14 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import Loading from "../../individual/Loading";
-import axios from "axios";
-import { supabase } from "../../../utils/supabaseClient";
-import Page from "../../layouts/Page";
 import { Source } from "../../../types/Sources";
 import TextInput from "../../individual/TextInput";
 import Select from "../../individual/Select";
 import Switch from "../../individual/Switch";
-import { toast, ToastContainer } from "react-toastify";
-import { Column } from "../../../types/Column";
 import _ from "lodash";
 import dateFormatter from "../../../utils/dateFormatter";
 import {
@@ -17,28 +10,8 @@ import {
   EyeOffIcon,
   TableIcon,
 } from "@heroicons/react/outline";
-import Columnns from "./../editor/columns";
-import Results from "./results";
-import Editor from "./../editor/editor";
-import QueryBuilder from "./../builder";
-import { classNames } from "../../../utils/classnames";
-import {
-  bodyState,
-  buildQueryState,
-  columnsLoadingState,
-  columnsState,
-  dataState,
-  fieldsState,
-  nameState,
-  publicQueryState,
-  queryVarsState,
-  selectedSourceState,
-  selectedTableState,
-  tableLoadingState,
-  tablesState,
-} from "../../../utils/contexts/query/state";
-import { useRecoilState, useRecoilValue } from "recoil";
-import TableSelector from "./../common/TableSelector";
+import { selectedSourceState } from "../../../utils/contexts/query/state";
+import { useRecoilState } from "recoil";
 
 interface Props {
   id?: string;

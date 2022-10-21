@@ -6,26 +6,46 @@ import {
   columnsLoadingState,
   columnsState,
 } from "../../../utils/contexts/query/state";
+import { isNumerical } from "../../../utils/query";
+import { classNames } from "../../../utils/classnames";
 
 const Columnns: React.FC = () => {
   const [columnsLoading, setColumnsLoading] =
     useRecoilState(columnsLoadingState);
   const [columns, setColumns] = useRecoilState(columnsState);
 
+  // Sort columns
+  const numerical = columns?.filter((c) => isNumerical(c.type));
+  const textual = columns?.filter((c) => !isNumerical(c.type));
+  let sortedColumns = textual;
+  if (numerical) {
+    sortedColumns = textual?.concat(numerical);
+  }
+
   return (
     <>
-      <InputLabel title="Fields" />
+      <InputLabel title="Columns" />
       <div className="mt-2">
-        {columns && columns.length > 0 && (
-          <div className="grid grid-cols-1 gap-2">
-            {columns.map((c, id) => {
+        {sortedColumns && sortedColumns.length > 0 && (
+          <div className="grid grid-cols-1 gap-3">
+            {sortedColumns.map((c, id) => {
               return (
                 <div
-                  className="flex flex-row space-x-1 justify-between items-center  key={id} border rounded-lg p-1"
+                  className={
+                    "flex flex-row space-x-1 justify-between items-center  key={id}  rounded-lg "
+                  }
                   key={id}
                 >
                   <p className=" text-sm truncate">{c.name}</p>
-                  <p className=" text-xs truncate italic" key={id}>
+                  <p
+                    className={classNames(
+                      isNumerical(c.type)
+                        ? "text-primary-600"
+                        : "text-secondary-600",
+                      "text-xs truncate italic"
+                    )}
+                    key={id}
+                  >
                     {c.type}
                   </p>
                 </div>
