@@ -8,10 +8,15 @@ import {
   CodeIcon,
   EyeIcon,
   EyeOffIcon,
+  InformationCircleIcon,
   TableIcon,
 } from "@heroicons/react/outline";
 import { selectedSourceState } from "../../../utils/contexts/query/state";
 import { useRecoilState } from "recoil";
+import { useState } from "react";
+import Schema from "./schema";
+import FullPageDialog from "../../individual/FullPageDialog";
+import Button from "../../individual/Button";
 
 interface Props {
   id?: string;
@@ -30,6 +35,7 @@ interface Props {
 const QueryTopBar: React.FC<Props> = (props) => {
   const [selectedSource, setSelectedSource] =
     useRecoilState(selectedSourceState);
+  const [diagram, setDiagram] = useState(false);
   const {
     id,
     name,
@@ -43,6 +49,14 @@ const QueryTopBar: React.FC<Props> = (props) => {
     saving,
     error,
   } = props;
+
+  if (diagram) {
+    return (
+      <FullPageDialog open={diagram} setOpen={setDiagram}>
+        <Schema sources={sources} />
+      </FullPageDialog>
+    );
+  }
 
   return (
     <div>
@@ -78,8 +92,15 @@ const QueryTopBar: React.FC<Props> = (props) => {
             falseIcon={<EyeOffIcon />}
           />
         </div>
-        <div className="flex flex-row justify-end items-end">
-          <div className="flex flex-col items-end ">
+        <div className="flex flex-row justify-end items-start">
+          <Button
+            onClick={() => setDiagram(!diagram)}
+            label="Summary"
+            type="text-plain"
+            icon={<InformationCircleIcon className="h-5 w-5" />}
+          />
+
+          <div className="flex flex-col items-end justify-start ">
             <p>{queryBuilder ? "Query builder" : "Write SQL"}</p>
             <Switch
               setSelected={setQueryBuilder}
