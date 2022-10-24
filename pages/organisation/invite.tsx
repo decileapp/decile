@@ -15,7 +15,6 @@ interface Props {
 }
 
 const InviteOrganisation: React.FC<Props> = (props) => {
-  const router = useRouter();
   const user = supabase.auth.user();
   const session = supabase.auth.session();
   const [email, setEmail] = useState<string | undefined>();

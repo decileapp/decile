@@ -19,6 +19,7 @@ import { useTheme } from "next-themes";
 import Switch from "../../individual/Switch";
 import { classNames } from "../../../utils/classnames";
 import axios from "axios";
+import Link from "next/link";
 
 interface Item {
   name: string;
@@ -132,7 +133,8 @@ const Topbar: React.FC = ({ children }) => {
                           <a
                             className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                            href="/organisation"
+                            onClick={() => router.push("/organisation")}
+                            href="#"
                           >
                             {user?.user_metadata.org_name}
                           </a>
@@ -202,7 +204,8 @@ const Topbar: React.FC = ({ children }) => {
                         <a
                           className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                          href="/organisation"
+                          onClick={() => router.push("/organisation")}
+                          href="#"
                         >
                           {user?.user_metadata.org_name}
                         </a>

@@ -2,18 +2,8 @@ import { useRouter } from "next/router";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import TableShell from "../../components/individual/table/shell";
-import { useState } from "react";
-import ConfirmDialog from "../../components/individual/ConfirmDialog";
-import { TrashIcon } from "@heroicons/react/outline";
-import { Query } from "../../types/Query";
 import { GetServerSideProps } from "next";
-import Cookies from "cookies";
-
-import { getUser } from "@supabase/auth-helpers-nextjs";
-import dateFormatter from "../../utils/dateFormatter";
 import TableHeader from "../../components/individual/table/header";
-import { toast } from "react-toastify";
-import axios from "axios";
 import { Org_User } from "../../types/Organisation";
 
 interface Props {
@@ -48,23 +38,6 @@ const Organisation: React.FC<Props> = (props) => {
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6 truncate">
                         {row.role_id.name}
-                      </td>
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <a
-                          href="#"
-                          className="text-primary-600 hover:text-primary-900"
-                          onClick={() =>
-                            router.push({
-                              pathname: "/queries/edit",
-                              query: {
-                                id: row.id,
-                              },
-                            })
-                          }
-                        >
-                          Edit
-                          <span className="sr-only">, {row.name}</span>
-                        </a>
                       </td>
                     </tr>
                   );
