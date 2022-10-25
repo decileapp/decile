@@ -1,12 +1,10 @@
 import { useRouter } from "next/router";
 import { useEffect, Fragment, useState } from "react";
 import Loading from "../components/individual/Loading";
-import { event } from "../utils/mixpanel";
 import { supabase } from "../utils/supabaseClient";
 import queryString from "querystring";
 import { GetServerSideProps } from "next";
 import { Query } from "../types/Query";
-import Search from "../components/individual/Search";
 import { Source } from "../types/Sources";
 import { Schedule } from "../types/Schedule";
 import Page from "../components/layouts/Page";
@@ -24,8 +22,6 @@ const Home: React.FC<Props> = (props) => {
   const { queries, sources, schedule } = props;
 
   useEffect(() => {
-    event("landing_page", {});
-
     // Detect auth changes
     supabase.auth.onAuthStateChange((_event, session) => {
       if (_event === "PASSWORD_RECOVERY") {
