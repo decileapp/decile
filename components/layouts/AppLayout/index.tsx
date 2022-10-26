@@ -14,7 +14,7 @@ const AppLayout: React.FC = ({ children }) => {
   useEffect(() => {
     setLoading(true);
 
-    if (!user) {
+    if (user) {
       if (!user.user_metadata.org_id) {
         router.push("/organisation/new");
       }
