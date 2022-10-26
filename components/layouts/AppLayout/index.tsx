@@ -15,9 +15,6 @@ const AppLayout: React.FC = ({ children }) => {
     setLoading(true);
 
     if (!user) {
-      setLoading(false);
-      router.push("/auth/signin");
-    } else {
       if (!user.user_metadata.org_id) {
         router.push("/organisation/new");
       }
