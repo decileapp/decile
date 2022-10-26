@@ -35,7 +35,7 @@ const InviteOrganisation: React.FC<Props> = (props) => {
         .match({ invited_email: email, org_id: user.user_metadata.org_id })
         .single();
 
-      if (!data) {
+      if (data) {
         toast.error("This user has already been invited.");
         return;
       }
