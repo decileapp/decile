@@ -12,10 +12,16 @@ const AppLayout: React.FC = ({ children }) => {
   const router = useRouter();
   const session = supabase.auth.session();
   useEffect(() => {
-    if (user) {
+    setLoading(true);
+
+    if (!user) {
+      setLoading(false);
+      router.push("/auth/signin");
+    } else {
       if (!user.user_metadata.org_id) {
         router.push("/organisation/new");
       }
+      setLoading(false);
     }
   }, [session, user]);
 

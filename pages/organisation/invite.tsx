@@ -27,7 +27,7 @@ const InviteOrganisation: React.FC<Props> = (props) => {
       if (!email) {
         toast.error("Please enter an email address.");
       }
-      const res = await axios.post("/api/email", {
+      const res = await axios.post("/api/admin/email", {
         email: email,
         admin: user?.email,
         link: `${process.env.NEXT_PUBLIC_ORIGIN}auth/signup?orgId=${session?.user?.user_metadata.org_id}&roleId=${role}`,
@@ -60,12 +60,13 @@ const InviteOrganisation: React.FC<Props> = (props) => {
         />
         <Select
           name="role"
+          description="Admins can configure sources and invite other users."
           id="role"
           setSelected={setRole}
           value={role || ""}
           options={[
             { name: "Admin", value: "1" },
-            { name: "Member", value: "2" },
+            { name: "User", value: "2" },
           ]}
           title="Role"
         />
