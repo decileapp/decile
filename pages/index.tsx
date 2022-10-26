@@ -42,6 +42,7 @@ const Home: React.FC<Props> = (props) => {
     setLoading(false);
     return;
   }, [user?.id]);
+
   return (
     <Page>
       {loading ? (

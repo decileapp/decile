@@ -7,6 +7,7 @@ import Button from "../../components/individual/Button";
 import validator from "validator";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { setAuthCookieForServer } from "../../utils/auth/setAuthCookie";
 
 const Signup: NextPage = () => {
   const router = useRouter();
@@ -64,19 +65,7 @@ const Signup: NextPage = () => {
         return;
       }
 
-      if (user) {
-        // If user has been invited, include meta data
-        if (orgId && roleId) {
-          const res = await axios.post("/api/org", {
-            orgId: orgId,
-            roleId: roleId,
-            userId: user.id,
-          });
-        }
-        setCheckEmail(true);
-      } else {
-        console.log(error);
-      }
+      setCheckEmail(true);
       setLoading(false);
       return;
     } catch (e) {
@@ -91,16 +80,6 @@ const Signup: NextPage = () => {
       const { user, session, error } = await supabase.auth.signIn({
         provider: "google",
       });
-      if (user) {
-        // If user has been invited, include meta data
-        if (orgId && roleId) {
-          const res = await axios.post("/api/org", {
-            orgId: orgId,
-            roleId: roleId,
-            userId: user.id,
-          });
-        }
-      }
       return;
     } catch (e) {
       toast.error("Something went wrong");

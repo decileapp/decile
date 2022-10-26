@@ -1,10 +1,31 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import emailHelper from "../../../../utils/emailHelper";
+import { getServiceSupabase, supabase } from "../../../../utils/supabaseClient";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     try {
-      const { email, admin, link } = req.body;
+      const { email, admin, link, role_id } = req.body;
+
+      const { user, token } = await supabase.auth.api.getUserByCookie(req);
+      if (!user || !token) {
+        res.status(401).json({ error: "Not authorised" });
+        return;
+      }
+      supabase.auth.setAuth(token);
+
+      // Add the invite to DB
+      const { data, error } = await supabase.from("org_invitations").insert({
+        org_id: user.user_metadata.org_id,
+        user_id: user.id,
+        role_id: role_id,
+        invited_email: email,
+        status: "invited",
+      });
+
+      if (!data) {
+        throw new Error("Something went wrong!");
+      }
 
       const send = await emailHelper({
         from: process.env.FROM_EMAIL || "",

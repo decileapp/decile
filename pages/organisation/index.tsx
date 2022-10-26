@@ -13,6 +13,7 @@ interface Props {
 const Organisation: React.FC<Props> = (props) => {
   const router = useRouter();
   const { members } = props;
+  const user = supabase.auth.user();
 
   // Variable map
   const fields = ["Email", "Role", "", ""];
@@ -21,8 +22,12 @@ const Organisation: React.FC<Props> = (props) => {
     <>
       <Page
         title="Organisation users"
-        button="Invite"
-        onClick={() => router.push("/organisation/invite")}
+        button={user?.user_metadata.role_id === 1 ? "Invite" : undefined}
+        onClick={() =>
+          user?.user_metadata.role_id === 1
+            ? router.push("/organisation/invite")
+            : undefined
+        }
       >
         {members && members.length > 0 && (
           <div className="h-full">
@@ -62,8 +67,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     };
   }
 
-  // Admins only
-  if (user.user_metadata.role_id !== 1) {
+  // Only show if assigned to org
+  if (!user.user_metadata.org_id) {
     return {
       redirect: {
         destination: `/`,

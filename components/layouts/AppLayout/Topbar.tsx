@@ -129,7 +129,7 @@ const Topbar: React.FC = ({ children }) => {
                           falseIcon={<SunIcon />}
                         />
 
-                        {user.user_metadata.role_id === 1 && (
+                        {user.user_metadata.role_id && (
                           <a
                             className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
@@ -200,7 +200,7 @@ const Topbar: React.FC = ({ children }) => {
                   ))}
                   {user && (
                     <>
-                      {user?.user_metadata.role_id === 1 && (
+                      {user?.user_metadata.role_id && (
                         <a
                           className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"

@@ -27,10 +27,24 @@ const InviteOrganisation: React.FC<Props> = (props) => {
       if (!email) {
         toast.error("Please enter an email address.");
       }
+
+      // Check invitation doesn't exist already
+      const { data, error } = await supabase
+        .from("org_invitations")
+        .select("id")
+        .match({ invited_email: email, org_id: user.user_metadata.org_id })
+        .single();
+
+      if (!data) {
+        toast.error("This user has already been invited.");
+        return;
+      }
+
       const res = await axios.post("/api/admin/email", {
         email: email,
         admin: user?.email,
-        link: `${process.env.NEXT_PUBLIC_ORIGIN}auth/signup?orgId=${session?.user?.user_metadata.org_id}&roleId=${role}`,
+        link: `${process.env.NEXT_PUBLIC_ORIGIN}auth/signup`,
+        role_id: role,
       });
 
       if (res.data) {

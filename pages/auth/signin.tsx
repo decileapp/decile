@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import TextInput from "../../components/individual/TextInput";
 import Button from "../../components/individual/Button";
-import updateOrgForSession from "../../utils/organisation/updateOrgForSession";
 import Loading from "../../components/individual/Loading";
 import Page from "../../components/layouts/Page";
 
@@ -32,11 +31,7 @@ const Signin: NextPage = () => {
       password: password,
     });
 
-    // Add org details
-    if (user) {
-      const data = await updateOrgForSession(user);
-      router.push("/");
-    }
+    router.push("/");
 
     if (error) {
       setError("Incorrect login details.");

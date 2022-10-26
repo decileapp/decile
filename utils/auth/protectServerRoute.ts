@@ -10,18 +10,32 @@ const protectServerRoute = (handler: any) => {
       const { user, token } = await supabase.auth.api.getUserByCookie(req);
       const pathname = req.url || "";
 
-      // // Get path
+      // Path
+      // Only admin roles
       const isAdminRoute = (pathname: string) => {
         return pathname.startsWith("/api/admin");
       };
 
+      // Only user roles, assigned to org
       const isUserRoute = (pathname: string) => {
         return pathname.startsWith("/api/user");
       };
 
+      // Only internal to app
       const isInternalRoute = (pathname: string) => {
         return pathname.startsWith("/api/internal");
       };
+
+      // Before user is assigned to org
+      const isOrgRoute = (pathname: string) => {
+        return pathname.startsWith("/api/org");
+      };
+
+      // Org routes
+      if (isOrgRoute(pathname) && !user) {
+        res.status(401).json({ message: "Not authorised" });
+        return;
+      }
 
       // User routes
       if (

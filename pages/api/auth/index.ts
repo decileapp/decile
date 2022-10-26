@@ -1,8 +1,12 @@
 // pages/pages/api/auth.ts
 import { NextApiRequest, NextApiResponse } from "next";
+import updateOrgForSession from "../../../utils/organisation/updateOrgForSession";
 import { supabase } from "../../../utils/supabaseClient";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   // Set the auth cookie.
   if (req.method === "POST") {
     try {

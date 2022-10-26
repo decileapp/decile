@@ -5,18 +5,33 @@ import { supabase } from "../../../utils/supabaseClient";
 import Loading from "../../individual/Loading";
 import Topbar from "./Topbar";
 import { useRouter } from "next/router";
+import axios from "axios";
+import { User } from "@supabase/supabase-js";
 
 const AppLayout: React.FC = ({ children }) => {
   const user = supabase.auth.user();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const session = supabase.auth.session();
+
+  // Check org
+  const checkOrg = async (user: User) => {
+    if (!user.user_metadata.org_id) {
+      const res = await axios.get("/api/org");
+      if (res.data.success) {
+        return;
+      } else {
+        // If no org data, create org
+        router.push("/organisation/new");
+      }
+    }
+    return;
+  };
+
   useEffect(() => {
     setLoading(true);
     if (user) {
-      if (!user.user_metadata.org_id) {
-        router.push("/organisation/new");
-      }
+      checkOrg(user);
     }
     setLoading(false);
   }, [session, user]);
