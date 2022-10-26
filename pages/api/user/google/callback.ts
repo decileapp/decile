@@ -36,7 +36,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           scope: tokenData.credentials.scope,
           provider: "google",
         });
-      res.redirect("/google").json({});
+      res.redirect("/google");
       return;
     } catch (e: any) {
       console.log(e);

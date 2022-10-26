@@ -13,20 +13,20 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       // Check if creds are valid
-      const serviceSupabase = getServiceSupabase();
-      const { data, error } = await serviceSupabase
-        .from("integration_credentials")
-        .select("id")
-        .match({
-          user_id: user?.id,
-          provider: "google",
-        })
-        .single();
+      // const serviceSupabase = getServiceSupabase();
+      // const { data, error } = await serviceSupabase
+      //   .from("integration_credentials")
+      //   .select("id")
+      //   .match({
+      //     user_id: user?.id,
+      //     provider: "google",
+      //   })
+      //   .single();
 
-      if (data) {
-        res.status(200).json({});
-        return;
-      }
+      // if (data) {
+      //   res.status(200).json({});
+      //   return;
+      // }
 
       const auth = await authoriseGoogle();
       res.status(200).json({ link: auth });

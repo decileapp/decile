@@ -9,7 +9,7 @@ import Button from "../components/individual/Button";
 const Google: React.FC = () => {
   const [setup, setSetup] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const user = supabase.auth.user();
   const authoriseGoogle = async () => {
     try {
       const res = await axios.get("/api/user/google");
@@ -30,8 +30,30 @@ const Google: React.FC = () => {
     }
   };
 
+  const checkGoogleAuth = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("integration_credentials")
+        .select("id")
+        .match({ user_id: user?.id })
+        .single();
+      // If not authenticated open new tab for auth
+      if (data) {
+        setLoading(false);
+        setSetup(true);
+        return;
+      }
+      setLoading(false);
+      return;
+    } catch (e) {
+      toast.error("Something went wrong!");
+      setLoading(false);
+      return;
+    }
+  };
+
   useEffect(() => {
-    authoriseGoogle();
+    checkGoogleAuth();
   }, []);
 
   return (
