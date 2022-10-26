@@ -2,12 +2,9 @@ import type { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
-import FormLayout from "../../components/layouts/FormLayout";
 import TextInput from "../../components/individual/TextInput";
-import PageHeading from "../../components/layouts/Page/PageHeading";
 import Button from "../../components/individual/Button";
 import updateOrgForSession from "../../utils/organisation/updateOrgForSession";
-import Header from "../../components/layouts/Header";
 import Loading from "../../components/individual/Loading";
 import Page from "../../components/layouts/Page";
 
@@ -45,8 +42,6 @@ const Signin: NextPage = () => {
       setError("Incorrect login details.");
       setLoading(false);
       return;
-    } else {
-      console.log(error);
     }
     return;
   };

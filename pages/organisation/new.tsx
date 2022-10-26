@@ -47,19 +47,21 @@ const OrganisationPopup: React.FC<Props> = (props) => {
         .insert({
           name: orgName,
           user_id: user?.id,
+          plan_id: 1,
         })
         .single();
 
       // Create role
       if (data) {
         const { data: roleData, error: roleError } = await supabase
-          .from("roles")
+          .from("org_users")
           .insert({
             org_id: data.id,
             user_id: user?.id,
-            role: "ADMIN",
+            role_id: 1, // admin
           })
           .single();
+
         // Close dialog
         if (roleData) {
           await updateOrgForSession(user);
@@ -125,13 +127,15 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   // Admins only
-  if (user.user_metadata.role_id !== 1) {
-    return {
-      redirect: {
-        destination: `/`,
-        permanent: false,
-      },
-    };
+  if (user.user_metadata.role_id) {
+    if (user.user_metadata.role_id !== 1) {
+      return {
+        redirect: {
+          destination: `/`,
+          permanent: false,
+        },
+      };
+    }
   }
 
   supabase.auth.setAuth(token);

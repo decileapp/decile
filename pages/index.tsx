@@ -22,6 +22,10 @@ const Home: React.FC<Props> = (props) => {
   const { queries, sources, schedule } = props;
 
   useEffect(() => {
+    if (!user) {
+      router.push("/auth/signin");
+    }
+
     // Detect auth changes
     supabase.auth.onAuthStateChange((_event, session) => {
       if (_event === "PASSWORD_RECOVERY") {
@@ -98,15 +102,11 @@ const Home: React.FC<Props> = (props) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
-    return {
-      redirect: {
-        destination: `/auth/signin`,
-        permanent: false,
-      },
-    };
-  }
 
+  // Not handling auth on server side because auth token needs to be set
+  if (!user || !token) {
+    return { props: {} };
+  }
   supabase.auth.setAuth(token);
 
   const { data: sources, error: sourceError } = await supabase

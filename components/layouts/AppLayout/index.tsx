@@ -11,10 +11,11 @@ const AppLayout: React.FC = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const session = supabase.auth.session();
-
   useEffect(() => {
-    if (user && !session?.user?.user_metadata.org_id) {
-      router.push("/organisation/new");
+    if (user) {
+      if (!user.user_metadata.org_id) {
+        router.push("/organisation/new");
+      }
     }
   }, [session, user]);
 
