@@ -70,7 +70,7 @@ const Reset: NextPage = () => {
 
   useEffect(() => {
     if (user) {
-      router.push("/profile");
+      router.push("/");
       return;
     }
   }, [user]);

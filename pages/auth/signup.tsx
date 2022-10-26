@@ -2,12 +2,11 @@ import type { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
-import FormLayout from "../../components/layouts/FormLayout";
 import TextInput from "../../components/individual/TextInput";
-import PageHeading from "../../components/layouts/Page/PageHeading";
 import Button from "../../components/individual/Button";
 import validator from "validator";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Signup: NextPage = () => {
   const router = useRouter();
@@ -45,57 +44,68 @@ const Signup: NextPage = () => {
   };
 
   const signUp = async () => {
-    setError("");
-    setLoading(true);
-    const validate = validateSignup();
-    if (!validate) {
-      setLoading(false);
-      return;
-    }
-
-    const { user, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
-
-    if (error) {
-      setError("Something went wrong.");
-      setLoading(false);
-      return;
-    }
-
-    if (user) {
-      // If user has been invited, include meta data
-      if (orgId && roleId) {
-        const res = await axios.post("/api/org", {
-          orgId: orgId,
-          roleId: roleId,
-          userId: user.id,
-        });
+    try {
+      setError("");
+      setLoading(true);
+      const validate = validateSignup();
+      if (!validate) {
+        setLoading(false);
+        return;
       }
-      setCheckEmail(true);
-    } else {
-      console.log(error);
+
+      const { user, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        setError("Something went wrong.");
+        setLoading(false);
+        return;
+      }
+
+      if (user) {
+        // If user has been invited, include meta data
+        if (orgId && roleId) {
+          const res = await axios.post("/api/org", {
+            orgId: orgId,
+            roleId: roleId,
+            userId: user.id,
+          });
+        }
+        setCheckEmail(true);
+      } else {
+        console.log(error);
+      }
+      setLoading(false);
+      return;
+    } catch (e) {
+      toast.error("Something went wrong.");
+      setLoading(false);
+      return;
     }
-    setLoading(false);
-    return;
   };
 
   const googleSignUp = async () => {
-    const { user, session, error } = await supabase.auth.signIn({
-      provider: "google",
-    });
-    if (user) {
-      // If user has been invited, include meta data
-      if (orgId && roleId) {
-        const res = await axios.post("/api/org", {
-          orgId: orgId,
-          roleId: roleId,
-          userId: user.id,
-        });
+    try {
+      const { user, session, error } = await supabase.auth.signIn({
+        provider: "google",
+      });
+      if (user) {
+        // If user has been invited, include meta data
+        if (orgId && roleId) {
+          const res = await axios.post("/api/org", {
+            orgId: orgId,
+            roleId: roleId,
+            userId: user.id,
+          });
+        }
       }
+      return;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return;
     }
-    return;
   };
 
   useEffect(() => {

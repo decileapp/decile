@@ -13,13 +13,12 @@ const AppLayout: React.FC = ({ children }) => {
   const session = supabase.auth.session();
   useEffect(() => {
     setLoading(true);
-
     if (user) {
       if (!user.user_metadata.org_id) {
         router.push("/organisation/new");
       }
-      setLoading(false);
     }
+    setLoading(false);
   }, [session, user]);
 
   let comp: ReactNode;
