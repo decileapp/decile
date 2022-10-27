@@ -32,33 +32,40 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         res.status(200).json({ link: link });
         return;
       } else {
-        const queryData = await queryById({
-          queryId: queryId,
-          userId: user.id,
-          orgId: user.user_metadata.org_id,
-        });
-        // If data available
-        if (queryData) {
-          // Format data for google sheets
-          const rowData = formatForSheets(queryData);
-          // Export to Google sheet
-          const createdSheet = await createAndWriteSpreadsheet({
-            auth: auth,
-            title: title,
-            range: range,
-            data: rowData,
+        try {
+          const queryData = await queryById({
+            queryId: queryId,
+            userId: user.id,
+            orgId: user.user_metadata.org_id,
           });
-          // Add to DB
-          const { data, error } = await supabase.from("export").insert({
-            query_id: queryId,
-            spreadsheet: createdSheet,
-            user_id: user.id,
-            org_id: user.user_metadata.org_id,
-          });
-          res.status(200).json({ spreadsheetId: createdSheet });
+          // If data available
+          if (queryData) {
+            // Format data for google sheets
+            const rowData = formatForSheets(queryData);
+            // Export to Google sheet
+            const createdSheet = await createAndWriteSpreadsheet({
+              auth: auth,
+              title: title,
+              range: range,
+              data: rowData,
+            });
+            // Add to DB
+            const { data, error } = await supabase.from("export").insert({
+              query_id: queryId,
+              spreadsheet: createdSheet,
+              user_id: user.id,
+              org_id: user.user_metadata.org_id,
+            });
+            res.status(200).json({ spreadsheetId: createdSheet });
+            return;
+          } else {
+            throw new Error("Something went wrong with your query.");
+          }
+          // If export does not work, reauthenticate
+        } catch (e) {
+          const link = await authoriseGoogle();
+          res.status(200).json({ link: link });
           return;
-        } else {
-          throw new Error("Something went wrong with your query.");
         }
       }
     } catch (e: any) {
