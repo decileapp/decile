@@ -9,6 +9,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const { user, token } = await supabase.auth.api.getUserByCookie(req);
 
+      if (!user) {
+        throw new Error("User not found.");
+      }
+
       const { code } = req.query;
 
       if (!code) {
@@ -18,6 +22,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
 
       const tokenData = await getNewToken(code as string);
       const serviceSupabase = getServiceSupabase();
+
+      if (!tokenData) {
+        throw new Error("Something went wrong.");
+      }
 
       // Delete existing tokens
       const { data: deleted } = await serviceSupabase
