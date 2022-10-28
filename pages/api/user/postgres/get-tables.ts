@@ -7,7 +7,6 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     try {
       const { dbUser, host, database, password, port, ssl } = req.body;
-
       const pool = new Pool({
         user: dbUser,
         host: host,

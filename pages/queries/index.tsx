@@ -3,7 +3,7 @@ import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
-import { PencilAltIcon, PencilIcon, TrashIcon } from "@heroicons/react/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
 import { Query } from "../../types/Query";
 import { GetServerSideProps } from "next";
 import dateFormatter from "../../utils/dateFormatter";
@@ -12,7 +12,6 @@ import { Export } from "../../types/Export";
 import { Schedule } from "../../types/Schedule";
 import PageHeading from "../../components/layouts/Page/PageHeading";
 import Button from "../../components/individual/Button";
-import Search from "../../components/individual/Search";
 import TextInput from "../../components/individual/TextInput";
 
 interface Props {
@@ -99,10 +98,7 @@ const Queries: React.FC<Props> = (props) => {
 
   const toQuery = (row: Query) => {
     router.push({
-      pathname: "/queries/edit",
-      query: {
-        id: row.id,
-      },
+      pathname: `/queries/${row.id}`,
     });
     return;
   };
@@ -141,18 +137,17 @@ const Queries: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 mt-2 ">
+        <div className="grid grid-cols-1 gap-4 mt-2 max-w-4xl">
           <div className="grid grid-cols-10 gap-2 ">
             <p className="col-span-3 font-bold text-md">Name</p>
             <p className="col-span-1  font-bold text-md">Public</p>
             <p className="col-span-3  font-bold text-md">Last run</p>
 
-            <p className="col-span-1 justify-end flex  font-bold text-md">
-              Edit
+            <p className="col-span-1 justify-end text-right flex  font-bold text-md">
+              Actions
             </p>
-
-            <p className="col-span-1 justify-end flex  font-bold text-md">
-              Delete
+            <p className="col-span-2 w-full justify-end text-right flex  font-bold text-md">
+              Owner
             </p>
           </div>
 
@@ -162,7 +157,7 @@ const Queries: React.FC<Props> = (props) => {
               return (
                 <div
                   key={id}
-                  className="grid grid-cols-10 gap-2 border p-2 rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                  className="grid grid-cols-10 gap-2 border-b pb-2 border-zinc-200 dark:border-zinc-700 "
                 >
                   <a
                     className="col-span-3 text-sm"
@@ -185,18 +180,17 @@ const Queries: React.FC<Props> = (props) => {
                       type: "time",
                     })}
                   </p>
+
                   <div className="col-span-1 justify-end flex">
-                    <a href="#" onClick={() => toQuery(row)}>
-                      <PencilIcon className="h-5 w-5 text-zinc-600 hover:text-primary-600 dark:hover:text-primary-400 " />
-                    </a>
-                    <span className="sr-only">, {row.name}</span>
+                    {row.user_id.id === user?.id && (
+                      <a href="#" onClick={() => setDeletedId(row.id)}>
+                        <TrashIcon className="h-5 w-5 text-zinc-600 hover:text-red-600 dark:hover:text-red-400  " />
+                      </a>
+                    )}
                   </div>
-                  <div className="col-span-1 justify-end flex">
-                    <a href="#" onClick={() => setDeletedId(row.id)}>
-                      <TrashIcon className="h-5 w-5 text-zinc-600 hover:text-red-600 dark:hover:text-red-400  " />
-                    </a>
-                    <span className="sr-only">, {row.name}</span>
-                  </div>
+                  <p className="col-span-2 text-sm text-right">
+                    {row.user_id.email}
+                  </p>
                 </div>
               );
             })}
@@ -228,7 +222,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   if (!user || !token) {
     return {
       redirect: {
-        destination: `/`,
+        destination: `/auth/signin`,
         permanent: false,
       },
     };
@@ -238,13 +232,30 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   const { data: queries, error } = await supabase
     .from<Query>("queries")
-    .select("id, name, database, body, publicQuery, updated_at, user_id");
+    .select(
+      "id, name, database, body, publicQuery, updated_at, user_id(id, email), org_id"
+    )
+    .match({ org_id: user.user_metadata.org_id });
+
+  if (!queries || queries.length === 0) {
+    return {
+      props: {
+        queries: [],
+      },
+    };
+  }
+
+  // Get only subset
+  const subQueries = queries.filter(
+    (q) => q.publicQuery || q.user_id === user.user_metadata.org_id
+  );
+
   return {
     props: {
       queries:
         queries && queries.length > 0
           ? queries.filter(
-              (q) => q.publicQuery === true || q.user_id === user.id
+              (q) => q.publicQuery === true || q.user_id.id === user.id
             )
           : [],
     },

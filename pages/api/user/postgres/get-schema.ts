@@ -40,16 +40,18 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         const rawColumns = await getColumns(t.table_schema, t.table_name);
         const columns = rawColumns.rows.map((r) => {
           return {
-            title: r.column_name,
+            name: r.column_name,
             type: r.data_type,
           };
         });
         return {
-          title: t.table_name,
+          name: t.table_name,
+          schema: t.table_schema,
           columns: columns,
         };
       });
       const schema: Schema[] = await Promise.all(schemaPromise);
+
       return res.status(200).json({ schema: schema });
     } catch (e) {
       console.log(e);

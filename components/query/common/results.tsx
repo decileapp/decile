@@ -1,25 +1,35 @@
 import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
-import { DownloadIcon, ShareIcon } from "@heroicons/react/outline";
+import {
+  DownloadIcon,
+  DuplicateIcon,
+  ShareIcon,
+} from "@heroicons/react/outline";
 import TableShell from "../../individual/table/shell";
 import TableHeader from "../../individual/table/header";
 import { useRouter } from "next/router";
 import Loading from "../../individual/Loading";
 import Button from "../../individual/Button";
 import { useRecoilState } from "recoil";
-import { dataState, fieldsState } from "../../../utils/contexts/query/state";
+import {
+  dataState,
+  fieldsState,
+  queryIdState,
+} from "../../../utils/contexts/query/state";
 
 interface Props {
   queryLoading?: boolean;
-  queryId?: string;
   queryDb?: () => void;
+  saveQuery?: () => void;
+  copyQuery?: () => void;
 }
 
 const Results: React.FC<Props> = (props) => {
+  const [qId, setQid] = useRecoilState(queryIdState);
   const [fields, setFields] = useRecoilState(fieldsState);
   const [data, setData] = useRecoilState(dataState);
-  const { queryLoading, queryId, queryDb } = props;
+  const { queryLoading, queryDb, saveQuery, copyQuery } = props;
   const router = useRouter();
 
   return (
@@ -32,18 +42,28 @@ const Results: React.FC<Props> = (props) => {
               <DownloadIcon className="block h-6 w-6 text-secondary-500" />
             </CSVLink>
           )}
-          {data && data.length > 0 && !queryLoading && queryId && (
-            <a
-              onClick={() => router.push(`/queries/export/${queryId}`)}
-              href="#"
-            >
+          {data && data.length > 0 && !queryLoading && qId && (
+            <a onClick={() => router.push(`/queries/export/${qId}`)} href="#">
               <ShareIcon className="block h-6 w-6 text-secondary-500" />
             </a>
           )}
+          {data &&
+            data.length > 0 &&
+            !queryLoading &&
+            qId &&
+            !saveQuery &&
+            copyQuery && (
+              <a onClick={() => copyQuery()} href="#">
+                <DuplicateIcon className="block h-6 w-6 text-secondary-500" />
+              </a>
+            )}
           {!queryLoading && queryDb ? (
             <Button label="Run" onClick={() => queryDb()} type="secondary" />
           ) : (
             <div />
+          )}
+          {!queryLoading && data && fields && saveQuery && (
+            <Button label="Save" type="primary" onClick={() => saveQuery()} />
           )}
         </div>
       </div>

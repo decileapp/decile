@@ -31,13 +31,12 @@ const Signin: NextPage = () => {
       password: password,
     });
 
-    router.push("/");
-
     if (error) {
       setError("Incorrect login details.");
       setLoading(false);
       return;
     }
+    router.push("/");
     return;
   };
 

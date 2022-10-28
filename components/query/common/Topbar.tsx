@@ -11,23 +11,25 @@ import {
   InformationCircleIcon,
   TableIcon,
 } from "@heroicons/react/outline";
-import { selectedSourceState } from "../../../utils/contexts/query/state";
+import {
+  bodyState,
+  nameState,
+  publicQueryState,
+  queryIdState,
+  queryUpdatedAtState,
+  selectedSourceState,
+} from "../../../utils/contexts/query/state";
 import { useRecoilState } from "recoil";
 import { useState } from "react";
 import Schema from "./schema";
 import FullPageDialog from "../../individual/FullPageDialog";
-import Button from "../../individual/Button";
+import InputLabel from "../../individual/common/InputLabel";
 
 interface Props {
-  id?: string;
-  name?: string;
-  setName: (x: string) => void;
-  publicQuery?: boolean;
-  setPublicQuery: (x: boolean) => void;
   sources: Source[];
   queryBuilder: boolean;
   setQueryBuilder: (x: boolean) => void;
-  savedAt?: Date;
+  changeDatabase: (x: string) => void;
   saving: boolean;
   error?: string;
 }
@@ -35,19 +37,19 @@ interface Props {
 const QueryTopBar: React.FC<Props> = (props) => {
   const [selectedSource, setSelectedSource] =
     useRecoilState(selectedSourceState);
+  const [queryId, setQueryId] = useRecoilState(queryIdState);
+  const [name, setName] = useRecoilState(nameState);
+  const [publicQuery, setPublicQuery] = useRecoilState(publicQueryState);
+  const [savedAt, setSavedAt] = useRecoilState(queryUpdatedAtState);
   const [diagram, setDiagram] = useState(false);
   const {
-    id,
-    name,
-    setName,
-    publicQuery,
-    setPublicQuery,
     sources,
     queryBuilder,
     setQueryBuilder,
-    savedAt,
+
     saving,
     error,
+    changeDatabase,
   } = props;
 
   if (diagram) {
@@ -63,16 +65,27 @@ const QueryTopBar: React.FC<Props> = (props) => {
       <div className="grid grid-cols-2 gap-4 border-b border-zinc-400 w-full items-start justify-between p-4">
         <div className="flex flex-row justify-start items-start space-x-4 ">
           {props.sources && (
-            <Select
-              title="Database"
-              value={selectedSource || ""}
-              id="database"
-              name="database"
-              setSelected={setSelectedSource}
-              options={sources.map((s) => {
-                return { name: s.name, value: s.id };
-              })}
-            />
+            <div>
+              <div className="flex flex-row justify-between items-center">
+                <InputLabel title="Database" />
+                <a
+                  className=" hover:text-primary-500"
+                  onClick={() => setDiagram(!diagram)}
+                  href="#"
+                >
+                  <InformationCircleIcon className="h-5 w-5 hover:text-primary-500" />
+                </a>
+              </div>
+              <Select
+                value={selectedSource || ""}
+                id="database"
+                name="database"
+                setSelected={changeDatabase}
+                options={sources.map((s) => {
+                  return { name: s.name, value: s.id };
+                })}
+              />
+            </div>
           )}
           <TextInput
             name="name"
@@ -93,15 +106,8 @@ const QueryTopBar: React.FC<Props> = (props) => {
           />
         </div>
         <div className="flex flex-row justify-end items-start">
-          <Button
-            onClick={() => setDiagram(!diagram)}
-            label="Summary"
-            type="text-plain"
-            icon={<InformationCircleIcon className="h-5 w-5" />}
-          />
-
           <div className="flex flex-col items-end justify-start ">
-            <p>{queryBuilder ? "Query builder" : "Write SQL"}</p>
+            <InputLabel title={queryBuilder ? "Query builder" : "Write SQL"} />
             <Switch
               setSelected={setQueryBuilder}
               value={queryBuilder}
@@ -109,7 +115,7 @@ const QueryTopBar: React.FC<Props> = (props) => {
               falseIcon={<CodeIcon />}
             />
 
-            <div className="text-sm mt-2">
+            {/* <div className="text-sm mt-2">
               {!savedAt && !saving && (
                 <p className=" text-red-500">Changes not saved</p>
               )}
@@ -120,7 +126,7 @@ const QueryTopBar: React.FC<Props> = (props) => {
                 })}`}</p>
               )}
               {saving && <p className="text-sm">Saving...</p>}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

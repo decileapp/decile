@@ -8,9 +8,14 @@ import {
   tablesState,
 } from "../../../utils/contexts/query/state";
 import { classNames } from "../../../utils/classnames";
+import { Table } from "../../../types/Table";
 
-const Tables: React.FC = () => {
-  const [tablesLoding, setTablesLoading] = useRecoilState(tableLoadingState);
+interface Props {
+  changeTable: (x: Table) => void;
+}
+
+const Tables: React.FC<Props> = (props) => {
+  const [tableLoading, setTableLoading] = useRecoilState(tableLoadingState);
   const [tables, setTables] = useRecoilState(tablesState);
   const [selectedTable, setSelectedTable] = useRecoilState(selectedTableState);
 
@@ -18,7 +23,7 @@ const Tables: React.FC = () => {
     <>
       <InputLabel title="Tables" />
       <div className="mt-2">
-        {tables && tables.length > 0 && (
+        {!tableLoading && tables && tables.length > 0 && (
           <div className="grid grid-cols-1 gap-2">
             {tables.map((c, id) => {
               return (
@@ -28,7 +33,7 @@ const Tables: React.FC = () => {
                     " text-sm truncate"
                   )}
                   href="#"
-                  onClick={() => setSelectedTable(c)}
+                  onClick={() => props.changeTable(c)}
                 >
                   {c.name}
                 </a>
@@ -36,7 +41,7 @@ const Tables: React.FC = () => {
             })}
           </div>
         )}
-        {tablesLoding && <MiniLoading />}
+        {tableLoading && <MiniLoading />}
       </div>
     </>
   );

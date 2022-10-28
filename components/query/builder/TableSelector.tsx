@@ -9,12 +9,19 @@ import {
   tableLoadingState,
   tablesState,
 } from "../../../utils/contexts/query/state";
+import { Table } from "../../../types/Table";
 
-const TableSelector: React.FC<{ queryBuilder?: boolean }> = (props) => {
+interface Props {
+  queryBuilder: boolean;
+  changeTable: (x: Table) => void;
+}
+
+const TableSelector: React.FC<Props> = (props) => {
   const [tables, setTables] = useRecoilState(tablesState);
   const [selectedTable, setSelectedTable] = useRecoilState(selectedTableState);
   const [tableLoading, setTableLoading] = useRecoilState(tableLoadingState);
   const [queryLimit, setQueryLimit] = useRecoilState(queryLimitState);
+  const { queryBuilder, changeTable } = props;
 
   const tableOptions =
     tables && tables.length > 0
@@ -27,6 +34,7 @@ const TableSelector: React.FC<{ queryBuilder?: boolean }> = (props) => {
           };
         })
       : [];
+
   return (
     <>
       <div className="flex flex-col w-full ">
@@ -34,7 +42,7 @@ const TableSelector: React.FC<{ queryBuilder?: boolean }> = (props) => {
           <div className="flex flex-row justify-start items-center">
             <InputLabel title="Select Table" />
           </div>
-          {props.queryBuilder && (
+          {queryBuilder && (
             <div className="flex flex-row justify-end items-center space-x-2 ">
               <p className="text-sm font-bold">Rows</p>
               <input
@@ -45,21 +53,15 @@ const TableSelector: React.FC<{ queryBuilder?: boolean }> = (props) => {
             </div>
           )}
         </div>
-        {tables &&
-          tableOptions &&
-          tableOptions.length > 0 &&
-          setSelectedTable && (
-            <MiniSelect
-              options={tableOptions}
-              setSelected={(x) =>
-                setSelectedTable(tables.find((t) => t.name === x.title))
-              }
-              selected={
-                tableOptions.find((s) => s.title === selectedTable?.name) ||
-                tableOptions[0]
-              }
-            />
-          )}
+        {!tableLoading && tables && tableOptions && tableOptions.length > 0 && (
+          <MiniSelect
+            options={tableOptions}
+            setSelected={(x) =>
+              changeTable(tables.find((t) => t.name === x.title) || tables[0])
+            }
+            selected={tableOptions.find((s) => s.title === selectedTable?.name)}
+          />
+        )}
         {tableLoading && <MiniLoading />}
       </div>
     </>

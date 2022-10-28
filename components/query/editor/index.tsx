@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { Table } from "../../../types/Table";
 import Columnns from "./columns";
 import Editor from "./editor";
 import Tables from "./tables";
@@ -7,17 +8,18 @@ interface Props {
   queryDb: () => void;
   stopQuery: () => void;
   queryLoading?: boolean;
+  changeTable: (x: Table) => void;
 }
 
 const QueryEditor: React.FC<Props> = (props) => {
-  const { queryDb, stopQuery, queryLoading } = props;
+  const { queryDb, stopQuery, queryLoading, changeTable } = props;
 
   return (
     <div className="grid grid-cols-6 h-full w-full min-h-0 overflow-hidden">
       <div className="col-span-2 flex flex-col  border-r border-zinc-400  h-full w-full overflow-auto">
         <div className="flex flex-col w-full h-full  ">
           <div className="flex flex-col h-36 w-full p-4 overflow-auto">
-            <Tables />
+            <Tables changeTable={changeTable} />
           </div>
 
           <div className="flex flex-col flex-1 h-full w-full p-4 overflow-auto">

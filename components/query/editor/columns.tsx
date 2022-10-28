@@ -26,7 +26,7 @@ const Columnns: React.FC = () => {
     <>
       <InputLabel title="Columns" />
       <div className="mt-2">
-        {sortedColumns && sortedColumns.length > 0 && (
+        {sortedColumns && sortedColumns.length > 0 && !columnsLoading && (
           <div className="grid grid-cols-1 gap-3">
             {sortedColumns.map((c, id) => {
               return (

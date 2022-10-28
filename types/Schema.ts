@@ -1,9 +1,6 @@
-interface Column {
-  title: string;
-  type: string;
-}
+import { Column } from "./Column";
+import { Table } from "./Table";
 
-export interface Schema {
-  title: string;
+export interface Schema extends Table {
   columns?: Column[];
 }

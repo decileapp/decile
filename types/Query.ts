@@ -12,5 +12,9 @@ export interface Query {
   query_sort_by?: SortBy[];
   query_group_by?: GroupBy[];
   query_limit?: string;
-  user_id: string;
+  query_table?: string;
+  user_id: {
+    id: string;
+    email: string;
+  };
 }

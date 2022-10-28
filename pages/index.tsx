@@ -58,7 +58,7 @@ const Home: React.FC<Props> = (props) => {
           </div>
           <div className="grid grid-cols-3 gap-12">
             <a
-              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-lg space-y-4"
+              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-md space-y-4 hover:shadow-lg"
               href="/sources"
             >
               <p className="text-primary-500 text-center text-xl font-semibold">
@@ -70,7 +70,7 @@ const Home: React.FC<Props> = (props) => {
             </a>
 
             <a
-              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-lg space-y-4 "
+              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-md space-y-4 hover:shadow-lg"
               href="/queries"
             >
               <p className="text-primary-500 text-center text-xl font-semibold">
@@ -82,7 +82,7 @@ const Home: React.FC<Props> = (props) => {
             </a>
 
             <a
-              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-lg space-y-4"
+              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-md space-y-4 hover:shadow-lg"
               href="/schedule"
             >
               <p className="text-primary-500 text-center text-xl font-semibold">
@@ -115,8 +115,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     .select("id, name, user_id");
 
   const { data: queries, error: queryError } = await supabase
-    .from<Query[]>("sources")
-    .select("id, name, user_id");
+    .from<Query[]>("queries")
+    .select("id, name, user_id")
+    .or(
+      `user_id.eq.${user.id},and(public.eq.true,org_id.eq.${user.user_metadata.org_id})`
+    );
 
   const { data: schedules, error: scheduleError } = await supabase
     .from<Schedule[]>("schedule")

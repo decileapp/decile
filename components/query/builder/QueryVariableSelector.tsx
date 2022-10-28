@@ -2,12 +2,10 @@ import { Column } from "../../../types/Column";
 import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
 import MiniLoading from "../../individual/MiniLoading";
-import { QueryVar, isNumerical } from "../../../utils/query";
+import { isNumerical } from "../../../utils/query";
 import { classNames } from "../../../utils/classnames";
-import { useEffect } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import {
-  buildQueryState,
   columnsLoadingState,
   columnsState,
   queryVarsState,
@@ -71,7 +69,7 @@ const QueryVariableSelector: React.FC = (props) => {
           {atleastOne ? "Clear all" : "Select All"}
         </a>
       </div>
-      {columns && columns.length > 0 && (
+      {columns && !columnsLoading && columns.length > 0 && (
         <div className="grid grid-cols-6 gap-2  mt-2 ">
           {sortedColumns &&
             sortedColumns.map((c, id) => {

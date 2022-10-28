@@ -1,6 +1,5 @@
 // pages/pages/api/auth.ts
 import { NextApiRequest, NextApiResponse } from "next";
-import updateOrgForSession from "../../../utils/organisation/updateOrgForSession";
 import { supabase } from "../../../utils/supabaseClient";
 
 export default async function handler(

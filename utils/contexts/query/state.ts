@@ -1,5 +1,6 @@
 import { atom, selector } from "recoil";
 import { Column } from "../../../types/Column";
+import { Schema } from "../../../types/Schema";
 import { Table } from "../../../types/Table";
 import queryBuilder, {
   FilterBy,
@@ -15,7 +16,23 @@ export const selectedSourceState = atom<string>({
   default: "",
 });
 
+// Data source
+export const sourceSchemaState = atom<Schema[] | undefined>({
+  key: "souceSchema",
+  default: undefined,
+});
+
 // Query details
+export const queryIdState = atom<number | undefined>({
+  key: "queryId",
+  default: undefined,
+});
+
+export const queryUpdatedAtState = atom<Date | undefined>({
+  key: "queryUpdatedAt",
+  default: undefined,
+});
+
 export const bodyState = atom<string | undefined>({
   key: "body",
   default: "",

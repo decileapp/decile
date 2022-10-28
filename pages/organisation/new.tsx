@@ -1,8 +1,4 @@
-import { Fragment, useRef, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { ExclamationIcon, UserGroupIcon } from "@heroicons/react/outline";
-import BasicDialog from "../../components/individual/common/BasicDialog";
-import Button from "../../components/individual/Button";
+import { useState } from "react";
 import TextInput from "../../components/individual/TextInput";
 import { supabase } from "../../utils/supabaseClient";
 import { toast } from "react-toastify";
@@ -10,7 +6,7 @@ import MiniLoading from "../../components/individual/MiniLoading";
 import FormLayout from "../../components/layouts/FormLayout";
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
-import updateOrgForSession from "../../utils/organisation/updateOrgForSession";
+import axios from "axios";
 
 interface Props {
   open: boolean;
@@ -64,7 +60,7 @@ const OrganisationPopup: React.FC<Props> = (props) => {
 
         // Close dialog
         if (roleData) {
-          await updateOrgForSession(user);
+          await axios.get("/api/org");
           router.push("/");
         }
         // If it doesnt work delete org

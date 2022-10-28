@@ -43,61 +43,52 @@ const Schedule: React.FC<Props> = (props) => {
   return (
     <>
       <Page title="Schedule">
-        {schedule && schedule.length > 0 && (
-          <div className="h-full">
-            <TableShell>
-              <TableHeader labels={fields} />
+        <div className="grid grid-cols-1 gap-4 mt-2 max-w-4xl">
+          <div className="grid grid-cols-10 gap-2 ">
+            <p className="col-span-3 font-bold text-md">Name</p>
+            <p className="col-span-1  font-bold text-md">Public</p>
+            <p className="col-span-3  font-bold text-md">Last run</p>
 
-              <tbody className="divide-y divide-gray-200">
-                {schedule.map((row: any, id: number) => {
-                  return (
-                    <tr key={id}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
-                        {row.name}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6 truncate">
-                        {row.export_id.query_id.name}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
-                        {formatSchedule(row)}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6">
-                        {row.export_id.spreadsheet}
-                      </td>
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <a
-                          href="#"
-                          className="text-primary-600 hover:text-primary-900"
-                          onClick={() =>
-                            router.push({
-                              pathname: "/queries/edit",
-                              query: {
-                                id: row.id,
-                              },
-                            })
-                          }
-                        >
-                          Edit
-                          <span className="sr-only">, {row.name}</span>
-                        </a>
-                      </td>
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <a
-                          href="#"
-                          className="text-red-600 hover:text-red-900"
-                          onClick={() => setDeletedId(row.id)}
-                        >
-                          Delete
-                          <span className="sr-only">, {row.name}</span>
-                        </a>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </TableShell>
+            <p className="col-span-1 justify-end text-right flex  font-bold text-md">
+              Actions
+            </p>
+            <p className="col-span-2 w-full justify-end text-right flex  font-bold text-md">
+              Owner
+            </p>
           </div>
-        )}
+
+          {schedule &&
+            schedule.length > 0 &&
+            schedule.map((row, id) => {
+              return (
+                <div
+                  key={id}
+                  className="grid grid-cols-10 gap-2 border-b pb-2 border-zinc-200 dark:border-zinc-700 "
+                >
+                  <p className="col-span-3 text-sm">{row.name}</p>
+
+                  <p className="col-span-1 text-sm">
+                    {row.export_id.query_id.name}
+                  </p>
+                  <p className="col-span-3 text-sm">
+                    {row.export_id.spreadsheet}
+                  </p>
+
+                  <div className="col-span-1 justify-end flex">
+                    {row.user_id.id === user?.id && (
+                      <a href="#" onClick={() => setDeletedId(row.id)}>
+                        <TrashIcon className="h-5 w-5 text-zinc-600 hover:text-red-600 dark:hover:text-red-400  " />
+                      </a>
+                    )}
+                  </div>
+                  <p className="col-span-2 text-sm text-right">
+                    {row.user_id.email}
+                  </p>
+                </div>
+              );
+            })}
+        </div>
+
         {schedule?.length === 0 && (
           <p className="mt-4 text-md"> No schedules created.</p>
         )}

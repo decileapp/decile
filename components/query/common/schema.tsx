@@ -1,9 +1,8 @@
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { Source } from "../../../types/Sources";
-import { selectedSourceState } from "../../../utils/contexts/query/state";
-import axios from "axios";
+import { sourceSchemaState } from "../../../utils/contexts/query/state";
 import Loading from "../../individual/Loading";
 import { Schema } from "../../../types/Schema";
 import { classNames } from "../../../utils/classnames";
@@ -14,40 +13,8 @@ interface Props {
 }
 
 const Schema: React.FC<Props> = (props) => {
-  const [selectedSource, setSelectedSource] =
-    useRecoilState(selectedSourceState);
-  const [schema, setSchema] = useState<Schema[]>([]);
-  const [schemaLoading, setSchemaloading] = useState(false);
-
-  // Get tables
-  const getSchema = async () => {
-    try {
-      setSchema([]);
-      setSchemaloading(true);
-      if (!selectedSource || !props.sources) {
-        return;
-      }
-      const selectedDb = props?.sources.find((s) => s.id === selectedSource);
-
-      if (!selectedDb) return;
-
-      const res = await axios.post("/api/user/postgres/get-schema", {
-        ...selectedDb,
-      });
-      if (res) {
-        setSchema(res.data.schema);
-      }
-      setSchemaloading(false);
-      return;
-    } catch (e) {
-      setSchemaloading(false);
-      return;
-    }
-  };
-
-  useEffect(() => {
-    getSchema();
-  }, [selectedSource]);
+  const [schemaLoading, setSchemaLoading] = useState(false);
+  const [schema, setSchema] = useRecoilState(sourceSchemaState);
 
   const tableComp = (x: Schema) => {
     const numerical = x.columns?.filter((c) => isNumerical(c.type));
@@ -58,7 +25,7 @@ const Schema: React.FC<Props> = (props) => {
     }
     return (
       <div className="flex flex-col p-2 border border-zinc-200 rounded-lg">
-        <p className="text-md font-bold">{x.title}</p>
+        <p className="text-md font-bold">{x.name}</p>
         <div className="mt-2">
           {sortedColumns && sortedColumns.length > 0 && (
             <div className="grid grid-cols-1 gap-3">
@@ -70,7 +37,7 @@ const Schema: React.FC<Props> = (props) => {
                     }
                     key={id}
                   >
-                    <p className=" text-sm truncate">{c.title}</p>
+                    <p className=" text-sm truncate">{c.name}</p>
                     <p
                       className={classNames(
                         isNumerical(c.type)
