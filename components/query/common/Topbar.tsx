@@ -15,8 +15,10 @@ import {
   bodyState,
   nameState,
   publicQueryState,
+  queryBuilderState,
   queryIdState,
   queryUpdatedAtState,
+  savingState,
   selectedSourceState,
 } from "../../../utils/contexts/query/state";
 import { useRecoilState } from "recoil";
@@ -27,10 +29,7 @@ import InputLabel from "../../individual/common/InputLabel";
 
 interface Props {
   sources: Source[];
-  queryBuilder: boolean;
-  setQueryBuilder: (x: boolean) => void;
   changeDatabase: (x: string) => void;
-  saving: boolean;
   error?: string;
 }
 
@@ -42,15 +41,9 @@ const QueryTopBar: React.FC<Props> = (props) => {
   const [publicQuery, setPublicQuery] = useRecoilState(publicQueryState);
   const [savedAt, setSavedAt] = useRecoilState(queryUpdatedAtState);
   const [diagram, setDiagram] = useState(false);
-  const {
-    sources,
-    queryBuilder,
-    setQueryBuilder,
-
-    saving,
-    error,
-    changeDatabase,
-  } = props;
+  const [queryBuilder, setQueryBuilder] = useRecoilState(queryBuilderState);
+  const [saving, setSaving] = useRecoilState(savingState);
+  const { sources, error, changeDatabase } = props;
 
   if (diagram) {
     return (

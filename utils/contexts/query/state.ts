@@ -10,9 +10,13 @@ import queryBuilder, {
   SortBy,
 } from "../../query";
 
-// Data source
 export const savingState = atom<boolean>({
   key: "savingState",
+  default: false,
+});
+
+export const queryBuilderState = atom<boolean>({
+  key: "queryBuilder",
   default: false,
 });
 

@@ -17,6 +17,7 @@ import {
   fieldsState,
   nameState,
   publicQueryState,
+  queryBuilderState,
   queryFilterState,
   queryGroupByState,
   queryIdState,
@@ -49,7 +50,7 @@ interface Props {
 const QueryForm: React.FC<Props> = (props) => {
   const router = useRouter();
   // Type
-  const [queryBuilder, setQueryBuilder] = useState(true);
+  const [queryBuilder, setQueryBuilder] = useRecoilState(queryBuilderState);
 
   /* Global states */
 
@@ -289,6 +290,7 @@ const QueryForm: React.FC<Props> = (props) => {
           query_limit: queryLimit,
           query_table:
             selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
+          query_builder: queryBuilder,
         })
         .match({ org_id: user?.user_metadata.org_id, id: queryId })
         .single();
@@ -324,6 +326,7 @@ const QueryForm: React.FC<Props> = (props) => {
           query_table:
             selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
           org_id: user?.user_metadata.org_id,
+          query_builder: queryBuilder,
         })
         .single();
       setName(`Copy of ${name}`);
@@ -377,7 +380,7 @@ const QueryForm: React.FC<Props> = (props) => {
       </>
     );
   }
-
+  console.log(queryBuilder);
   // Edit
   return (
     <>
@@ -386,9 +389,6 @@ const QueryForm: React.FC<Props> = (props) => {
           {/* Top bar */}
           {props.sources && props.sources.length > 0 && (
             <QueryTopBar
-              saving={saving}
-              queryBuilder={queryBuilder}
-              setQueryBuilder={setQueryBuilder}
               sources={props.sources}
               changeDatabase={changeDatabase}
             />

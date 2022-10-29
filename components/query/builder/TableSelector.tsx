@@ -4,6 +4,7 @@ import MiniLoading from "../../individual/MiniLoading";
 import MiniSelect from "../../individual/MiniSelect";
 import { useRecoilState } from "recoil";
 import {
+  queryBuilderState,
   queryLimitState,
   selectedTableState,
   tableLoadingState,
@@ -12,7 +13,6 @@ import {
 import { Table } from "../../../types/Table";
 
 interface Props {
-  queryBuilder: boolean;
   changeTable: (x: Table) => void;
 }
 
@@ -21,7 +21,8 @@ const TableSelector: React.FC<Props> = (props) => {
   const [selectedTable, setSelectedTable] = useRecoilState(selectedTableState);
   const [tableLoading, setTableLoading] = useRecoilState(tableLoadingState);
   const [queryLimit, setQueryLimit] = useRecoilState(queryLimitState);
-  const { queryBuilder, changeTable } = props;
+  const [queryBuilder, setQueryBuilder] = useRecoilState(queryBuilderState);
+  const { changeTable } = props;
 
   const tableOptions =
     tables && tables.length > 0

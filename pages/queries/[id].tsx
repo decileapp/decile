@@ -12,6 +12,7 @@ import {
   columnsState,
   nameState,
   publicQueryState,
+  queryBuilderState,
   queryFilterState,
   queryGroupByState,
   queryIdState,
@@ -59,6 +60,7 @@ const EditQuery: React.FC<Props> = (props) => {
   const setQueryGroupBy = useSetRecoilState(queryGroupByState);
   const setQuerySortBy = useSetRecoilState(querySortByState);
   const setQueryLimit = useSetRecoilState(queryLimitState);
+  const setQueryBuilder = useSetRecoilState(queryBuilderState);
 
   const initialLoad = async () => {
     setLoading(true);
@@ -123,6 +125,9 @@ const EditQuery: React.FC<Props> = (props) => {
       }
       if (query.query_limit) {
         setQueryLimit(query.query_limit);
+      }
+      if (query.query_builder) {
+        setQueryBuilder(query.query_builder);
       }
 
       setLoading(false);
