@@ -380,7 +380,7 @@ const QueryForm: React.FC<Props> = (props) => {
       </>
     );
   }
-  console.log(queryBuilder);
+
   // Edit
   return (
     <>

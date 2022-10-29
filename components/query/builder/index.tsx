@@ -13,7 +13,7 @@ interface Props {
 const QueryBuilder: React.FC<Props> = (props) => {
   return (
     <div className="flex flex-col h-full w-full space-y-6 p-4  overflow-auto">
-      <QueryTableSelector queryBuilder={true} changeTable={props.changeTable} />
+      <QueryTableSelector changeTable={props.changeTable} />
       <QueryVariableSelector />
       <QueryFilterSelector />
       <QueryGroupBy />
