@@ -11,11 +11,12 @@ import TableHeader from "../../individual/table/header";
 import { useRouter } from "next/router";
 import Loading from "../../individual/Loading";
 import Button from "../../individual/Button";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   dataState,
   fieldsState,
   queryIdState,
+  savingState,
 } from "../../../utils/contexts/query/state";
 
 interface Props {
@@ -29,6 +30,7 @@ const Results: React.FC<Props> = (props) => {
   const [qId, setQid] = useRecoilState(queryIdState);
   const [fields, setFields] = useRecoilState(fieldsState);
   const [data, setData] = useRecoilState(dataState);
+  const [saving, setSaving] = useRecoilState(savingState);
   const { queryLoading, queryDb, saveQuery, copyQuery } = props;
   const router = useRouter();
 
@@ -62,8 +64,13 @@ const Results: React.FC<Props> = (props) => {
           ) : (
             <div />
           )}
-          {!queryLoading && data && fields && saveQuery && (
-            <Button label="Save" type="primary" onClick={() => saveQuery()} />
+          {!queryLoading && saveQuery && (
+            <Button
+              label="Save"
+              type="primary"
+              onClick={() => saveQuery()}
+              disabled={saving}
+            />
           )}
         </div>
       </div>

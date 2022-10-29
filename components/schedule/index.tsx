@@ -7,7 +7,7 @@ import MiniLoading from "../../components/individual/MiniLoading";
 import { Export } from "../../types/Export";
 import Select from "../../components/individual/Select";
 import { hours, daysOfWeek, daysOfMonth } from "../../utils/schedule";
-import { Schedule } from "../../types/Schedule";
+import { Schedule, ScheduleInput } from "../../types/Schedule";
 import Timezone from "../../components/individual/timezone";
 import moment from "moment-timezone";
 import InputLabel from "../../components/individual/common/InputLabel";
@@ -114,7 +114,7 @@ const ScheduleForm: React.FC<Props> = (props) => {
     });
 
     // Format data object
-    let input: Schedule = {
+    let input: ScheduleInput = {
       export_id: selectedExport.id,
       name: `Scheduled run for ${selectedExport.spreadsheet}`,
       user_id: user?.id,

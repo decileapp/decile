@@ -43,11 +43,11 @@ const Schedule: React.FC<Props> = (props) => {
   return (
     <>
       <Page title="Schedule">
-        <div className="grid grid-cols-1 gap-4 mt-2 max-w-4xl">
+        <div className="grid grid-cols-1 gap-4 mt-2 ">
           <div className="grid grid-cols-10 gap-2 ">
-            <p className="col-span-3 font-bold text-md">Name</p>
-            <p className="col-span-1  font-bold text-md">Public</p>
-            <p className="col-span-3  font-bold text-md">Last run</p>
+            <p className="col-span-2 font-bold text-md">Query</p>
+            <p className="col-span-2 font-bold text-md">Spreadsheet</p>
+            <p className="col-span-3  font-bold text-md">Schedule</p>
 
             <p className="col-span-1 justify-end text-right flex  font-bold text-md">
               Actions
@@ -65,15 +65,22 @@ const Schedule: React.FC<Props> = (props) => {
                   key={id}
                   className="grid grid-cols-10 gap-2 border-b pb-2 border-zinc-200 dark:border-zinc-700 "
                 >
-                  <p className="col-span-3 text-sm">{row.name}</p>
-
-                  <p className="col-span-1 text-sm">
+                  <a
+                    className="col-span-2 text-sm truncate hover:text-primary-500"
+                    href={`/queries/${row.export_id.query_id.id}`}
+                  >
                     {row.export_id.query_id.name}
-                  </p>
-                  <p className="col-span-3 text-sm">
+                  </a>
+                  <a
+                    className="col-span-2 text-sm truncate hover:text-primary-500"
+                    href={`https://docs.google.com/spreadsheets/d/${row.export_id.spreadsheet}/edit#gid=0`}
+                    target="_blank"
+                  >
                     {row.export_id.spreadsheet}
+                  </a>
+                  <p className="col-span-3 text-sm truncate">
+                    {formatSchedule(row)}
                   </p>
-
                   <div className="col-span-1 justify-end flex">
                     {row.user_id.id === user?.id && (
                       <a href="#" onClick={() => setDeletedId(row.id)}>
@@ -126,7 +133,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { data: schedule, error } = await supabase
     .from<Schedule>("schedule")
     .select(
-      "id, name, user_id, org_id, periodicity, run_at_time, run_at_day, run_at_month_date, export_id(id, query_id(name), spreadsheet), timestamp_utc, timestamp_user_zone, timezone"
+      "id, name, user_id(id, email), org_id, periodicity, run_at_time, run_at_day, run_at_month_date, export_id(id, query_id(id, name), spreadsheet), timestamp_utc, timestamp_user_zone, timezone"
     )
     .match({ user_id: user.id });
   return {

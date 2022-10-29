@@ -11,6 +11,12 @@ import queryBuilder, {
 } from "../../query";
 
 // Data source
+export const savingState = atom<boolean>({
+  key: "savingState",
+  default: false,
+});
+
+// Data source
 export const selectedSourceState = atom<string>({
   key: "selectedSource",
   default: "",

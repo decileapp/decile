@@ -24,6 +24,7 @@ import {
   querySortByState,
   queryUpdatedAtState,
   queryVarsState,
+  savingState,
   selectedSourceState,
   selectedTableState,
   sourceSchemaState,
@@ -88,7 +89,7 @@ const QueryForm: React.FC<Props> = (props) => {
 
   /* Local states */
   const [queryLoading, setQueryLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useRecoilState(savingState);
 
   // Cancel requests
   const source = axios.CancelToken.source();
@@ -188,7 +189,7 @@ const QueryForm: React.FC<Props> = (props) => {
 
       // Check no summarise is empty
       if (queryGroupBy.length > 0) {
-        const badGroupBy = queryGroupBy.find((q) => !q.name || q.function);
+        const badGroupBy = queryGroupBy.find((q) => !q.name || !q.function);
         if (badGroupBy) {
           toast.error("Please check your summarise fields.");
           return false;
@@ -197,7 +198,7 @@ const QueryForm: React.FC<Props> = (props) => {
 
       // Check sort by is not empty
       if (querySortBy.length > 0) {
-        const badSort = querySortBy.find((q) => !q.name || q.type);
+        const badSort = querySortBy.find((q) => !q.name || !q.type);
         if (badSort) {
           toast.error("Please check your sort fields.");
           return false;
@@ -271,7 +272,7 @@ const QueryForm: React.FC<Props> = (props) => {
   async function saveQuery() {
     try {
       if (!queryId) return;
-
+      setSaving(true);
       let { data, error } = await supabase
         .from("queries")
         .update({
@@ -295,9 +296,12 @@ const QueryForm: React.FC<Props> = (props) => {
         setSavedAt(data.updated_at);
         toast.success("Saved!");
       }
+      setSaving(false);
       return;
     } catch (error: any) {
+      setSaving(false);
       toast.error("Failed to save query");
+      return;
     }
   }
 
@@ -336,17 +340,6 @@ const QueryForm: React.FC<Props> = (props) => {
   if (!props.edit) {
     return (
       <>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          theme="dark"
-          rtl={false}
-          draggable
-          pauseOnHover={false}
-        />
         <Page padding={false}>
           <div className="flex flex-row p-4 space-x-4">
             {props.sources && (
@@ -388,17 +381,6 @@ const QueryForm: React.FC<Props> = (props) => {
   // Edit
   return (
     <>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        theme="dark"
-        rtl={false}
-        draggable
-        pauseOnHover={false}
-      />
       <Page padding={false}>
         <div className="flex flex-col h-full overflow-hidden">
           {/* Top bar */}
