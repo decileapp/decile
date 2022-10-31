@@ -30,7 +30,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       const send = await emailHelper({
         from: process.env.FROM_EMAIL || "",
         to: email,
-        templateId: "Z6V0E3HEAHM63SKRA3B05RKVR9AE",
+        templateId: process.env.COURIER_TEMPLATE || "",
         vars: {
           user: "User",
           admin: admin,
