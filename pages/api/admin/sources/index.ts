@@ -49,7 +49,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       });
 
       const tables = await pool.query(
-        "SELECT table_name FROM information_schema.tables where table_schema = 'public'"
+        "SELECT table_name FROM information_schema.tables limit 10"
       );
 
       if (!tables) {
@@ -110,7 +110,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       });
 
       const tables = await pool.query(
-        "SELECT table_name FROM information_schema.tables where table_schema = 'public'"
+        "SELECT table_name FROM information_schema.tables limit 10"
       );
 
       if (!tables) {
