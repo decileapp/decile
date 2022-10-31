@@ -79,7 +79,7 @@ Get your API keys for each service and complete the file:
 
 - Supabase: database
 - Mixpanel: analytics
-- Courier: emails
+- Courier: emails + the id for your template
 - Email: Enter an email address you want to invite users from.
 - Google: Google auth + sheets integration
 - Bearer token: token for calling your schedule endpoint
