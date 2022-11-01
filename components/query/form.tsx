@@ -95,6 +95,9 @@ const QueryForm: React.FC<Props> = (props) => {
   // Cancel requests
   const source = axios.CancelToken.source();
 
+  // Error
+  const [error, setError] = useState<string | undefined>();
+
   // SOURCES
   const changeDatabase = async (x: string) => {
     setTableLoading(true);
@@ -165,13 +168,13 @@ const QueryForm: React.FC<Props> = (props) => {
       return false;
     }
 
-    if (!selectedTable) {
-      toast.error("Please choose a table.");
-      return false;
-    }
-
     // if query builder
     if (queryBuilder) {
+      if (!selectedTable) {
+        toast.error("Please choose a table.");
+        return false;
+      }
+
       if (queryVars.length === 0) {
         toast.error("No variables selected");
         return false;
@@ -217,6 +220,7 @@ const QueryForm: React.FC<Props> = (props) => {
 
   // Query
   const queryDb = async () => {
+    setError(undefined);
     setQueryLoading(true);
     if (!validateQuery()) {
       setQueryLoading(false);
@@ -249,7 +253,8 @@ const QueryForm: React.FC<Props> = (props) => {
       );
 
       if (res.data.error) {
-        toast.error(res.data.error);
+        toast.error("Something went wrong.");
+        setError(res.data.error);
         setQueryLoading(false);
         return;
       }
@@ -374,6 +379,7 @@ const QueryForm: React.FC<Props> = (props) => {
               queryLoading={queryLoading}
               queryDb={queryBuilder ? () => queryDb() : undefined}
               copyQuery={copyQuery}
+              error={error}
             />
           </div>
         </Page>
@@ -427,6 +433,7 @@ const QueryForm: React.FC<Props> = (props) => {
                 queryLoading={queryLoading}
                 queryDb={queryBuilder ? () => queryDb() : undefined}
                 saveQuery={saveQuery}
+                error={error}
               />
             </div>
           </div>

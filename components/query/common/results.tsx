@@ -24,6 +24,7 @@ interface Props {
   queryDb?: () => void;
   saveQuery?: () => void;
   copyQuery?: () => void;
+  error?: string;
 }
 
 const Results: React.FC<Props> = (props) => {
@@ -31,7 +32,7 @@ const Results: React.FC<Props> = (props) => {
   const [fields, setFields] = useRecoilState(fieldsState);
   const [data, setData] = useRecoilState(dataState);
   const [saving, setSaving] = useRecoilState(savingState);
-  const { queryLoading, queryDb, saveQuery, copyQuery } = props;
+  const { queryLoading, queryDb, saveQuery, copyQuery, error } = props;
   const router = useRouter();
 
   return (
@@ -80,7 +81,10 @@ const Results: React.FC<Props> = (props) => {
           <Loading />
         </div>
       )}
-      {fields && data && !queryLoading && (
+      {error && (
+        <p className="text-sm text-red-500">{`Error message: ${error}`}</p>
+      )}
+      {!error && fields && data && !queryLoading && (
         <TableShell>
           <TableHeader labels={fields} />
 

@@ -18,7 +18,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       const result = await pool.query(body);
       return res.status(200).json({ rows: result.rows, fields: result.fields });
     } catch (e: any) {
-      console.log(e);
+      if (e.hint) {
+        res.status(200).json({ error: e.hint });
+        return;
+      }
       throw new Error(`Something went wrong.`);
     }
   } else {
