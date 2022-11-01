@@ -133,7 +133,6 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         .single();
 
       if (!data) {
-        console.log(error);
         res.status(400).json({});
         return;
       }
