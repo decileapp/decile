@@ -98,7 +98,9 @@ const Results: React.FC<Props> = (props) => {
                         className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
                         key={id}
                       >
-                        {row[value]}
+                        {typeof row[value] === "object"
+                          ? JSON.stringify(row[value])
+                          : row[value]}
                       </td>
                     );
                   })}
