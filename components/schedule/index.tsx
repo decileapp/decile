@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { supabase } from "../../utils/supabaseClient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../components/individual/Button";
 import { toast } from "react-toastify";
 import MiniLoading from "../../components/individual/MiniLoading";
@@ -12,14 +12,17 @@ import Timezone from "../../components/individual/timezone";
 import moment from "moment-timezone";
 import InputLabel from "../../components/individual/common/InputLabel";
 import { DateTime } from "luxon";
+import Switch from "../individual/Switch";
+import { CheckIcon, LinkIcon, XIcon } from "@heroicons/react/outline";
 
 interface Props {
   selectedExport?: Export;
+  schedule?: Schedule;
 }
 
 const ScheduleForm: React.FC<Props> = (props) => {
   const router = useRouter();
-  const { selectedExport } = props;
+  const { selectedExport, schedule } = props;
   const user = supabase.auth.user();
 
   const [loading, setLoading] = useState(false);
@@ -30,6 +33,7 @@ const ScheduleForm: React.FC<Props> = (props) => {
   const [runAtDay, setRunAtDay] = useState<string | undefined>();
   const [runAtMonthDate, setRunAtMonthDate] = useState<string | undefined>();
   const [timezone, setTimezone] = useState<string>(moment.tz.guess());
+  const [notifyEmail, setNotifyEmail] = useState(false);
 
   // Update schedule
   const setEveryHour = (e: string) => {
@@ -126,6 +130,7 @@ const ScheduleForm: React.FC<Props> = (props) => {
       timestamp_utc: utcDate.toString(),
       timestamp_user_zone: userTimestamp.toString(),
       timezone: timezone,
+      notify_email: notifyEmail,
     };
 
     // Handle timezone
@@ -165,16 +170,42 @@ const ScheduleForm: React.FC<Props> = (props) => {
       handleTime();
       input.run_at_month_date = utcDate.day;
     }
-    const { data, error } = await supabase.from("schedule").insert(input);
-    if (data) {
-      toast.success("Successfully scheduled.");
-    }
 
-    return;
+    // update
+    if (schedule && schedule.id) {
+      const { data, error } = await supabase
+        .from("schedule")
+        .update(input)
+        .match({ user_id: user.id, id: schedule.id });
+      if (data) {
+        toast.success("Successfully updated.");
+      }
+      return;
+    } else {
+      //create
+      const { data, error } = await supabase.from("schedule").insert(input);
+      if (data) {
+        toast.success("Successfully scheduled.");
+      }
+
+      return;
+    }
   };
 
   // Time options (TODO: update to allow 30 mins for certain time zones)
   let timeOptions = hours.slice(1, hours.length);
+
+  // Set initial values if editing
+  useEffect(() => {
+    if (schedule) {
+      setPeriodicity(schedule.periodicity);
+      setRunAtTime(schedule.run_at_time.toString());
+      setRunAtDay(schedule.run_at_day.toString());
+      setRunAtMonthDate(schedule.run_at_month_date.toString());
+      setTimezone(schedule.timezone);
+      setNotifyEmail(schedule.notify_email);
+    }
+  }, []);
 
   return (
     <>
@@ -185,6 +216,22 @@ const ScheduleForm: React.FC<Props> = (props) => {
             Set up a schedule and we'll automatically export data to your sheet.
           </p>
         </div>
+        {selectedExport?.spreadsheet && (
+          <div>
+            <InputLabel title="Destination sheet" />
+            <div className="flex flex-row justify-between items-center">
+              <p className="text-sm truncate mt-1">
+                {selectedExport.spreadsheet || ""}
+              </p>
+              <a
+                href={`https://docs.google.com/spreadsheets/d/${selectedExport.spreadsheet}/edit#gid=0`}
+                target="_blank"
+              >
+                <LinkIcon className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        )}
         <Select
           name="periodicity"
           id="periodicity"
@@ -231,6 +278,14 @@ const ScheduleForm: React.FC<Props> = (props) => {
             />
           </div>
         )}
+
+        <Switch
+          title={notifyEmail ? "Notify via email" : "Do not email me"}
+          value={notifyEmail}
+          setSelected={setNotifyEmail}
+          trueIcon={<CheckIcon />}
+          falseIcon={<XIcon />}
+        />
 
         {periodicity && (
           <div className="flex flex-row justify-end ">

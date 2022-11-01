@@ -67,7 +67,7 @@ const Schedule: React.FC<Props> = (props) => {
                 >
                   <a
                     className="col-span-2 text-sm truncate hover:text-primary-500"
-                    href={`/queries/${row.export_id.query_id.id}`}
+                    href={`/schedule/${row.export_id.id}`}
                   >
                     {row.export_id.query_id.name}
                   </a>
@@ -78,9 +78,12 @@ const Schedule: React.FC<Props> = (props) => {
                   >
                     {row.export_id.spreadsheet}
                   </a>
-                  <p className="col-span-3 text-sm truncate">
+                  <a
+                    className="col-span-3 text-sm truncate"
+                    href={`/schedule/${row.export_id.id}`}
+                  >
                     {formatSchedule(row)}
-                  </p>
+                  </a>
                   <div className="col-span-1 justify-end flex">
                     {row.user_id.id === user?.id && (
                       <a href="#" onClick={() => setDeletedId(row.id)}>

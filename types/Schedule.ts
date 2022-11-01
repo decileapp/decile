@@ -16,6 +16,7 @@ export interface Schedule {
   timestamp_utc: string;
   timestamp_user_zone: string;
   timezone: string;
+  notify_email: boolean;
 }
 
 export interface ScheduleInput {
@@ -32,4 +33,5 @@ export interface ScheduleInput {
   timestamp_utc: string;
   timestamp_user_zone: string;
   timezone: string;
+  notify_email: boolean;
 }

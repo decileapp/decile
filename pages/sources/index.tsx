@@ -78,7 +78,7 @@ const Sources: React.FC<Props> = (props) => {
             return (
               <div
                 key={id}
-                className="flex flex-col h-full space-y-2 border border-zinc-400 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden"
+                className="flex flex-col h-full space-y-2 border border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
               >
                 <div className="grid grid-cols-2  ">
                   <p className="text-lg font-bold truncate">{row.name}</p>

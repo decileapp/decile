@@ -58,37 +58,37 @@ const Home: React.FC<Props> = (props) => {
           </div>
           <div className="grid grid-cols-3 gap-12">
             <a
-              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-md space-y-4 hover:shadow-lg"
+              className="grid-cols-1 px-12 py-8 border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
               href="/sources"
             >
-              <p className="text-primary-500 text-center text-xl font-semibold">
+              <p className="text-primary-500 text-center text-xl font-semibold mb-2">
                 Sources
               </p>
-              <p className="text-center text-lg">
+              <p className="text-center text-md">
                 {sources && sources.length > 0 ? sources.length : "No sources"}
               </p>
             </a>
 
             <a
-              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-md space-y-4 hover:shadow-lg"
+              className="grid-cols-1 px-12 py-8 border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
               href="/queries"
             >
-              <p className="text-primary-500 text-center text-xl font-semibold">
+              <p className="text-primary-500 text-center text-xl font-semibold mb-2">
                 Queries
               </p>
-              <p className="text-center text-lg">
+              <p className="text-center text-md">
                 {queries && queries.length > 0 ? queries.length : "No queries"}
               </p>
             </a>
 
             <a
-              className="grid-cols-1 px-12 py-8 bg-white border border-zinc-400 dark:bg-zinc-800 rounded-md space-y-4 hover:shadow-lg"
+              className="grid-cols-1 px-12 py-8 border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
               href="/schedule"
             >
-              <p className="text-primary-500 text-center text-xl font-semibold">
+              <p className="text-primary-500 text-center text-xl font-semibold mb-2">
                 Schedules
               </p>
-              <p className="text-center text-lg">
+              <p className="text-center text-md">
                 {schedule && schedule.length > 0
                   ? schedule.length
                   : "No schedules"}

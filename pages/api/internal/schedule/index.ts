@@ -6,6 +6,7 @@ import queryById from "../../../../utils/postgres/queryById";
 import { getServiceSupabase } from "../../../../utils/supabaseClient";
 import { DateTime } from "luxon";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
+import emailHelper from "../../../../utils/emailHelper";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
@@ -19,7 +20,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       let query = serviceSupabase
         .from("schedule")
         .select(
-          "periodicity, run_at_time, run_at_day, run_at_month_date, export_id(id, query_id, spreadsheet), user_id, org_id"
+          "periodicity, run_at_time, run_at_day, run_at_month_date, export_id(id, query_id, spreadsheet), user_id(id, email), org_id, notify_email"
         )
         .or(`run_at_time.eq.-1, run_at_time.eq.${currentHour}`)
         .or(
@@ -42,12 +43,12 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       const runQueries = data.map(async (singleQuery) => {
         const data = await queryById({
           queryId: singleQuery.export_id.query_id,
-          userId: singleQuery.user_id,
+          userId: singleQuery.user_id.id,
           orgId: singleQuery.org_id,
         });
         // Export to GSheets
         // Check if token exists
-        const auth = await checkExistingToken(singleQuery.user_id);
+        const auth = await checkExistingToken(singleQuery.user_id.id);
 
         // If no auth redir
         if (!auth) {
@@ -60,6 +61,18 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
             data: rowData,
             spreadsheet: singleQuery.export_id.spreadsheet,
           });
+
+          // Send email notification
+          if (updatedSheet && singleQuery.notify_email) {
+            const send = await emailHelper({
+              from: process.env.FROM_EMAIL || "",
+              to: singleQuery.user_id.email,
+              templateId: process.env.COURIER_NOTIFICATION_EMAIL || "",
+              vars: {
+                link: `https://docs.google.com/spreadsheets/d/${updatedSheet}/edit#gid=0`,
+              },
+            });
+          }
 
           return updatedSheet;
         }

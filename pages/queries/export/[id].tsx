@@ -12,6 +12,7 @@ import MiniLoading from "../../../components/individual/MiniLoading";
 import { Export } from "../../../types/Export";
 import dateFormatter from "../../../utils/dateFormatter";
 import ScheduleForm from "../../../components/schedule";
+import { getSpreadsheetId } from "../../../utils/google/helpers";
 
 interface Props {
   exports: Export[];
@@ -68,16 +69,6 @@ const ExportQuery: React.FC<Props> = (props) => {
     }
   };
 
-  const getSpreadsheetId = () => {
-    if (!spreadsheet) return;
-    if (spreadsheet.search("https://docs.google.com/spreadsheets/d/") < 0) {
-      return;
-    }
-    const rawId = spreadsheet.split("https://docs.google.com/spreadsheets/d/");
-    const spreadsheetId = rawId[1].split("/")[0];
-    return spreadsheetId;
-  };
-
   // Update an existing sheet
   const updateSheet = async () => {
     try {
@@ -88,7 +79,7 @@ const ExportQuery: React.FC<Props> = (props) => {
         );
         return;
       } else {
-        const spreadsheetId = getSpreadsheetId();
+        const spreadsheetId = getSpreadsheetId(spreadsheet);
         const res = await axios.post("/api/user/google/sheets/update-sheet", {
           spreadsheet: spreadsheetId,
           queryId: id,
@@ -204,8 +195,7 @@ const ExportQuery: React.FC<Props> = (props) => {
                       className="grid-cols-1 text-secondary-500 text-right"
                       href="#"
                       onClick={() => {
-                        setSchedule(true);
-                        setchosenExport(e);
+                        router.push(`/schedule/${e.id}`);
                       }}
                     >
                       Schedule
