@@ -404,7 +404,7 @@ const QueryForm: React.FC<Props> = (props) => {
             {/* Tables and columns for SQL EDITOR */}
             {!queryBuilder && (
               <div
-                className="col-span-6
+                className="col-span-5
                     flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden"
               >
                 <QueryEditor
@@ -417,7 +417,7 @@ const QueryForm: React.FC<Props> = (props) => {
             )}
             {/* Query builder */}
             {queryBuilder && (
-              <div className="col-span-4 flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden">
+              <div className="col-span-3 flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden">
                 <QueryBuilder changeTable={changeTable} />
               </div>
             )}
@@ -425,7 +425,7 @@ const QueryForm: React.FC<Props> = (props) => {
             {/* RESULTS */}
             <div
               className={classNames(
-                queryBuilder ? "col-span-6" : "col-span-4",
+                queryBuilder ? "col-span-7" : "col-span-5",
                 "flex flex-col h-full w-full overflow-hidden"
               )}
             >

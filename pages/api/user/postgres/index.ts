@@ -31,4 +31,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
+export const config = {
+  api: {
+    responseLimit: "8mb",
+  },
+};
+
 export default protectServerRoute(handle);
