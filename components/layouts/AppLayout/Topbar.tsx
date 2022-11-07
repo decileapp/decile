@@ -40,6 +40,7 @@ const Topbar: React.FC = ({ children }) => {
     ? [
         { name: "Home", href: "/", icon: HomeIcon, current: false },
 
+        { name: "Reports", href: "/reports", icon: CodeIcon, current: false },
         { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
 
         {
