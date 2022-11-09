@@ -62,8 +62,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
               if (!subscription.items.data[0].plan.id || !subscription.customer)
                 return;
               const updatedPlan = updateToPaidPlan({
-                stripeProductId:
-                  subscription.items.data[0].price.product.toString(),
+                stripePriceId: subscription.items.data[0].price.id.toString(),
                 stripeCustomerId: subscription.customer?.toString(),
               });
 
@@ -90,8 +89,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
                   }
                 );
                 const updatedPlan = updateToPaidPlan({
-                  stripeProductId:
-                    subscription.items.data[0].price.product.toString(),
+                  stripePriceId: subscription.items.data[0].price.id.toString(),
                   stripeCustomerId: checkoutSession.customer?.toString(),
                 });
               }

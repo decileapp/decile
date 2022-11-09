@@ -3,17 +3,17 @@ import { getServiceSupabase } from "../supabaseClient";
 const serviceSupabase = getServiceSupabase();
 
 export const updateToPaidPlan = async ({
-  stripeProductId,
+  stripePriceId,
   stripeCustomerId,
 }: {
-  stripeProductId: string;
+  stripePriceId: string;
   stripeCustomerId: string;
 }) => {
   // Update the plan for the organisation
   const { data: findPlan, error } = await serviceSupabase
     .from("plan")
     .select("id")
-    .match({ stripe_product_id: stripeProductId })
+    .match({ stripe_price_id: stripePriceId })
     .single();
 
   if (findPlan) {

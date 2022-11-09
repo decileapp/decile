@@ -9,7 +9,7 @@ const Pricing: React.FC = () => {
       summary: "Ideal for single users.",
       features: ["1 user", "Unlimited queries", "10 scheduled runs"],
       higlighted: false,
-      priceId: "price_1M1XmzIeUJFtGcbAF342tW5A",
+      priceId: 2,
     },
     {
       title: "Team",
@@ -17,7 +17,7 @@ const Pricing: React.FC = () => {
       summary: "Our recommended plan for small teams.",
       features: ["3 users", "Unlimited queries", "500 scheduled runs"],
       higlighted: true,
-      priceId: "price_1M1g4cIeUJFtGcbAQPM3rBpJ",
+      priceId: 3,
     },
     {
       title: "Enterprise",
@@ -25,11 +25,11 @@ const Pricing: React.FC = () => {
       summary: "For large teams.",
       features: ["10 users", "Unlimited queries", "2,500 scheduled queries"],
       higlighted: false,
-      priceId: "price_1M1g4zIeUJFtGcbA2mMeFmGk",
+      priceId: 4,
     },
   ];
 
-  const getPaymentLink = async (x: string) => {
+  const getPaymentLink = async (x: number) => {
     const res = await axios.post("/api/admin/billing/create-payment-link", {
       priceId: x,
     });
