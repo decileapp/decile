@@ -16,13 +16,19 @@ const AppLayout: React.FC = ({ children }) => {
 
   // Check org
   const checkOrg = async (user: User) => {
-    if (!user.user_metadata.org_id) {
+    // Update metadata if there is no org id or if update was > 24 hours ago
+    if (
+      !user.user_metadata.org_id ||
+      (user.updated_at &&
+        new Date(Date.now()).getTime() - new Date(user.updated_at).getTime() >
+          24 * 60 * 60 * 1000)
+    ) {
       const res = await axios.get("/api/org");
       if (res.data.success) {
         return;
       } else {
         // If no org data, create org
-        router.push("/organisation/new");
+        router.push("onboard/organisation/new");
       }
     }
     return;

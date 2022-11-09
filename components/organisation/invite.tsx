@@ -1,13 +1,13 @@
 import { useRouter } from "next/router";
 import { supabase } from "../../utils/supabaseClient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { toast } from "react-toastify";
 import axios from "axios";
-import TextInput from "../../components/individual/TextInput";
-import Select from "../../components/individual/Select";
-import Button from "../../components/individual/Button";
-import FormLayout from "../../components/layouts/FormLayout";
+import TextInput from "../individual/TextInput";
+import Select from "../individual/Select";
+import Button from "../individual/Button";
+import FormLayout from "../layouts/FormLayout";
 import { Org_User } from "../../types/Organisation";
 
 interface Props {
@@ -16,7 +16,6 @@ interface Props {
 
 const InviteOrganisation: React.FC<Props> = (props) => {
   const user = supabase.auth.user();
-  const session = supabase.auth.session();
   const [email, setEmail] = useState<string | undefined>();
   const [role, setRole] = useState<string | undefined>();
 
@@ -56,9 +55,6 @@ const InviteOrganisation: React.FC<Props> = (props) => {
       toast.error("Failed to invite user.");
     }
   }
-
-  // Variable map
-  const fields = ["Email", "Role", "", ""];
 
   return (
     <>

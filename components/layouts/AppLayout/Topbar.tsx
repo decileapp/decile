@@ -133,7 +133,7 @@ const Topbar: React.FC = ({ children }) => {
                           <a
                             className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                            onClick={() => router.push("/organisation")}
+                            onClick={() => router.push("/settings")}
                             href="#"
                           >
                             {user?.user_metadata.org_name}
@@ -204,7 +204,7 @@ const Topbar: React.FC = ({ children }) => {
                         <a
                           className="border-transparent 
                               block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-                          onClick={() => router.push("/organisation")}
+                          onClick={() => router.push("/settings")}
                           href="#"
                         >
                           {user?.user_metadata.org_name}

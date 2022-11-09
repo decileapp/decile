@@ -5,8 +5,9 @@ import { GetServerSideProps } from "next";
 import FormLayout from "../../components/layouts/FormLayout";
 import { Export } from "../../types/Export";
 import ScheduleForm from "../../components/schedule";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Schedule } from "../../types/Schedule";
+import Button from "../../components/individual/Button";
 
 interface Props {
   selectedExport: Export;
@@ -18,12 +19,54 @@ const ScheduleQuery: React.FC<Props> = (props) => {
   const { id } = router.query;
   const { selectedExport, schedule } = props;
   const user = supabase.auth.user();
+  const [eligible, setEligible] = useState(false);
+
+  const checkEligibility = async () => {
+    // Check users and plans
+    const { data: scheduleLimit, error: orgError } = await supabase
+      .from("plan")
+      .select("id, scheduled_query_limit")
+      .match({ id: user?.user_metadata.plan_id })
+      .single();
+
+    const { data: schedule, error: orgUserError } = await supabase
+      .from("schedule")
+      .select("id")
+      .match({ org_id: user?.user_metadata.org_id });
+
+    if (!schedule || !scheduleLimit) {
+      throw new Error("Something went wrong");
+      return;
+    }
+    if (scheduleLimit.user_limit > schedule?.length) {
+      setEligible(true);
+      return;
+    }
+  };
+
+  useEffect(() => {
+    checkEligibility();
+  }, []);
 
   return (
     <>
       <Page>
         <FormLayout>
-          <ScheduleForm selectedExport={selectedExport} schedule={schedule} />
+          {eligible && (
+            <ScheduleForm selectedExport={selectedExport} schedule={schedule} />
+          )}
+          {!eligible && (
+            <div className="flex flex-col items-center space-y-4">
+              <p>Upgrade your account to schedule queries.</p>
+              <div>
+                <Button
+                  label="Upgrade"
+                  type="primary"
+                  onClick={() => router.push("/settings")}
+                />
+              </div>
+            </div>
+          )}
         </FormLayout>
       </Page>
     </>

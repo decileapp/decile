@@ -6,6 +6,7 @@ import TextInput from "../../components/individual/TextInput";
 import Button from "../../components/individual/Button";
 import Loading from "../../components/individual/Loading";
 import Page from "../../components/layouts/Page";
+import axios from "axios";
 
 const Signin: NextPage = () => {
   const router = useRouter();
@@ -36,6 +37,7 @@ const Signin: NextPage = () => {
       setLoading(false);
       return;
     }
+
     router.push("/");
     return;
   };

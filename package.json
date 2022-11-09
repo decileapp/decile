@@ -49,6 +49,7 @@
     "react-icons": "^4.4.0",
     "react-toastify": "^9.0.5",
     "recoil": "^0.7.6",
+    "stripe": "^10.16.0",
     "swr": "^1.3.0",
     "utf8": "^3.0.0",
     "validator": "^13.7.0",

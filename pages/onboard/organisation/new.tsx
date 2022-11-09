@@ -1,9 +1,9 @@
 import { useState } from "react";
-import TextInput from "../../components/individual/TextInput";
-import { supabase } from "../../utils/supabaseClient";
+import TextInput from "../../../components/individual/TextInput";
+import { supabase } from "../../../utils/supabaseClient";
 import { toast } from "react-toastify";
-import MiniLoading from "../../components/individual/MiniLoading";
-import FormLayout from "../../components/layouts/FormLayout";
+import MiniLoading from "../../../components/individual/MiniLoading";
+import FormLayout from "../../../components/layouts/FormLayout";
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
 import axios from "axios";
@@ -24,52 +24,10 @@ const OrganisationPopup: React.FC<Props> = (props) => {
         return;
       }
       setLoading(true);
+      const res = await axios.post("/api/org/create", { orgName: orgName });
 
-      // Check there is no org already
-      const { data: checkOrg } = await supabase
-        .from("organisations")
-        .select("id")
-        .match({ user_id: user?.id })
-        .single();
-
-      if (checkOrg) {
-        toast.error("Organisation already exists for this user.");
-        return;
-      }
-
-      // Create org
-      const { data, error: orgError } = await supabase
-        .from("organisations")
-        .insert({
-          name: orgName,
-          user_id: user?.id,
-          plan_id: 1,
-        })
-        .single();
-
-      // Create role
-      if (data) {
-        const { data: roleData, error: roleError } = await supabase
-          .from("org_users")
-          .insert({
-            org_id: data.id,
-            user_id: user?.id,
-            role_id: 1, // admin
-          })
-          .single();
-
-        // Close dialog
-        if (roleData) {
-          await axios.get("/api/org");
-          router.push("/");
-        }
-        // If it doesnt work delete org
-        else {
-          const { data: deleted, error } = await supabase
-            .from("organisations")
-            .delete()
-            .match({ id: data.id });
-        }
+      if (res.data.success) {
+        router.push("/");
       }
       setLoading(false);
       return;

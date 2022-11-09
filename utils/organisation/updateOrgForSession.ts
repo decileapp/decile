@@ -65,6 +65,7 @@ const updateOrgForSession = async (user: User) => {
       role_id: data.role_id,
     },
   });
+
   return data;
 };
 

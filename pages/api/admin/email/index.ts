@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import protectServerRoute from "../../../../utils/auth/protectServerRoute";
 import emailHelper from "../../../../utils/emailHelper";
-import { getServiceSupabase, supabase } from "../../../../utils/supabaseClient";
+import { supabase } from "../../../../utils/supabaseClient";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
@@ -13,6 +14,29 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         return;
       }
       supabase.auth.setAuth(token);
+
+      // Check users and plans
+      const { data: orgLimit, error: orgError } = await supabase
+        .from("plan")
+        .select("id, user_limit")
+        .match({ id: user.user_metadata.plan_id })
+        .single();
+
+      const { data: orgUsers, error: orgUserError } = await supabase
+        .from("org_users")
+        .select("id")
+        .match({ org_id: user.user_metadata.org_id });
+
+      if (!orgUsers || !orgLimit) {
+        throw new Error("Something went wrong");
+        return;
+      }
+      if (orgUsers?.length > orgLimit.user_limit) {
+        res
+          .status(200)
+          .json({ error: "Please upgrade your account to invite users." });
+        return;
+      }
 
       // Add the invite to DB
       const { data, error } = await supabase.from("org_invitations").insert({
@@ -54,4 +78,4 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export default handle;
+export default protectServerRoute(handle);
