@@ -56,7 +56,7 @@ const Home: React.FC<Props> = (props) => {
             <p className="text-center">Write your first query</p>
             <p className="text-center">Schedule an export to Google Sheets</p>
           </div>
-          <div className="grid grid-cols-3 gap-12">
+          <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-12">
             <a
               className="grid-cols-1 px-12 py-8 border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
               href="/sources"
