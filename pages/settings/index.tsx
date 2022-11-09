@@ -9,6 +9,7 @@ import { Org_User } from "../../types/Organisation";
 import { classNames } from "../../utils/classnames";
 import { supabase } from "../../utils/supabaseClient";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const tabs = [
   { name: "Organsation", href: "#" },
@@ -20,12 +21,14 @@ interface Props {
 }
 
 const Settings: React.FC<Props> = (props) => {
+  const [loading, setLoading] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   const router = useRouter();
   const user = supabase.auth.user();
   const [eligible, setEligible] = useState(false);
 
   const checkEligibility = async () => {
+    setLoading(true);
     // Check users and plans
     const { data: orgLimit, error: orgError } = await supabase
       .from("plan")
@@ -39,20 +42,25 @@ const Settings: React.FC<Props> = (props) => {
       .match({ org_id: user?.user_metadata.org_id });
 
     if (!orgUsers || !orgLimit) {
-      throw new Error("Something went wrong");
+      setLoading(false);
+      toast.error("Something went wrong");
       return;
     }
     if (orgLimit.user_limit > orgUsers?.length) {
       setEligible(true);
-      return;
     }
+    setLoading(false);
+
+    return;
   };
 
   const getPortalLink = async () => {
+    setLoading(true);
     const res = await axios.get("/api/admin/billing/get-dashboard-link");
     if (res.data.link) {
       router.push(res.data.link);
     }
+    setLoading(false);
     return;
   };
 
@@ -61,7 +69,7 @@ const Settings: React.FC<Props> = (props) => {
   }, []);
 
   return (
-    <Page title="Settings">
+    <Page title="Settings" pageLoading={loading}>
       <div className="px-4 sm:px-6 md:px-0 h-full w-full">
         <div className="py-6">
           <div className="block">

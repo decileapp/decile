@@ -4,7 +4,7 @@ import axios from "axios";
 const Pricing: React.FC = () => {
   const pricing = [
     {
-      title: "Hobby",
+      title: "Starter",
       price: "£19",
       summary: "Ideal for single users.",
       features: ["1 user", "Unlimited queries", "10 scheduled runs"],
