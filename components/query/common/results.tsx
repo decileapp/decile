@@ -21,7 +21,7 @@ import {
   savingState,
 } from "../../../utils/contexts/query/state";
 import { useState } from "react";
-import ChartContainer from "../../graphs/ChartContainer";
+import ChartContainer from "../../graphs/common/ChartContainer";
 
 interface Props {
   queryLoading?: boolean;

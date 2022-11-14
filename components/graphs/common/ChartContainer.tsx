@@ -1,13 +1,13 @@
-import { ResponsiveLine, Serie } from "@nivo/line";
+import { Serie } from "@nivo/line";
 import { ReactElement, useState } from "react";
-import InputLabel from "../individual/common/InputLabel";
-import MiniSelect from "../individual/MiniSelect";
-import Bar from "./bar";
-import Line from "./line";
-import Scatter from "./scatter";
+import InputLabel from "../../individual/common/InputLabel";
+import MiniSelect from "../../individual/MiniSelect";
+import Bar from "../bar";
+import Line from "../line";
+import Scatter from "../scatter";
 
 interface Props {
-  fields: any;
+  fields: string[];
   data: any;
 }
 
@@ -23,6 +23,11 @@ const ChartContainer: React.FC<Props> = (props) => {
   // Chart controls
   const [legend, setLegend] = useState(true);
   const [horizontal, setHorizontal] = useState(false);
+
+  // Handle bad data
+  if (typeof data !== "object") {
+    return <p>Chart not available.</p>;
+  }
 
   // xAxis
   const xOptions =
@@ -129,8 +134,8 @@ const ChartContainer: React.FC<Props> = (props) => {
     <>
       <div className="flex flex-row justify-start items-center mb-2 space-x-8">
         <div className="flex flex-row space-x-2 justify-center items-center border p-1 rounded-lg bg-white dark:bg-zinc-700">
-          <InputLabel title="X Axis" />
           <MiniSelect
+            title="X Axis"
             options={xOptions}
             setSelected={(x) => setXAxis(x.value)}
             selected={xOptions.find(
@@ -139,8 +144,8 @@ const ChartContainer: React.FC<Props> = (props) => {
           />
         </div>
         <div className="flex flex-row space-x-2 justify-center items-center border p-1 rounded-lg bg-white dark:bg-zinc-700">
-          <InputLabel title="Y Axis" />
           <MiniSelect
+            title="Y Axis"
             options={yOptions}
             setSelected={(x) => setYAxis(x.value)}
             selected={yOptions.find(
@@ -149,8 +154,8 @@ const ChartContainer: React.FC<Props> = (props) => {
           />
         </div>
         <div className="flex flex-row space-x-2 justify-center items-center border p-1 rounded-lg bg-white dark:bg-zinc-700">
-          <InputLabel title="Chart type" />
           <MiniSelect
+            title="Chart type"
             options={chartOptions}
             setSelected={(x) => setChartType(x.value)}
             selected={chartOptions.find((x) => x.value === chartType)}

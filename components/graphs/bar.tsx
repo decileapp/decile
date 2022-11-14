@@ -2,7 +2,7 @@ import { BarCommonProps, BarSvgProps, ResponsiveBar } from "@nivo/bar";
 import { useTheme } from "next-themes";
 import { CommonProps } from "../../types/Chart";
 import colors from "../../utils/theme/colors";
-import { graphTheme, marginProps } from "./graphTheme";
+import { graphTheme, marginProps } from "./common/graphTheme";
 
 interface BarProps extends CommonProps {
   data: any[];

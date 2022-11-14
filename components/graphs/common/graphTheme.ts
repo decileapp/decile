@@ -1,4 +1,4 @@
-import colors from "../../utils/theme/colors";
+import colors from "../../../utils/theme/colors";
 
 export const graphTheme = (theme: string) => {
   // Colors
