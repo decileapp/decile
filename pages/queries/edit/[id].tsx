@@ -1,12 +1,12 @@
-import QueryForm from "../../components/query/form";
+import QueryForm from "../../../components/query/form";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
-import { Query } from "../../types/Query";
-import Loading from "../../components/individual/Loading";
-import { Source } from "../../types/Sources";
+import { supabase } from "../../../utils/supabaseClient";
+import { Query } from "../../../types/Query";
+import Loading from "../../../components/individual/Loading";
+import { Source } from "../../../types/Sources";
 import { GetServerSideProps } from "next";
-import { fetchTablesAndColumns } from "../../components/query/functions";
+import { fetchTablesAndColumns } from "../../../components/query/functions";
 import {
   bodyState,
   columnsState,
@@ -24,8 +24,8 @@ import {
   selectedTableState,
   sourceSchemaState,
   tablesState,
-} from "../../utils/contexts/query/state";
-import { useRecoilState, useSetRecoilState } from "recoil";
+} from "../../../utils/contexts/query/state";
+import { useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
 
 interface Props {
@@ -143,11 +143,7 @@ const EditQuery: React.FC<Props> = (props) => {
     initialLoad();
   }, []);
 
-  return loading ? (
-    <Loading />
-  ) : (
-    <QueryForm sources={sources} edit={user?.id === query.user_id.id} />
-  );
+  return loading ? <Loading /> : <QueryForm sources={sources} />;
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {

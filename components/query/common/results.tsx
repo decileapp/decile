@@ -2,22 +2,26 @@ import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
 import {
+  ChartBarIcon,
   DownloadIcon,
   DuplicateIcon,
   ShareIcon,
+  TableIcon,
 } from "@heroicons/react/outline";
 import TableShell from "../../individual/table/shell";
 import TableHeader from "../../individual/table/header";
 import { useRouter } from "next/router";
 import Loading from "../../individual/Loading";
 import Button from "../../individual/Button";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import {
   dataState,
   fieldsState,
   queryIdState,
   savingState,
 } from "../../../utils/contexts/query/state";
+import { useState } from "react";
+import ChartContainer from "../../graphs/ChartContainer";
 
 interface Props {
   queryLoading?: boolean;
@@ -33,6 +37,7 @@ const Results: React.FC<Props> = (props) => {
   const [data, setData] = useRecoilState(dataState);
   const [saving, setSaving] = useRecoilState(savingState);
   const { queryLoading, queryDb, saveQuery, copyQuery, error } = props;
+  const [graph, setGraph] = useState(false);
   const router = useRouter();
 
   return (
@@ -40,6 +45,17 @@ const Results: React.FC<Props> = (props) => {
       <div className="flex flex-row items-center justify-between w-full ">
         <InputLabel title="Results" />
         <div className="flex flex-row items-center justify-center space-x-4">
+          {data &&
+            data.length > 0 &&
+            (graph ? (
+              <a href="#" onClick={() => setGraph(false)}>
+                <TableIcon className="block h-6 w-6 text-secondary-500" />
+              </a>
+            ) : (
+              <a href="#" onClick={() => setGraph(true)}>
+                <ChartBarIcon className="block h-6 w-6 text-secondary-500" />
+              </a>
+            ))}
           {data && data.length > 0 && (
             <CSVLink data={data} filename={`data_${Date.now()}`}>
               <DownloadIcon className="block h-6 w-6 text-secondary-500" />
@@ -60,11 +76,12 @@ const Results: React.FC<Props> = (props) => {
                 <DuplicateIcon className="block h-6 w-6 text-secondary-500" />
               </a>
             )}
-          {!queryLoading && queryDb ? (
-            <Button label="Run" onClick={() => queryDb()} type="secondary" />
-          ) : (
-            <div />
-          )}
+          {queryDb &&
+            (!queryLoading ? (
+              <Button label="Run" onClick={() => queryDb()} type="secondary" />
+            ) : (
+              <div />
+            ))}
           {!queryLoading && saveQuery && (
             <Button
               label="Save"
@@ -84,7 +101,7 @@ const Results: React.FC<Props> = (props) => {
       {error && (
         <p className="text-sm text-red-500">{`Error message: ${error}`}</p>
       )}
-      {!error && fields && data && !queryLoading && (
+      {!error && fields && data && !queryLoading && !graph && (
         <TableShell>
           <TableHeader labels={fields} />
 
@@ -109,6 +126,9 @@ const Results: React.FC<Props> = (props) => {
             })}
           </tbody>
         </TableShell>
+      )}
+      {!error && fields && data && !queryLoading && graph && (
+        <ChartContainer fields={fields} data={data} />
       )}
     </div>
   );
