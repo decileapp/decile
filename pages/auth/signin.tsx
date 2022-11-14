@@ -6,7 +6,8 @@ import TextInput from "../../components/individual/TextInput";
 import Button from "../../components/individual/Button";
 import Loading from "../../components/individual/Loading";
 import Page from "../../components/layouts/Page";
-import axios from "axios";
+import GoogleImage from "../../public/google.svg";
+import Image from "next/image";
 
 const Signin: NextPage = () => {
   const router = useRouter();
@@ -151,20 +152,26 @@ const Signin: NextPage = () => {
 
               <div className="relative flex justify-center text-sm">
                 <span className=" px-2 text-zinc-500 dark:text-zinc-200">
-                  Or continue with
+                  Or
                 </span>
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-3">
-                <div>
-                  <a
-                    href="#"
-                    className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-zinc-500 shadow-sm hover:bg-gray-50"
-                    onClick={() => googleSignIn()}
-                  >
-                    <p>Google</p>
-                  </a>
-                </div>
+                <a
+                  href="#"
+                  className="flex items-center justify-center space-x-2 rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-zinc-500 shadow-sm hover:bg-gray-50"
+                  onClick={() => googleSignIn()}
+                >
+                  <Image
+                    alt="Mountains"
+                    src={GoogleImage}
+                    layout="intrinsic"
+                    quality={100}
+                    height="36"
+                    width="36"
+                  />
+                  <p className="font-roboto text-md">Sign in with Google</p>
+                </a>
               </div>
             </div>
           )}
