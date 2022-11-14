@@ -3,7 +3,7 @@ import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
-import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
+import { TrashIcon } from "@heroicons/react/outline";
 import { Query } from "../../types/Query";
 import { GetServerSideProps } from "next";
 import dateFormatter from "../../utils/dateFormatter";
@@ -44,10 +44,7 @@ const Queries: React.FC<Props> = (props) => {
 
       if (data) {
         router.push({
-          pathname: "/queries/edit",
-          query: {
-            id: data.id,
-          },
+          pathname: `/queries/edit/${data.id}`,
         });
       }
       return;
@@ -98,7 +95,7 @@ const Queries: React.FC<Props> = (props) => {
 
   const toQuery = (row: Query) => {
     router.push({
-      pathname: `/queries/${row.id}`,
+      pathname: `/queries/view/${row.id}`,
     });
     return;
   };

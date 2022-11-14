@@ -12,6 +12,7 @@ interface Option {
 }
 
 interface VarProps {
+  title?: string;
   selected?: Option;
   setSelected: (x: Option) => void;
   options: Option[];
@@ -19,30 +20,28 @@ interface VarProps {
 }
 
 const MiniSelect: React.FC<VarProps> = (props) => {
-  const { options, selected, setSelected, emptyLabel } = props;
+  const { options, selected, setSelected, emptyLabel, title } = props;
 
   return (
     <Listbox value={selected} onChange={setSelected}>
       {({ open }) => {
         return (
           <>
-            <Listbox.Label className="sr-only"></Listbox.Label>
-            <div>
-              <div className=" inline-flex justify-center align-center rounded-md ">
-                <div className="inline-flex  rounded-md">
-                  <div className="inline-flex items-start rounded-l-md pr-1 ">
-                    <p className="text-sm">
-                      {selected ? selected.title : emptyLabel || "Select"}
-                    </p>
-                  </div>
-                  <Listbox.Button className="inline-flex items-center rounded-l-none rounded-r-md  text-sm font-medium  ">
-                    <ChevronDownIcon
-                      className="h-4 w-4 text-primary-500"
-                      aria-hidden="true"
-                    />
-                  </Listbox.Button>
-                </div>
-              </div>
+            <Listbox.Label className="block text-sm font-semibold">
+              {title}
+            </Listbox.Label>
+            <div className="relative">
+              <Listbox.Button className="relative  cursor-default rounded-md  dark:bg-zinc-700 py-2 pr-10 text-left  sm:text-sm">
+                <span className="block truncate">
+                  {selected ? selected.title : ""}
+                </span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronDownIcon
+                    className="h-5 w-5 text-primary-500"
+                    aria-hidden="true"
+                  />
+                </span>
+              </Listbox.Button>
 
               <Transition
                 show={open}
@@ -51,54 +50,43 @@ const MiniSelect: React.FC<VarProps> = (props) => {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Listbox.Options className="absolute z-10 mt-6 origin-bottom-left divide-y divide-zinc-200 rounded-lg  bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 overflow-auto rounded-md bg-white dark:bg-zinc-700 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                   {options.map((option) => (
                     <Listbox.Option
                       key={option.title}
                       className={({ active }) =>
                         classNames(
-                          active
-                            ? "text-white bg-primary-500"
-                            : "text-zinc-900",
-                          "cursor-default select-none px-1 py-2 text-sm rounded-lg"
+                          active ? "text-white bg-primary-500" : "",
+                          "relative cursor-default select-none py-2 pl-8 pr-4"
                         )
                       }
                       value={option}
                     >
                       {({ selected, active }) => (
-                        <div className="flex flex-col">
-                          <div className="flex flex-row justify-between space-x-2">
-                            <p
-                              className={
-                                selected ? "font-semibold" : "font-normal"
-                              }
-                            >
-                              {option.title}
-                            </p>
-                            {selected ? (
-                              <span
-                                className={
-                                  active ? "text-white" : "text-primary-500"
-                                }
-                              >
-                                <CheckIcon
-                                  className="h-5 w-5"
-                                  aria-hidden="true"
-                                />
-                              </span>
-                            ) : null}
-                          </div>
-                          {option.description && (
-                            <p
+                        <>
+                          <span
+                            className={classNames(
+                              selected ? "font-semibold" : "font-normal",
+                              "block truncate"
+                            )}
+                          >
+                            {option.title}
+                          </span>
+
+                          {selected ? (
+                            <span
                               className={classNames(
-                                active ? "text-primary-200" : "text-zinc-500",
-                                "mt-2"
+                                active ? "text-white" : "text-primary-600",
+                                "absolute inset-y-0 left-0 flex items-center pl-1.5"
                               )}
                             >
-                              {option.description}
-                            </p>
-                          )}
-                        </div>
+                              <CheckIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </span>
+                          ) : null}
+                        </>
                       )}
                     </Listbox.Option>
                   ))}

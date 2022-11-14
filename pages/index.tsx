@@ -117,14 +117,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { data: queries, error: queryError } = await supabase
     .from<Query[]>("queries")
     .select("id, name, user_id")
-    .or(
-      `user_id.eq.${user.id},and(public.eq.true,org_id.eq.${user.user_metadata.org_id})`
-    );
+    .match({ org_id: user.user_metadata.org_id })
+    .or(`user_id.eq.${user.id},publicQuery.is.true`);
 
   const { data: schedules, error: scheduleError } = await supabase
     .from<Schedule[]>("schedule")
     .select("id, name, user_id");
-
   return {
     props: { sources: sources, queries: queries, schedules: schedules },
   };

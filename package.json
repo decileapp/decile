@@ -14,11 +14,11 @@
     "@nivo/bar": "^0.80.0",
     "@nivo/core": "^0.80.0",
     "@nivo/line": "^0.80.0",
+    "@nivo/scatterplot": "^0.80.0",
     "@self.id/framework": "^0.2.0",
     "@supabase/auth-helpers-nextjs": "^0.2.8",
     "@supabase/auth-helpers-react": "^0.2.4",
     "@supabase/supabase-js": "^1.30.0",
-    "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/forms": "^0.4.0",
     "@tailwindcss/typography": "^0.5.0",
     "@trycourier/courier": "^3.15.0",
@@ -56,6 +56,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/cookies": "^0.7.7",
     "@types/jsonwebtoken": "^8.5.8",
@@ -67,13 +68,14 @@
     "@types/react-csv": "^1.1.2",
     "@types/react-draft-wysiwyg": "^1.13.4",
     "@types/showdown": "^1.9.4",
+    "@types/tailwindcss": "^3.1.0",
     "@types/utf8": "^3.0.1",
     "@types/validator": "^13.7.2",
     "autoprefixer": "^10.4.5",
     "eslint": "8.5.0",
     "eslint-config-next": "12.0.7",
     "postcss": "^8.4.5",
-    "tailwindcss": "^3.0.8",
+    "tailwindcss": "^3.2.4",
     "typescript": "4.5.4"
   }
 }

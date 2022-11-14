@@ -44,7 +44,6 @@ import { useRouter } from "next/router";
 
 interface Props {
   sources?: Source[];
-  edit?: boolean;
 }
 
 const QueryForm: React.FC<Props> = (props) => {
@@ -301,7 +300,7 @@ const QueryForm: React.FC<Props> = (props) => {
         .single();
       if (data) {
         setSavedAt(data.updated_at);
-        toast.success("Saved!");
+        router.push(`/queries/view/${data.id}`);
       }
       setSaving(false);
       return;
@@ -342,49 +341,6 @@ const QueryForm: React.FC<Props> = (props) => {
     } catch (error: any) {
       toast.error("Failed to copy query");
     }
-  }
-
-  // view only
-  if (!props.edit) {
-    return (
-      <>
-        <Page padding={false}>
-          <div className="flex flex-row p-4 space-x-4">
-            {props.sources && (
-              <div className="flex flex-row space-x-2">
-                <InputLabel title="Source" />
-                <p className="text-sm">
-                  {props.sources.find((s) => s.id === selectedSource)?.name}
-                </p>
-              </div>
-            )}
-            <div className="flex flex-row space-x-2">
-              <InputLabel title="Name" />
-              <p className="text-sm">{name}</p>
-            </div>
-            {savedAt && (
-              <div className="flex flex-row space-x-2">
-                <InputLabel title="Updated at" />
-                <p className="text-sm ">{`Last saved: ${dateFormatter({
-                  dateVar: savedAt,
-                  type: "time",
-                })}`}</p>
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col h-full overflow-hidden">
-            {/* Top bar */}
-
-            <Results
-              queryLoading={queryLoading}
-              queryDb={queryBuilder ? () => queryDb() : undefined}
-              copyQuery={copyQuery}
-              error={error}
-            />
-          </div>
-        </Page>
-      </>
-    );
   }
 
   // Edit
