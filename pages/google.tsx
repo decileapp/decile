@@ -43,7 +43,7 @@ const Google: React.FC = () => {
       // If not authenticated open new tab for auth
       if (data) {
         setLoading(false);
-        // setSetup(true);
+        setSetup(true);
         return;
       }
       setLoading(false);
