@@ -144,11 +144,7 @@ export const buildQueryState = selector({
 
     // Filter
     if (filter && filter.length > 0) {
-      if (
-        !filter.find((f) => f.var === "" || f.value === "" || f.operator === "")
-      ) {
-        query.filterBy = filter;
-      }
+      query.filterBy = filter;
     }
 
     // Group by

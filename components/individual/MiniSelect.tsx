@@ -33,7 +33,7 @@ const MiniSelect: React.FC<VarProps> = (props) => {
             <div className="relative">
               <Listbox.Button className="relative  cursor-default rounded-md  dark:bg-zinc-700 py-2 pr-10 text-left  sm:text-sm">
                 <span className="block truncate">
-                  {selected ? selected.title : ""}
+                  {selected ? selected.title : "Select"}
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                   <ChevronDownIcon

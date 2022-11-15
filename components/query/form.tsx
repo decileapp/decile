@@ -182,8 +182,13 @@ const QueryForm: React.FC<Props> = (props) => {
       // Check no filters are empty
       if (queryFilterBy.length > 0) {
         const badFilters = queryFilterBy.find(
-          (q) => !q.combo || !q.operator || !q.value || !q.var
+          (q) =>
+            !q.combo ||
+            !q.operator ||
+            !q.var ||
+            (q.operator !== "=" && q.operator !== "!=" && q.value === "") // blank values only allowed for these operators
         );
+
         if (badFilters) {
           toast.error("Please check your filters.");
           return false;

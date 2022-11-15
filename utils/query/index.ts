@@ -167,19 +167,19 @@ const queryBuilder = ({
   // If all the text variables are not in group by, throw an error
 
   // Generate select vars
-  const selectVars = vars
-    .map((v) => {
-      // Check if variable has been grouped
-      let grouped: GroupBy | undefined;
-      grouped = groupBy?.find((g) => g.name === v.name);
+  const rawSelectVars = vars.map((v) => {
+    // Check if variable has been grouped
+    let grouped: GroupBy | undefined;
+    grouped = groupBy?.find((g) => g.name === v.name);
 
-      if (grouped && grouped.function !== "GROUP") {
-        return `${grouped.function}("${v.name}")`;
-      }
+    if (grouped && grouped.function !== "GROUP") {
+      return `${grouped.function}("${v.name}")`;
+    }
 
-      return `"${v.name}"`;
-    })
-    .join(", ");
+    return `"${v.name}"`;
+  });
+
+  const selectVars = rawSelectVars.join(", ");
 
   // Tables
   const tableNames = tables[0].name;
@@ -190,9 +190,31 @@ const queryBuilder = ({
     filterBy.map((f, id) => {
       // for everything but the last value
       if (id < filterBy.length - 1) {
+        // If there is no value
+        if (!f.value) {
+          if (f.operator === "!=") {
+            whereClause = whereClause + `"${f.var}" is not null ${f.combo} `;
+            return;
+          }
+          if (f.operator === "=") {
+            whereClause = whereClause + `"${f.var}" is null ${f.combo} `;
+            return;
+          }
+        }
         whereClause =
           whereClause + `"${f.var}" ${f.operator} '${f.value}' ${f.combo} `;
       } else {
+        // If there is no value
+        if (!f.value) {
+          if (f.operator === "!=") {
+            whereClause = whereClause + `"${f.var}" is not null `;
+            return;
+          }
+          if (f.operator === "=") {
+            whereClause = whereClause + `"${f.var}" is null `;
+            return;
+          }
+        }
         whereClause = whereClause + `"${f.var}" ${f.operator} '${f.value}'`;
       }
 
@@ -200,11 +222,15 @@ const queryBuilder = ({
     });
   }
 
-  // Sory by
+  // Sort by
   let sortClause = "";
   if (sortBy && sortBy.length > 0) {
     sortBy.map((s) => {
-      sortClause = sortClause + " " + `"${s.name}"` + " " + s.type;
+      // Find the summarised variable
+      const index = vars.findIndex((x) => x.name === s.name);
+
+      // sortClause = sortClause + " " + `"${s.name}"` + " " + s.type;
+      sortClause = sortClause + " " + rawSelectVars[index] + " " + s.type;
       return;
     });
   }
@@ -240,7 +266,6 @@ const queryBuilder = ({
   }
 
   query = query + ";";
-
   return query;
 };
 
