@@ -5,6 +5,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import Button from "../components/individual/Button";
+import GoogleImage from "../public/google.svg";
+import Image from "next/image";
+import { classNames } from "../utils/classnames";
 
 const Google: React.FC = () => {
   const [setup, setSetup] = useState(false);
@@ -40,7 +43,7 @@ const Google: React.FC = () => {
       // If not authenticated open new tab for auth
       if (data) {
         setLoading(false);
-        setSetup(true);
+        // setSetup(true);
         return;
       }
       setLoading(false);
@@ -73,11 +76,21 @@ const Google: React.FC = () => {
         {!setup && (
           <div className="flex flex-col justify-center items-center space-y-4">
             <p className="text-2xl">Let's get you set up with Google Sheets.</p>
-            <Button
-              label="Setup google"
+            <a
+              href="#"
+              className={`flex items-center justify-center space-x-2 rounded-md border border-gray-300  py-1 px-2 text-sm font-medium text-zinc-500 hover:bg-gray-50 bg-white shadow-md`}
               onClick={() => authoriseGoogle()}
-              type="primary"
-            />
+            >
+              <Image
+                alt="Mountains"
+                src={GoogleImage}
+                layout="intrinsic"
+                quality={100}
+                height="30"
+                width="30"
+              />
+              <p className="font-roboto text-md ">Connect Google Sheets</p>
+            </a>
           </div>
         )}
       </div>
