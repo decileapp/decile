@@ -22,3 +22,6 @@ artifacts
 .next
 pages/scratch
 .code-workspace
+
+#misc
+.DS_Store
