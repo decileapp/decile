@@ -21,19 +21,26 @@ const queryById = async ({
       )
       .match({ id: parseInt(queryId, 10) })
       .single();
+
     if (
       data.user_id === userId ||
       (data.org_id === orgId && data.publicQuery)
     ) {
-      // Decrypt
-      let decryptedSetup = data.database;
-      decryptedSetup.password = decrypt(data.database.password);
+      const formattedData = {
+        user: data.database.dbUser,
+        host: data.database.host,
+        database: data.database.database,
+        password: decrypt(data.database.password),
+        port: data.database.port,
+        ssl: data.database.ssl,
+      };
 
-      const pool = new Pool(decryptedSetup);
+      const pool = new Pool(formattedData);
 
       const result = await pool.query(data.body);
       return result;
     }
+    return;
   } catch (e: any) {
     return e.hint;
   }

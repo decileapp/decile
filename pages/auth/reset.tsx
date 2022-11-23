@@ -61,8 +61,6 @@ const Reset: NextPage = () => {
     }
     if (data) {
       setMessage("We've reset your password.");
-    } else {
-      console.log(error);
     }
     setLoading(false);
     return;

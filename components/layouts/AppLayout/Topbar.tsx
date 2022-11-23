@@ -9,6 +9,7 @@ import {
   XIcon,
   MenuIcon,
   ClockIcon,
+  ChartBarIcon,
 } from "@heroicons/react/outline";
 import { useRouter } from "next/router";
 import { MoonIcon, SunIcon } from "@heroicons/react/solid";
@@ -40,6 +41,7 @@ const Topbar: React.FC = ({ children }) => {
     ? [
         { name: "Home", href: "/", icon: HomeIcon, current: false },
 
+        { name: "Charts", href: "/charts", icon: ChartBarIcon, current: false },
         { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
 
         {

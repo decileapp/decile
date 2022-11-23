@@ -81,7 +81,7 @@ const Sources: React.FC<Props> = (props) => {
                 className="flex flex-col h-full space-y-2 border border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
               >
                 <div className="grid grid-cols-2  ">
-                  <p className="text-lg font-bold truncate">{row.name}</p>
+                  <p className=" font-bold truncate">{row.name}</p>
                   <div className="flex flex-row justify-end space-x-2">
                     <a
                       href="#"
@@ -111,24 +111,24 @@ const Sources: React.FC<Props> = (props) => {
                 </div>
 
                 <div className="grid grid-cols-2 items-center">
-                  <p className="text-base text-zinc-600 dark:text-zinc-400 truncate">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
                     Host
                   </p>
-                  <p className="text-base truncate">{row.host}</p>
+                  <p className="text-sm truncate">{row.host}</p>
                 </div>
 
                 <div className="grid grid-cols-2 items-center">
-                  <p className="text-base text-zinc-600 dark:text-zinc-400 truncate">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
                     Database
                   </p>
-                  <p className="text-base truncate">{row.database}</p>
+                  <p className="text-sm truncate">{row.database}</p>
                 </div>
 
                 <div className="grid grid-cols-2 items-center">
-                  <p className="text-base text-zinc-600 dark:text-zinc-400 truncate">
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">
                     Port
                   </p>
-                  <p className="text-base truncate">{row.port}</p>
+                  <p className="text-sm truncate">{row.port}</p>
                 </div>
               </div>
             );

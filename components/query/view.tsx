@@ -1,18 +1,12 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
 import { toast } from "react-toastify";
 import _ from "lodash";
-import Results from "./common/results";
+import Results from "./common/results/QueryView";
 import {
   bodyState,
-  buildQueryState,
-  columnsLoadingState,
-  columnsState,
-  dataState,
-  fieldsState,
   nameState,
   publicQueryState,
   queryBuilderState,
@@ -23,20 +17,13 @@ import {
   querySortByState,
   queryUpdatedAtState,
   queryVarsState,
-  savingState,
   selectedSourceState,
   selectedTableState,
-  sourceSchemaState,
-  tableLoadingState,
-  tablesState,
 } from "../../utils/contexts/query/state";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { Table } from "../../types/Table";
-import { fetchColumns, fetchTables, fetchTablesAndColumns } from "./functions";
+import { useRecoilState, useRecoilValue } from "recoil";
 import InputLabel from "../individual/common/InputLabel";
 import dateFormatter from "../../utils/dateFormatter";
 import { useRouter } from "next/router";
-import Button from "../individual/Button";
 import { PencilIcon } from "@heroicons/react/outline";
 
 interface Props {
@@ -52,16 +39,10 @@ const QueryView: React.FC<Props> = (props) => {
 
   const [selectedSource, setSelectedSource] =
     useRecoilState(selectedSourceState);
-  const setSelectedSchema = useSetRecoilState(sourceSchemaState);
 
   // Tables
-  const setTables = useSetRecoilState(tablesState);
-  const [selectedTable, setSelectedTable] = useRecoilState(selectedTableState);
-  const setTableLoading = useSetRecoilState(tableLoadingState);
 
-  // Columns
-  const setColumns = useSetRecoilState(columnsState);
-  const setColumnsLoading = useSetRecoilState(columnsLoadingState);
+  const [selectedTable, setSelectedTable] = useRecoilState(selectedTableState);
 
   // Query
   const queryId = useRecoilValue(queryIdState);
@@ -75,90 +56,13 @@ const QueryView: React.FC<Props> = (props) => {
   const [querySortBy, setQuerySortBy] = useRecoilState(querySortByState);
   const [queryLimit, setQueryLimit] = useRecoilState(queryLimitState);
 
-  // Data
-  const setFields = useSetRecoilState(fieldsState);
-  const setData = useSetRecoilState(dataState);
-
-  // Output of query builder
-  const buildQuery = useRecoilValue(buildQueryState);
-
   const user = supabase.auth.user();
 
   /* Local states */
   const [queryLoading, setQueryLoading] = useState(false);
 
-  // Cancel requests
-  const source = axios.CancelToken.source();
-
   // Error
   const [error, setError] = useState<string | undefined>();
-
-  // Validate inputs
-  const validateQuery = () => {
-    // Validation
-    if (!selectedSource || !body) {
-      return false;
-    }
-
-    return true;
-  };
-
-  // Query
-  const queryDb = async () => {
-    setError(undefined);
-    setQueryLoading(true);
-    if (!validateQuery()) {
-      setQueryLoading(false);
-      return;
-    }
-
-    if (!props.sources) {
-      return;
-    }
-
-    if (props.sources.length === 0) {
-      return;
-    }
-
-    try {
-      setData(null);
-      const selectedDb = props?.sources.find((s) => s.id === selectedSource);
-
-      if (!selectedDb) {
-        toast.error("Database not found.");
-      }
-
-      const res = await axios.post<{ rows: any[]; fields: any[]; error: any }>(
-        "/api/user/postgres",
-        {
-          body: queryBuilder ? buildQuery : body,
-          ...selectedDb,
-          cancelToken: source.token,
-        }
-      );
-
-      if (res.data.error) {
-        toast.error("Something went wrong.");
-        setError(res.data.error);
-        setQueryLoading(false);
-        return;
-      }
-
-      if (res.data.fields && res.data.rows) {
-        const fields: string[] = res.data.fields.map((f: any) => f.name);
-        const rows: {}[] = res.data.rows;
-        setFields(fields);
-        setData(rows);
-      }
-      setQueryLoading(false);
-      return;
-    } catch (e) {
-      console.log(e);
-      toast.error("Something went wrong. Please check your query.");
-      setQueryLoading(false);
-      return;
-    }
-  };
 
   async function copyQuery() {
     try {
@@ -182,19 +86,16 @@ const QueryView: React.FC<Props> = (props) => {
           query_builder: queryBuilder,
         })
         .single();
+      console.log(error);
       setName(`Copy of ${name}`);
       if (data) {
-        router.push(`/queries/${data.id}`);
+        router.push(`/queries/edit/${data.id}`);
       }
       return;
     } catch (error: any) {
       toast.error("Failed to copy query");
     }
   }
-
-  useEffect(() => {
-    queryDb();
-  }, []);
 
   return (
     <>

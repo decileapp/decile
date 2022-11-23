@@ -63,6 +63,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           }
           // If export does not work, reauthenticate
         } catch (e) {
+          console.log(e);
           const link = await authoriseGoogle();
           res.status(200).json({ link: link });
           return;

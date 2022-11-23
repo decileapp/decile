@@ -5,7 +5,6 @@ import { Query } from "../../../types/Query";
 import Loading from "../../../components/individual/Loading";
 import { Source } from "../../../types/Sources";
 import { GetServerSideProps } from "next";
-import { fetchTablesAndColumns } from "../../../components/query/functions";
 import {
   bodyState,
   columnsState,
@@ -23,10 +22,13 @@ import {
   selectedTableState,
   sourceSchemaState,
   tablesState,
+  dataState,
+  fieldsState,
 } from "../../../utils/contexts/query/state";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
 import QueryView from "../../../components/query/view";
+import axios from "axios";
 
 interface Props {
   sources: Source[];
@@ -39,7 +41,14 @@ const EditQuery: React.FC<Props> = (props) => {
   const [loading, setLoading] = useState(false);
   const { query, sources } = props;
 
-  const setSelectedSource = useSetRecoilState(selectedSourceState);
+  // Query
+  const [queryId, setQueryId] = useRecoilState(queryIdState);
+  const [name, setName] = useRecoilState(nameState);
+  const [body, setBody] = useRecoilState(bodyState);
+  const [publicQuery, setPublicQuery] = useRecoilState(publicQueryState);
+
+  const [selectedSource, setSelectedSource] =
+    useRecoilState(selectedSourceState);
   const setSelectedSchema = useSetRecoilState(sourceSchemaState);
 
   // // Tables
@@ -50,10 +59,6 @@ const EditQuery: React.FC<Props> = (props) => {
   const setColumns = useSetRecoilState(columnsState);
 
   // // Query
-  const setQueryId = useSetRecoilState(queryIdState);
-  const setName = useSetRecoilState(nameState);
-  const setBody = useSetRecoilState(bodyState);
-  const setPublicQuery = useSetRecoilState(publicQueryState);
   const setSavedAt = useSetRecoilState(queryUpdatedAtState);
   const setQueryVars = useSetRecoilState(queryVarsState);
   const setQueryFilterBy = useSetRecoilState(queryFilterState);
@@ -62,39 +67,28 @@ const EditQuery: React.FC<Props> = (props) => {
   const setQueryLimit = useSetRecoilState(queryLimitState);
   const setQueryBuilder = useSetRecoilState(queryBuilderState);
 
-  const initialLoad = async () => {
+  const setData = useSetRecoilState(dataState);
+  const setFields = useSetRecoilState(fieldsState);
+
+  // Query
+  const queryDb = async () => {
     setLoading(true);
+
+    if (!props.sources) {
+      return;
+    }
+
+    if (props.sources.length === 0) {
+      return;
+    }
+
     try {
-      // Get tables and columns
+      const selectedDb = sources.find((s) => s.id === query.database);
+
+      // Query details
       if (query.database) {
         setSelectedSource(query.database);
-        const foundSource = sources.find((s) => s.id === query.database);
-        if (foundSource) {
-          const tablesAndColumns = await fetchTablesAndColumns(foundSource);
-
-          if (tablesAndColumns) {
-            setSelectedSchema(tablesAndColumns);
-            const tables = tablesAndColumns.map((t) => {
-              return { name: t.name, schema: t.schema };
-            });
-            setTables(tables);
-            if (query.query_table) {
-              const foundTable = tablesAndColumns.find(
-                (t) => `${t.schema}.${t.name}` === query.query_table
-              );
-              if (foundTable) {
-                const columns = foundTable.columns;
-                setColumns(columns);
-                setSelectedTable({
-                  name: foundTable.name,
-                  schema: foundTable.schema,
-                });
-              }
-            }
-          }
-        }
       }
-
       if (query.updated_at) {
         setSavedAt(query.updated_at);
       }
@@ -130,17 +124,40 @@ const EditQuery: React.FC<Props> = (props) => {
         setQueryBuilder(query.query_builder);
       }
 
+      const res = await axios.post<{ rows: any[]; fields: any[]; error: any }>(
+        "/api/user/postgres",
+        {
+          body: query.body,
+          ...selectedDb,
+        }
+      );
+
+      if (res.data.error) {
+        toast.error("Something went wrong.");
+        setLoading(false);
+        return;
+      }
+
+      if (res.data.fields && res.data.rows) {
+        const fields: string[] = res.data.fields.map((f: any) => f.name);
+        const rows: {}[] = res.data.rows;
+        setFields(fields);
+        setData(rows);
+      }
       setLoading(false);
       return;
     } catch (e) {
-      toast.error("Something went wrong.");
+      console.log(e);
+      toast.error("Something went wrong. Please check your query.");
       setLoading(false);
       return;
     }
   };
 
   useEffect(() => {
-    initialLoad();
+    if (query) {
+      queryDb();
+    }
   }, []);
 
   return loading ? <Loading /> : <QueryView sources={sources} />;
@@ -177,6 +194,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     return {
       redirect: {
         destination: "/queries",
+        permanent: false,
+      },
+    };
+  }
+
+  if (!query.database) {
+    return {
+      redirect: {
+        destination: `/queries/edit/${query.id}`,
         permanent: false,
       },
     };

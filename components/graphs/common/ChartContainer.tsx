@@ -1,33 +1,78 @@
 import { Serie } from "@nivo/line";
 import { ReactElement, useState } from "react";
-import InputLabel from "../../individual/common/InputLabel";
+import { supabase } from "../../../utils/supabaseClient";
+import Button from "../../individual/Button";
 import MiniSelect from "../../individual/MiniSelect";
 import Bar from "../bar";
 import Line from "../line";
 import Scatter from "../scatter";
+import SaveChart from "./SaveNewChart";
+import { Chart } from "../../../types/Chart";
+import { toast } from "react-toastify";
+import Loading from "../../individual/Loading";
+import _ from "lodash";
+import Switch from "../../individual/Switch";
+import InputLabel from "../../individual/common/InputLabel";
+import TextInput from "../../individual/TextInput";
+import ChartView from "./ChartView";
 
 interface Props {
   fields: string[];
   data: any;
+  chart?: Chart;
+  queryId: number;
 }
 
 const ChartContainer: React.FC<Props> = (props) => {
-  const { data, fields } = props;
+  const { data, fields, chart, queryId } = props;
+  const [loading, setLoading] = useState(false);
+
+  // Dialog
+  const [open, setOpen] = useState(false);
 
   // Chart details
-  const [title, setTitle] = useState<string>();
-  const [xAxis, setXAxis] = useState<string>(fields[0]);
-  const [yAxis, setYAxis] = useState<string>(fields[1]);
-  const [chartType, setChartType] = useState<string>("line");
+  const [chartId, setChartId] = useState<number | undefined>(chart?.id);
+  const [title, setTitle] = useState<string | undefined>(chart?.title);
+  const [publicChart, setPublicChart] = useState<boolean | undefined>(
+    chart?.public_chart
+  );
 
   // Chart controls
-  const [legend, setLegend] = useState(true);
-  const [horizontal, setHorizontal] = useState(false);
+  const [xAxis, setXAxis] = useState<string>(
+    chart?.chart_meta_data.xAxis || fields[0]
+  );
+  const [yAxis, setYAxis] = useState<string>(
+    chart?.chart_meta_data.yAxis || fields[1]
+  );
+  const [chartType, setChartType] = useState<string>(
+    chart?.chart_type || "line"
+  );
+  const [legend, setLegend] = useState<boolean>(
+    chart?.chart_meta_data.legend || true
+  );
+  const [xAxisLabel, setXAxisLabel] = useState<string | undefined>(
+    chart?.chart_meta_data.xAxisLabel
+  );
+  const [showXAxis, setshowXAxis] = useState(
+    chart ? chart?.chart_meta_data.showXAxis : true
+  );
+  const [yAxisLabel, setYAxisLabel] = useState<string | undefined>(
+    chart?.chart_meta_data.yAxisLabel
+  );
+  const [yAxisMin, setYAxisMin] = useState<number | undefined>(
+    chart?.chart_meta_data.yAxisMin
+  );
+  const [yAxisMax, setYAxisMax] = useState<number | undefined>(
+    chart?.chart_meta_data.yAxisMax
+  );
+  const [showYAxis, setshowYAxis] = useState(
+    chart ? chart?.chart_meta_data.showYAxis : true
+  );
+  const [valueLabels, setValueLabels] = useState(
+    chart ? chart?.chart_meta_data.valueLabels : true
+  );
 
-  // Handle bad data
-  if (typeof data !== "object") {
-    return <p>Chart not available.</p>;
-  }
+  const user = supabase.auth.user();
 
   // xAxis
   const xOptions =
@@ -88,7 +133,19 @@ const ChartContainer: React.FC<Props> = (props) => {
     <p className="text-sm text-center">Please select an X and Y axis.</p>
   );
 
-  if (chartType === "line" && xAxis && yAxis) {
+  // Handle bad data
+  // Check yAxis is a number
+  const isNumber = !isNaN(parseInt(data[0][yAxis], 10));
+  const validGraph = isNumber && xAxis && yAxis;
+  if (!validGraph) {
+    if (!isNumber) {
+      comp = (
+        <p className="text-sm">Choose a numerical variable for the Y axis.</p>
+      );
+    }
+  }
+
+  if (chartType === "line" && validGraph) {
     const singleSeries = data.map((d: any) => {
       return { x: d[xAxis], y: d[yAxis] };
     });
@@ -97,15 +154,18 @@ const ChartContainer: React.FC<Props> = (props) => {
       <Line
         data={formattedData}
         xAxis={xAxis}
-        xAxisLabel={xAxis}
+        xAxisLabel={xAxisLabel}
+        yAxisLabel={yAxisLabel}
         yAxis={yAxis}
-        yAxisLabel={yAxis}
-        valueLabels={true}
+        legend={legend}
+        valueLabels={valueLabels}
+        showXAxis={showXAxis}
+        showYAxis={showYAxis}
       />
     );
   }
 
-  if (chartType === "scatter" && xAxis && yAxis) {
+  if (chartType === "scatter" && validGraph) {
     const singleSeries = data.map((d: any) => {
       return { x: d[xAxis], y: d[yAxis] };
     });
@@ -113,7 +173,7 @@ const ChartContainer: React.FC<Props> = (props) => {
     comp = <Scatter data={formattedData} />;
   }
 
-  if (chartType === "bar" && xAxis && yAxis) {
+  if (chartType === "bar" && validGraph) {
     const formattedData = data.map((d: any) => {
       return { x: d[xAxis], y: d[yAxis] };
     });
@@ -121,49 +181,262 @@ const ChartContainer: React.FC<Props> = (props) => {
       <Bar
         data={data}
         xAxis={xAxis}
-        xAxisLabel="Country"
-        yAxisLabel="Emissions in millions of tonnes"
+        xAxisLabel={xAxisLabel}
+        yAxisLabel={yAxisLabel}
         yAxis={yAxis}
-        legend={true}
-        valueLabels={true}
+        legend={legend}
+        valueLabels={valueLabels}
+        showXAxis={showXAxis}
+        showYAxis={showYAxis}
+        yAxisMax={yAxisMax ? yAxisMax : undefined}
+        yAxisMin={yAxisMin ? yAxisMin : undefined}
       />
     );
   }
 
+  const chart_meta_data = {
+    xAxis: xAxis,
+    xAxisLabel: xAxisLabel,
+    showXAxis: showXAxis,
+    yAxis: yAxis,
+    showYAxis: showYAxis,
+    yAxisLabel: yAxisLabel,
+    yAxisMin: yAxisMin,
+    yAxisMax: yAxisMax,
+    legend: legend,
+    valueLabels: valueLabels,
+  };
+
+  const updateChart = async () => {
+    try {
+      if (!chart) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("chart")
+        .update({
+          title: title,
+          user_id: user?.id,
+          org_id: user?.user_metadata.org_id,
+          chart_meta_data: chart_meta_data,
+          chart_type: chartType,
+          query_id: queryId,
+          public_chart: publicChart,
+        })
+        .match({ id: props.chart?.id });
+      if (data) {
+        toast.success("Chart updated!");
+      }
+      if (error) {
+        console.log(error);
+        toast.error("Something went wrong!");
+      }
+      setOpen(false);
+      return;
+    } catch (e) {
+      toast.error("Something went wrong!");
+
+      setOpen(false);
+      return;
+    }
+  };
+
+  const saveChart = async () => {
+    try {
+      if (!title) {
+        toast.error("Please enter a name.");
+      }
+
+      if (!xAxis) {
+        toast.error("No X Axis.");
+      }
+
+      if (!yAxis) {
+        toast.error("No Y Axis.");
+      }
+
+      if (!chartType) {
+        toast.error("No chart type.");
+      }
+
+      const { data, error } = await supabase.from("chart").insert({
+        title: title,
+        user_id: user?.id,
+        org_id: user?.user_metadata.org_id,
+        chart_meta_data: chart_meta_data,
+        chart_type: chartType,
+        query_id: queryId,
+        public_chart: publicChart,
+      });
+      if (data) {
+        toast.success("Chart saved!");
+      }
+      if (error) {
+        console.log(error);
+        toast.error("Something went wrong!");
+      }
+      setOpen(false);
+      return;
+    } catch (e) {
+      toast.error("Something went wrong!");
+
+      setOpen(false);
+      return;
+    }
+  };
+
+  const openSaveDialog = () => {
+    if (!validGraph) {
+      toast.error("Invalid graph.");
+      return;
+    }
+    setOpen(true);
+    return;
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
-    <>
-      <div className="flex flex-row justify-start items-center mb-2 space-x-8">
-        <div className="flex flex-row space-x-2 justify-center items-center border p-1 rounded-lg bg-white dark:bg-zinc-700">
-          <MiniSelect
-            title="X Axis"
-            options={xOptions}
-            setSelected={(x) => setXAxis(x.value)}
-            selected={xOptions.find(
-              (x: typeof xOptions[0]) => x.title === xAxis
-            )}
-          />
+    <div className="grid grid-cols-9 w-full h-full">
+      {queryId && (
+        <SaveChart
+          open={open}
+          setOpen={setOpen}
+          confirmFunc={saveChart}
+          title={title}
+          setTitle={setTitle}
+          publicChart={publicChart}
+          setPublicChart={setPublicChart}
+        />
+      )}
+      <div className="col-span-2 flex flex-col justify-evenly items-start space-y-10 w-full h-full pr-2">
+        <div className="flex flex-col space-y-2 justify-start items-start w-full">
+          <div className="flex flex-row items-center justify-between space-x-2 border-b w-full pb-1">
+            <MiniSelect
+              title="Chart"
+              options={chartOptions}
+              setSelected={(x) => setChartType(x.value)}
+              selected={chartOptions.find((x) => x.value === chartType)}
+            />
+          </div>
+
+          <div className="flex flex-row space-x-2 justify-between items-center w-full">
+            <p className="text-sm font-semibold text-zinc-600">Value labels</p>
+            <Switch
+              value={valueLabels}
+              setSelected={() => setValueLabels(!valueLabels)}
+            />
+          </div>
+          <div className="flex flex-row space-x-2 justify-between items-center w-full">
+            <p className="text-sm font-semibold text-zinc-600">Legend</p>
+            <Switch value={legend} setSelected={() => setLegend(!legend)} />
+          </div>
         </div>
-        <div className="flex flex-row space-x-2 justify-center items-center border p-1 rounded-lg bg-white dark:bg-zinc-700">
-          <MiniSelect
-            title="Y Axis"
-            options={yOptions}
-            setSelected={(x) => setYAxis(x.value)}
-            selected={yOptions.find(
-              (x: typeof yOptions[0]) => x.title === yAxis
-            )}
-          />
+
+        <div className="flex flex-col space-y-2 justify-start items-start w-full">
+          <div className="flex flex-row items-center justify-between space-x-2 border-b w-full">
+            <MiniSelect
+              title="X Axis"
+              options={xOptions}
+              setSelected={(x) => setXAxis(x.value)}
+              selected={xOptions.find(
+                (x: typeof xOptions[0]) => x.title === xAxis
+              )}
+            />
+          </div>
+          <div className="flex flex-row items-center justify-between space-x-2 w-full">
+            <p className="text-sm font-semibold text-zinc-600">Custom title</p>
+            <TextInput
+              id="xAxisLabel"
+              name="xAxisLabel"
+              value={xAxisLabel || ""}
+              handleChange={setXAxisLabel}
+              type="text"
+              label="Name"
+            />
+          </div>
+          <div className="flex flex-row items-center justify-between space-x-2 w-full">
+            <p className="text-sm font-semibold text-zinc-600">Show X Axis</p>
+            <Switch
+              value={showXAxis}
+              setSelected={() => setshowXAxis(!showXAxis)}
+            />
+          </div>
         </div>
-        <div className="flex flex-row space-x-2 justify-center items-center border p-1 rounded-lg bg-white dark:bg-zinc-700">
-          <MiniSelect
-            title="Chart type"
-            options={chartOptions}
-            setSelected={(x) => setChartType(x.value)}
-            selected={chartOptions.find((x) => x.value === chartType)}
+
+        <div className="flex flex-col space-y-2 justify-start items-start w-full">
+          <div className="flex flex-row items-center justify-between space-x-2 border-b w-full">
+            <MiniSelect
+              title="Y Axis"
+              options={yOptions}
+              setSelected={(x) => setYAxis(x.value)}
+              selected={yOptions.find(
+                (x: typeof yOptions[0]) => x.title === yAxis
+              )}
+            />
+          </div>
+          <div className="flex flex-row items-center justify-between space-x-2 w-full">
+            <p className="text-sm font-semibold text-zinc-600">Custom title</p>
+            <TextInput
+              id="yAxisLabel"
+              name="yAxisLabel"
+              value={yAxisLabel || ""}
+              handleChange={setYAxisLabel}
+              type="text"
+              label="Name"
+            />
+          </div>
+          <div className="flex flex-row items-center justify-between space-x-2 w-full">
+            <p className="text-sm font-semibold text-zinc-600">Show Y Axis</p>
+            <Switch
+              value={showYAxis}
+              setSelected={() => setshowYAxis(!showYAxis)}
+            />
+          </div>
+          <div className="flex flex-row items-center justify-between space-x-2 w-full">
+            <p className="text-sm font-semibold text-zinc-600">Min</p>
+            <TextInput
+              id="yAxisMin"
+              name="yAxisMin"
+              value={yAxisMin || ""}
+              handleChange={(e) => setYAxisMin(parseInt(e, 10))}
+              type="number"
+              label="0"
+            />
+          </div>
+          <div className="flex flex-row items-center justify-between space-x-2 w-full">
+            <p className="text-sm font-semibold text-zinc-600">Max</p>
+            <TextInput
+              id="yAxisMax"
+              name="yAxisMax"
+              value={yAxisMax || ""}
+              handleChange={(e) => setYAxisMax(parseInt(e, 10))}
+              type="number"
+              label="100"
+            />
+          </div>
+        </div>
+
+        <div className="ml-auto ">
+          <Button
+            label="Save"
+            type="secondary"
+            onClick={() => (chart ? updateChart() : openSaveDialog())}
           />
         </div>
       </div>
-      <div className="flex h-full w-full border">{comp}</div>
-    </>
+      <div className="col-span-7 flex flex-col h-full w-full">
+        <ChartView
+          data={data}
+          fields={fields}
+          chartType={chart?.chart_type || "line"}
+          chart_meta_data={chart_meta_data}
+        />
+      </div>
+    </div>
   );
 };
 

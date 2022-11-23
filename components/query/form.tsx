@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import _ from "lodash";
-import Results from "./common/results";
+import Results from "./common/results/QueryResults";
 import QueryBuilder from "./builder";
 import { classNames } from "../../utils/classnames";
 import {
@@ -37,9 +37,6 @@ import QueryTopBar from "./common/Topbar";
 import QueryEditor from "./editor";
 import { Table } from "../../types/Table";
 import { fetchColumns, fetchTables, fetchTablesAndColumns } from "./functions";
-import InputLabel from "../individual/common/InputLabel";
-import dateFormatter from "../../utils/dateFormatter";
-import sources from "../../pages/api/admin/sources";
 import { useRouter } from "next/router";
 
 interface Props {
@@ -272,7 +269,6 @@ const QueryForm: React.FC<Props> = (props) => {
       setQueryLoading(false);
       return;
     } catch (e) {
-      console.log(e);
       toast.error("Something went wrong. Please check your query.");
       setQueryLoading(false);
       return;

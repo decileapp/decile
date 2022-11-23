@@ -20,11 +20,12 @@ const Bar: React.FC<BarProps> = (props) => {
     legend,
     horizontal,
     valueLabels,
-    minValue,
-    maxValue,
+    yAxisMax,
+    yAxisMin,
+    showXAxis,
+    showYAxis,
   } = props;
   const { theme } = useTheme();
-
   return (
     <ResponsiveBar
       theme={graphTheme(theme)}
@@ -36,28 +37,34 @@ const Bar: React.FC<BarProps> = (props) => {
       keys={[yAxis]}
       layout={horizontal ? "horizontal" : "vertical"}
       ariaLabel="bar chart"
-      barAriaLabel={function (e) {
-        return e.id + ": " + e.formattedValue + " in country: " + e.indexValue;
-      }}
-      minValue={minValue ? minValue : "auto"}
-      maxValue={maxValue ? maxValue : "auto"}
-      axisBottom={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: -45,
-        legend: xAxisLabel ? xAxisLabel : xAxis,
-        legendPosition: "middle",
-        legendOffset: 100,
-      }}
-      axisLeft={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        legend: yAxisLabel ? yAxisLabel : yAxis,
-        legendPosition: "middle",
-        legendOffset: -80,
-      }}
       enableLabel={valueLabels}
+      labelTextColor="black"
+      minValue={yAxisMin ? yAxisMin : "auto"}
+      maxValue={yAxisMax ? yAxisMax : "auto"}
+      axisBottom={
+        showXAxis
+          ? {
+              tickSize: 5,
+              tickPadding: 5,
+              tickRotation: -45,
+              legend: xAxisLabel ? xAxisLabel : xAxis,
+              legendPosition: "middle",
+              legendOffset: 100,
+            }
+          : null
+      }
+      axisLeft={
+        showYAxis
+          ? {
+              tickSize: 5,
+              tickPadding: 5,
+              tickRotation: 0,
+              legend: yAxisLabel ? yAxisLabel : yAxis,
+              legendPosition: "middle",
+              legendOffset: -80,
+            }
+          : null
+      }
       axisTop={null}
       axisRight={null}
       labelSkipWidth={12}

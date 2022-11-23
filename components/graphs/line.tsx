@@ -17,8 +17,12 @@ const Line: React.FC<LineProps> = (props) => {
     yAxis,
     legend,
     valueLabels,
-    minValue,
-    maxValue,
+    xAxisMin,
+    xAxisMax,
+    yAxisMin,
+    yAxisMax,
+    showXAxis,
+    showYAxis,
   } = props;
   const { theme } = useTheme();
 
@@ -28,32 +32,44 @@ const Line: React.FC<LineProps> = (props) => {
       colors={colors.violet[500]}
       theme={graphTheme(theme)}
       margin={marginProps(legend)}
-      xScale={{ type: "point" }}
+      xScale={{
+        type: "point",
+      }}
       yScale={{
         type: "linear",
-        min: "auto",
-        max: "auto",
+        min: yAxisMin ? yAxisMin : "auto",
+        max: yAxisMax ? yAxisMax : "auto",
         stacked: true,
         reverse: false,
       }}
       axisTop={null}
       axisRight={null}
-      axisBottom={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: -45,
-        legend: xAxisLabel ? xAxisLabel : xAxis,
-        legendPosition: "middle",
-        legendOffset: 100,
-      }}
-      axisLeft={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 0,
-        legend: yAxisLabel ? yAxisLabel : yAxis,
-        legendPosition: "middle",
-        legendOffset: -80,
-      }}
+      enablePoints={valueLabels}
+      enablePointLabel={valueLabels}
+      axisBottom={
+        showXAxis
+          ? {
+              tickSize: 5,
+              tickPadding: 5,
+              tickRotation: -45,
+              legend: xAxisLabel ? xAxisLabel : xAxis,
+              legendPosition: "middle",
+              legendOffset: 100,
+            }
+          : null
+      }
+      axisLeft={
+        showYAxis
+          ? {
+              tickSize: 5,
+              tickPadding: 5,
+              tickRotation: 0,
+              legend: yAxisLabel ? yAxisLabel : yAxis,
+              legendPosition: "middle",
+              legendOffset: -80,
+            }
+          : null
+      }
       pointSize={10}
       pointColor={{ theme: "background" }}
       pointBorderWidth={2}

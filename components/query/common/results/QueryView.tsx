@@ -1,4 +1,4 @@
-import InputLabel from "../../individual/common/InputLabel";
+import InputLabel from "../../../individual/common/InputLabel";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
 import {
@@ -8,20 +8,19 @@ import {
   ShareIcon,
   TableIcon,
 } from "@heroicons/react/outline";
-import TableShell from "../../individual/table/shell";
-import TableHeader from "../../individual/table/header";
 import { useRouter } from "next/router";
-import Loading from "../../individual/Loading";
-import Button from "../../individual/Button";
+import Loading from "../../../individual/Loading";
+import Button from "../../../individual/Button";
 import { useRecoilState } from "recoil";
 import {
   dataState,
   fieldsState,
   queryIdState,
   savingState,
-} from "../../../utils/contexts/query/state";
+} from "../../../../utils/contexts/query/state";
 import { useState } from "react";
-import ChartContainer from "../../graphs/common/ChartContainer";
+import ChartContainer from "../../../graphs/common/ChartContainer";
+import ResultsTable from "./table";
 
 interface Props {
   queryLoading?: boolean;
@@ -31,7 +30,7 @@ interface Props {
   error?: string;
 }
 
-const Results: React.FC<Props> = (props) => {
+const QueryView: React.FC<Props> = (props) => {
   const [qId, setQid] = useRecoilState(queryIdState);
   const [fields, setFields] = useRecoilState(fieldsState);
   const [data, setData] = useRecoilState(dataState);
@@ -101,37 +100,12 @@ const Results: React.FC<Props> = (props) => {
       {error && (
         <p className="text-sm text-red-500">{`Error message: ${error}`}</p>
       )}
-      {!error && fields && data && !queryLoading && !graph && (
-        <TableShell>
-          <TableHeader labels={fields} />
-
-          <tbody className="divide-y divide-gray-200 ">
-            {data.map((row: any, id: number) => {
-              return (
-                <tr key={id}>
-                  {Object.keys(row).map((value, id) => {
-                    return (
-                      <td
-                        className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
-                        key={id}
-                      >
-                        {typeof row[value] === "object"
-                          ? JSON.stringify(row[value])
-                          : row[value]}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </TableShell>
-      )}
-      {!error && fields && data && !queryLoading && graph && (
-        <ChartContainer fields={fields} data={data} />
+      {!error && fields && data && !queryLoading && !graph && <ResultsTable />}
+      {!error && fields && data && !queryLoading && graph && qId && (
+        <ChartContainer fields={fields} data={data} queryId={qId} />
       )}
     </div>
   );
 };
 
-export default Results;
+export default QueryView;

@@ -46,7 +46,6 @@ export async function checkExistingToken(userId: string) {
     .select("*")
     .match({ user_id: userId })
     .single();
-
   const oAuth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
