@@ -29,6 +29,10 @@ const Settings: React.FC<Props> = (props) => {
 
   const checkEligibility = async () => {
     setLoading(true);
+
+    // Get latest plan info
+    const res = await axios.get("/api/org");
+
     // Check users and plans
     const { data: orgLimit, error: orgError } = await supabase
       .from("plan")
@@ -55,13 +59,18 @@ const Settings: React.FC<Props> = (props) => {
   };
 
   const getPortalLink = async () => {
-    setLoading(true);
-    const res = await axios.get("/api/admin/billing/get-dashboard-link");
-    if (res.data.link) {
-      router.push(res.data.link);
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/admin/billing/get-dashboard-link");
+      if (res.data.link) {
+        router.push(res.data.link);
+      }
+      setLoading(false);
+      return;
+    } catch (e) {
+      setLoading(false);
+      toast.error("Something went wrong.");
     }
-    setLoading(false);
-    return;
   };
 
   useEffect(() => {

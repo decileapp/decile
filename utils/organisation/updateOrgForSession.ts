@@ -11,7 +11,6 @@ const updateOrgForSession = async (user: User) => {
     .select("id, org_id(id, name, plan_id), role_id")
     .match({ user_id: user?.id })
     .single();
-
   // If no data check if user has been invited
   if (!data) {
     const { data: invited, error } = await serviceSupabase
