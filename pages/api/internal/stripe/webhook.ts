@@ -55,6 +55,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       if (relevantEvents.has(event.type)) {
         try {
           const subscription = event.data.object as Stripe.Subscription;
+
           switch (event.type) {
             // Handle changes
             case "customer.subscription.created":

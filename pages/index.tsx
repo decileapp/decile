@@ -44,56 +44,61 @@ const Home: React.FC<Props> = (props) => {
   }, [user?.id]);
 
   return (
-    <Page>
+    <Page title="Welcome" description="Get started using the steps below.">
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col justify-start items-center h-full w-full space-y-12 p-4 mt-4">
-          <p className="text-2xl font-semibold">Welcome!</p>
-          <div className="flex flex-col justify-center align-center space-y-2">
-            <p className="text-center text-lg">Get started in under 2 mins:</p>
-            <p className="text-center">Set up a data source</p>
-            <p className="text-center">Write your first query</p>
-            <p className="text-center">Schedule an export to Google Sheets</p>
-          </div>
-          <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-12">
-            <a
-              className="grid-cols-1 px-12 py-8 border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
-              href="/sources"
-            >
-              <p className="text-primary-500 text-center text-xl font-semibold mb-2">
-                Sources
+        <div className="flex flex-col justify-start items-start h-full w-full space-y-12 mt-4">
+          <div className="grid grid-cols-1 gap-12">
+            <div className="flex flex-col justify-start">
+              <a
+                className="text-left text-lg font-bold mb-2 hover:text-primary-600"
+                href="/sources"
+              >
+                Set up a data source
+              </a>
+              <p className="text-sm ">
+                We support any Postgres database. Only admins can set up and
+                manage data sources.
               </p>
-              <p className="text-center text-md">
-                {sources && sources.length > 0 ? sources.length : "No sources"}
+            </div>
+            <div className="flex flex-col justify-start">
+              <a
+                className="text-left text-lg font-bold mb-2 hover:text-primary-600"
+                href="/queries"
+              >
+                Write your first query
+              </a>
+              <p className="text-sm ">
+                Once you've set up your database, write your first query. You
+                can use our online SQL editor or our query builder. Save queries
+                and share across your team.
               </p>
-            </a>
-
-            <a
-              className="grid-cols-1 px-12 py-8 border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
-              href="/queries"
-            >
-              <p className="text-primary-500 text-center text-xl font-semibold mb-2">
-                Queries
+            </div>
+            <div className="flex flex-col justify-start">
+              <a
+                className="text-left text-lg font-bold mb-2 hover:text-primary-600"
+                href="/schedule"
+              >
+                Schedule an export
+              </a>
+              <p className="text-sm ">
+                Export the output of your data directly to Google Sheets. Once
+                you've exported your data once, you can set up a schedule to
+                have it automatically export.
               </p>
-              <p className="text-center text-md">
-                {queries && queries.length > 0 ? queries.length : "No queries"}
+            </div>
+            <div className="flex flex-col justify-start">
+              <a
+                className="text-left text-lg font-bold mb-2 hover:text-primary-600"
+                href="/charts"
+              >
+                Graph your queries
+              </a>
+              <p className="text-sm ">
+                Use our visualisation to graph your data and save your graphs.
               </p>
-            </a>
-
-            <a
-              className="grid-cols-1 px-12 py-8 border-zinc-200 rounded-lg bg-white dark:bg-zinc-800 p-2  overflow-hidden shadow-lg hover:shadow-primary-100/50 "
-              href="/schedule"
-            >
-              <p className="text-primary-500 text-center text-xl font-semibold mb-2">
-                Schedules
-              </p>
-              <p className="text-center text-md">
-                {schedule && schedule.length > 0
-                  ? schedule.length
-                  : "No schedules"}
-              </p>
-            </a>
+            </div>
           </div>
         </div>
       )}
@@ -123,6 +128,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { data: schedules, error: scheduleError } = await supabase
     .from<Schedule[]>("schedule")
     .select("id, name, user_id");
+
   return {
     props: { sources: sources, queries: queries, schedules: schedules },
   };

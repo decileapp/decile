@@ -37,8 +37,19 @@ const Schedule: React.FC<Props> = (props) => {
     return;
   }
 
-  // Variable map
-  const fields = ["Name", "Query", "Every", "Destination", "", ""];
+  if (user?.user_metadata.plan_id === 1) {
+    return (
+      <Page title="Schedule">
+        <p className="text-sm">
+          Please{" "}
+          <a className="text-primary-500" href="/settings">
+            upgrade
+          </a>{" "}
+          your acccount to schedule queries.
+        </p>
+      </Page>
+    );
+  }
 
   return (
     <>

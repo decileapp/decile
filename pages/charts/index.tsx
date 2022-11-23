@@ -87,7 +87,7 @@ const Charts: React.FC<Props> = (props) => {
             <div className="grid grid-cols-10 gap-2 ">
               <p className="col-span-3 font-bold text-md">Name</p>
               <p className="col-span-1  font-bold text-md">Public</p>
-              <p className="col-span-3  font-bold text-md">Createdn</p>
+              <p className="col-span-3  font-bold text-md">Created</p>
 
               <p className="col-span-1 justify-end text-right flex  font-bold text-md">
                 Actions

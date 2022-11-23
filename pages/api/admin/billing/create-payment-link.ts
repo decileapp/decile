@@ -18,7 +18,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
 
       supabase.auth.setAuth(token);
 
-      const { priceId } = req.body;
+      const { plan_type } = req.body;
 
       // Get stripe customer id
       const { data, error } = await supabase
@@ -28,24 +28,26 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         .single();
 
       // If no org_id, reject
-      if (!data || !priceId) {
+      if (!data || !plan_type) {
         res.status(400).json({ error: "No Stripe id found." });
         return;
       }
 
+      let stripePriceId;
       // Get price id for stripe
-      const { data: priceData, error: priceError } = await supabase
-        .from("plan")
-        .select("stripe_price_id")
-        .match({ id: priceId })
-        .single();
+      if (plan_type === "team") {
+        stripePriceId = process.env.TEAM_PLAN;
+      }
 
-      if (!priceData) {
+      if (plan_type === "enterprise") {
+        stripePriceId = process.env.ENTERPRISE_PLAN;
+      }
+
+      if (!stripePriceId) {
         res.status(400).json({ error: "Price ID not found." });
         return;
       }
 
-      const stripePriceId = priceData.stripe_price_id;
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
         line_items: [
