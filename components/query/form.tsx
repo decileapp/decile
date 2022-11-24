@@ -312,38 +312,6 @@ const QueryForm: React.FC<Props> = (props) => {
     }
   }
 
-  async function copyQuery() {
-    try {
-      let { data, error } = await supabase
-        .from("queries")
-        .insert({
-          name: `Copy of ${name}`,
-          database: selectedSource,
-          body: body,
-          publicQuery: false,
-          user_id: user?.id,
-          updated_at: new Date(Date.now()),
-          query_vars: queryVars,
-          query_filter_by: queryFilterBy,
-          query_group_by: queryGroupBy,
-          query_sort_by: querySortBy,
-          query_limit: queryLimit,
-          query_table:
-            selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
-          org_id: user?.user_metadata.org_id,
-          query_builder: queryBuilder,
-        })
-        .single();
-      setName(`Copy of ${name}`);
-      if (data) {
-        router.push(`/queries/${data.id}`);
-      }
-      return;
-    } catch (error: any) {
-      toast.error("Failed to copy query");
-    }
-  }
-
   // Edit
   return (
     <>
