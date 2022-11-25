@@ -51,8 +51,9 @@ const Results: React.FC<Props> = (props) => {
         } catch (e) {
           setTextSqlError(true);
           setQueryType("sql");
-          return;
         }
+      } else {
+        toast.error("Something went wrong.");
       }
       setGeneratingQuery(false);
       return;

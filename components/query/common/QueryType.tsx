@@ -7,7 +7,7 @@ import { classNames } from "../../../utils/classnames";
 
 const editorOptions = [
   {
-    title: "Query with text",
+    title: "Query with text (Beta)",
     description: "Get the data you need using AI and natural language.",
     current: false,
     value: "ai",
