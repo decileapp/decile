@@ -16,7 +16,6 @@ export const fetchTables = async (x: Source) => {
     return res.data.tables;
   } catch (e) {
     throw new Error("Failed to fetch tables.");
-    return;
   }
 };
 
@@ -40,7 +39,6 @@ export const fetchColumns = async ({
     return res.data.columns;
   } catch (e) {
     throw new Error("Failed to fetch columns.");
-    return;
   }
 };
 
@@ -56,6 +54,5 @@ export const fetchTablesAndColumns = async (database: Source) => {
     return res.data.schema;
   } catch (e) {
     throw new Error("Failed to fetch tables and columns.");
-    return;
   }
 };

@@ -2,7 +2,7 @@ import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
 import MiniLoading from "../../individual/MiniLoading";
 import MiniSelect from "../../individual/MiniSelect";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   queryBuilderState,
   queryLimitState,
@@ -21,7 +21,7 @@ const TableSelector: React.FC<Props> = (props) => {
   const [selectedTable, setSelectedTable] = useRecoilState(selectedTableState);
   const [tableLoading, setTableLoading] = useRecoilState(tableLoadingState);
   const [queryLimit, setQueryLimit] = useRecoilState(queryLimitState);
-  const [queryBuilder, setQueryBuilder] = useRecoilState(queryBuilderState);
+  const queryBuilder = useRecoilValue(queryBuilderState);
   const { changeTable } = props;
 
   const tableOptions =

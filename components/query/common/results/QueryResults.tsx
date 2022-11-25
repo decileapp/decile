@@ -11,11 +11,12 @@ import {
 import { useRouter } from "next/router";
 import Loading from "../../../individual/Loading";
 import Button from "../../../individual/Button";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   dataState,
   fieldsState,
   queryIdState,
+  queryTypeState,
   savingState,
 } from "../../../../utils/contexts/query/state";
 import ResultsTable from "./table";
@@ -30,6 +31,7 @@ interface Props {
 
 const Results: React.FC<Props> = (props) => {
   const [qId, setQid] = useRecoilState(queryIdState);
+  const queryType = useRecoilValue(queryTypeState);
   const [fields, setFields] = useRecoilState(fieldsState);
   const [data, setData] = useRecoilState(dataState);
   const [saving, setSaving] = useRecoilState(savingState);

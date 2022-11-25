@@ -17,5 +17,5 @@ export interface Query {
     id: string;
     email: string;
   };
-  query_builder: boolean;
+  query_type: string;
 }

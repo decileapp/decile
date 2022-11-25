@@ -33,7 +33,7 @@ interface Props {
 const QueryView: React.FC<Props> = (props) => {
   const router = useRouter();
   // Type
-  const [queryBuilder, setQueryBuilder] = useRecoilState(queryBuilderState);
+  const queryBuilder = useRecoilValue(queryBuilderState);
 
   /* Global states */
 
@@ -86,7 +86,6 @@ const QueryView: React.FC<Props> = (props) => {
           query_builder: queryBuilder,
         })
         .single();
-      console.log(error);
       setName(`Copy of ${name}`);
       if (data) {
         router.push(`/queries/edit/${data.id}`);

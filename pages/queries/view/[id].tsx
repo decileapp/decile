@@ -24,6 +24,7 @@ import {
   tablesState,
   dataState,
   fieldsState,
+  queryTypeState,
 } from "../../../utils/contexts/query/state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
@@ -65,7 +66,7 @@ const EditQuery: React.FC<Props> = (props) => {
   const setQueryGroupBy = useSetRecoilState(queryGroupByState);
   const setQuerySortBy = useSetRecoilState(querySortByState);
   const setQueryLimit = useSetRecoilState(queryLimitState);
-  const setQueryBuilder = useSetRecoilState(queryBuilderState);
+  const setQueryType = useSetRecoilState(queryTypeState);
 
   const setData = useSetRecoilState(dataState);
   const setFields = useSetRecoilState(fieldsState);
@@ -120,8 +121,8 @@ const EditQuery: React.FC<Props> = (props) => {
       if (query.query_limit) {
         setQueryLimit(query.query_limit);
       }
-      if (query.query_builder) {
-        setQueryBuilder(query.query_builder);
+      if (query.query_type) {
+        setQueryType(query.query_type);
       }
 
       const res = await axios.post<{ rows: any[]; fields: any[]; error: any }>(
@@ -185,7 +186,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { data: query, error: queryError } = await supabase
     .from<Query>("queries")
     .select(
-      `id, created_at, name, database, body, publicQuery, query_vars, query_group_by, query_filter_by, query_sort_by, query_limit, query_table, updated_at, user_id(id, email)`
+      `id, created_at, name, database, body, publicQuery, query_vars, query_group_by, query_filter_by, query_sort_by, query_limit, query_table, query_type, updated_at, user_id(id, email)`
     )
     .eq("id", ctx.query.id as string)
     .single();

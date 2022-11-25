@@ -38,12 +38,7 @@ const Columnns: React.FC = () => {
                 >
                   <p className=" text-sm truncate">{c.name}</p>
                   <p
-                    className={classNames(
-                      isNumerical(c.type)
-                        ? "text-primary-600"
-                        : "text-secondary-600",
-                      "text-xs truncate italic"
-                    )}
+                    className={"text-xs truncate italic text-zinc-400"}
                     key={id}
                   >
                     {c.type}

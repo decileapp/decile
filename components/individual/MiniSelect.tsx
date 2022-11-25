@@ -35,7 +35,7 @@ const MiniSelect: React.FC<VarProps> = (props) => {
                 <span className="block truncate">
                   {selected ? selected.title : "Select"}
                 </span>
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center ">
                   <ChevronDownIcon
                     className="h-5 w-5 text-primary-500"
                     aria-hidden="true"

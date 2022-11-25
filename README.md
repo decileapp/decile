@@ -8,7 +8,10 @@ Simple, open-source analytics tool for any Postgres database.
 <br />
 </p>
 <p >
-Connect any postgres database. Query using our online SQL editor or query builder. Save and share queries with your team. Export to Google Sheets. Schedule queries and automatically update your Google Sheet.
+Get the data you need using natural language, SQL or our query builder.
+<br/>
+<br/>
+Connect any postgres database. Save and share queries with your team. Export to Google Sheets. Schedule queries and automatically update your Google Sheet.
 <br />
 
 </p>
@@ -40,7 +43,7 @@ We use the GNU GPL V3 license. See LICENSE for more details.
 
 ## Features
 
-### Supported
+### Supported on open source
 
 - [x] Authentication UIs including sign in and sign up
 - [x] Google sign in
@@ -51,14 +54,19 @@ We use the GNU GPL V3 license. See LICENSE for more details.
 - [x] Query without SQL
 - [x] Export to Google Sheets
 - [x] Schedule queries by hour, day, week or month
+- [x] Email notifications
+- [x] Line and bar graphs
+
+### Supported on cloud version only
+
+- [x] Query data using natural language
 
 ### In-progress
 
-- [ ] Email notifications
+- [ ] Advanced graphs
 
 ### Backlog
 
-- [ ] Charts and graphs
 - [ ] Dashboards
 - [ ] Database access management
 

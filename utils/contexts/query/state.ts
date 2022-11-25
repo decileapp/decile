@@ -15,9 +15,9 @@ export const savingState = atom<boolean>({
   default: false,
 });
 
-export const queryBuilderState = atom<boolean>({
-  key: "queryBuilder",
-  default: false,
+export const queryTypeState = atom<string>({
+  key: "queryType",
+  default: "ai",
 });
 
 // Data source
@@ -43,8 +43,15 @@ export const queryUpdatedAtState = atom<Date | undefined>({
   default: undefined,
 });
 
+// Sql query
 export const bodyState = atom<string | undefined>({
   key: "body",
+  default: "",
+});
+
+// Text to sql query
+export const textQueryState = atom<string | undefined>({
+  key: "textQuery",
   default: "",
 });
 
@@ -118,6 +125,14 @@ export const querySortByState = atom<SortBy[]>({
 export const queryLimitState = atom<string>({
   key: "queryLimit",
   default: "50",
+});
+
+export const queryBuilderState = selector({
+  key: "queryBuilder",
+  get: ({ get }) => {
+    const queryType = get(queryTypeState);
+    return queryType === "query_builder";
+  },
 });
 
 export const buildQueryState = selector({

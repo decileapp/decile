@@ -23,6 +23,7 @@ import {
   queryIdState,
   queryLimitState,
   querySortByState,
+  queryTypeState,
   queryUpdatedAtState,
   queryVarsState,
   savingState,
@@ -46,10 +47,10 @@ interface Props {
 const QueryForm: React.FC<Props> = (props) => {
   const router = useRouter();
   // Type
-  const [queryBuilder, setQueryBuilder] = useRecoilState(queryBuilderState);
+  const queryType = useRecoilValue(queryTypeState);
+  const queryBuilder = useRecoilValue(queryBuilderState);
 
   /* Global states */
-
   const [selectedSource, setSelectedSource] =
     useRecoilState(selectedSourceState);
   const setSelectedSchema = useSetRecoilState(sourceSchemaState);
@@ -252,6 +253,7 @@ const QueryForm: React.FC<Props> = (props) => {
           cancelToken: source.token,
         }
       );
+      console.log(res.data);
 
       if (res.data.error) {
         toast.error("Something went wrong.");
@@ -295,7 +297,7 @@ const QueryForm: React.FC<Props> = (props) => {
           query_limit: queryLimit,
           query_table:
             selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
-          query_builder: queryBuilder,
+          query_type: queryType,
         })
         .match({ org_id: user?.user_metadata.org_id, id: queryId })
         .single();
