@@ -34,7 +34,7 @@ const Results: React.FC<Props> = (props) => {
   const [queryType, setQueryType] = useRecoilState(queryTypeState);
   const [schema, setSchema] = useRecoilState(sourceSchemaState);
   const [generatingQuery, setGeneratingQuery] = useState(false);
-  const [textSqlError, setTextSqlError] = useState(true);
+  const [textSqlError, setTextSqlError] = useState(false);
 
   const textToSql = async () => {
     try {

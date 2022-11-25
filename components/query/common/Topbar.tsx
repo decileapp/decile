@@ -42,26 +42,6 @@ const QueryTopBar: React.FC<Props> = (props) => {
     );
   }
 
-  const editorOptions = [
-    {
-      title: "AI Bot",
-      description: "",
-      current: false,
-      value: "ai",
-    },
-    {
-      title: "Query builder",
-      description: "",
-      current: false,
-      value: "query_builder",
-    },
-    {
-      title: "SQL Editor",
-      description: "",
-      current: false,
-      value: "sql",
-    },
-  ];
   return (
     <div>
       <div className="grid grid-cols-2 gap-4 border-b border-zinc-400 w-full items-start justify-between p-4">
