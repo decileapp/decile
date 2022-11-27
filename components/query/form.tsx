@@ -34,7 +34,7 @@ import {
   tablesState,
 } from "../../utils/contexts/query/state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import QueryTopBar from "./common/Topbar";
+import QueryTopBar from "./common/topbar";
 import QueryEditor from "./editor";
 import { Table } from "../../types/Table";
 import { fetchColumns, fetchTables, fetchTablesAndColumns } from "./functions";
@@ -244,7 +244,6 @@ const QueryForm: React.FC<Props> = (props) => {
       if (!selectedDb) {
         toast.error("Database not found.");
       }
-
       const res = await axios.post<{ rows: any[]; fields: any[]; error: any }>(
         "/api/user/postgres",
         {
@@ -253,8 +252,6 @@ const QueryForm: React.FC<Props> = (props) => {
           cancelToken: source.token,
         }
       );
-      console.log(res.data);
-
       if (res.data.error) {
         toast.error("Something went wrong.");
         setError(res.data.error);

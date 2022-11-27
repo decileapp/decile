@@ -1,12 +1,12 @@
 import _ from "lodash";
 import { useState } from "react";
 import { useRecoilState } from "recoil";
-import { Source } from "../../../types/Sources";
-import { sourceSchemaState } from "../../../utils/contexts/query/state";
-import Loading from "../../individual/Loading";
-import { Schema } from "../../../types/Schema";
-import { classNames } from "../../../utils/classnames";
-import { isNumerical } from "../../../utils/query";
+import { Source } from "../../../../types/Sources";
+import { sourceSchemaState } from "../../../../utils/contexts/query/state";
+import Loading from "../../../individual/Loading";
+import { Schema } from "../../../../types/Schema";
+import { classNames } from "../../../../utils/classnames";
+import { isNumerical } from "../../../../utils/query";
 
 interface Props {
   sources?: Source[];

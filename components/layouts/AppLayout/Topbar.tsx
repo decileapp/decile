@@ -39,8 +39,6 @@ const Topbar: React.FC = ({ children }) => {
 
   let authLeft: Item[] = user
     ? [
-        { name: "Home", href: "/", icon: HomeIcon, current: false },
-
         { name: "Charts", href: "/charts", icon: ChartBarIcon, current: false },
         { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
 

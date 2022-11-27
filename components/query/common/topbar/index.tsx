@@ -1,7 +1,7 @@
-import { Source } from "../../../types/Sources";
-import TextInput from "../../individual/TextInput";
-import Select from "../../individual/Select";
-import Switch from "../../individual/Switch";
+import { Source } from "../../../../types/Sources";
+import TextInput from "../../../individual/TextInput";
+import Select from "../../../individual/Select";
+import Switch from "../../../individual/Switch";
 import _ from "lodash";
 import {
   EyeIcon,
@@ -12,13 +12,14 @@ import {
   nameState,
   publicQueryState,
   selectedSourceState,
-} from "../../../utils/contexts/query/state";
+} from "../../../../utils/contexts/query/state";
 import { useRecoilState } from "recoil";
 import { useState } from "react";
 import Schema from "./schema";
-import FullPageDialog from "../../individual/FullPageDialog";
-import InputLabel from "../../individual/common/InputLabel";
+import FullPageDialog from "../../../individual/FullPageDialog";
+import InputLabel from "../../../individual/common/InputLabel";
 import QueryTypeSelector from "./QueryType";
+import DatabaseSelector from "./DatabaseSelector";
 
 interface Props {
   sources: Source[];
@@ -44,36 +45,19 @@ const QueryTopBar: React.FC<Props> = (props) => {
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-4 border-b border-zinc-400 w-full items-start justify-between p-4">
-        <div className="flex flex-row justify-start items-start space-x-4 ">
-          {props.sources && (
-            <div>
-              <div className="flex flex-row justify-between items-center">
-                <InputLabel title="Source" />
-                <a
-                  className=" hover:text-primary-500"
-                  onClick={() => setDiagram(!diagram)}
-                  href="#"
-                >
-                  <InformationCircleIcon className="h-5 w-5 hover:text-primary-500" />
-                </a>
-              </div>
-              <Select
-                value={selectedSource || ""}
-                id="database"
-                name="database"
-                setSelected={changeDatabase}
-                options={sources.map((s) => {
-                  return { name: s.name, value: s.id };
-                })}
-              />
-            </div>
-          )}
+      <div className="grid grid-cols-4 gap-4 border-b border-zinc-400 w-full items-start justify-between p-4">
+        <div className="col-span-3 flex flex-row justify-start items-start space-x-4 ">
+          <div className="w-48">
+            <DatabaseSelector
+              sources={sources}
+              changeDatabase={changeDatabase}
+            />
+          </div>
           <TextInput
             name="name"
             id="name"
             handleChange={setName}
-            label="Supabase"
+            label="Name"
             value={name || ""}
             type="text"
             title="Name"

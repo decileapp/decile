@@ -194,7 +194,18 @@ const Queries: React.FC<Props> = (props) => {
         </div>
 
         {filteredQueries?.length === 0 && (
-          <p className="mt-4 text-md"> No queries found.</p>
+          <p className="mt-4 text-sm">
+            {" "}
+            No queries found.{" "}
+            <a
+              href="#"
+              onClick={() => createQuery()}
+              className="hover:text-primary-500"
+            >
+              Create
+            </a>{" "}
+            your first query.
+          </p>
         )}
 
         <ConfirmDialog

@@ -2,8 +2,8 @@ import { Fragment, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/solid";
 import { useRecoilState } from "recoil";
-import { queryTypeState } from "../../../utils/contexts/query/state";
-import { classNames } from "../../../utils/classnames";
+import { queryTypeState } from "../../../../utils/contexts/query/state";
+import { classNames } from "../../../../utils/classnames";
 
 const editorOptions = [
   {

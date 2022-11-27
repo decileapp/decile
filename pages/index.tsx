@@ -8,6 +8,9 @@ import { Query } from "../types/Query";
 import { Source } from "../types/Sources";
 import { Schedule } from "../types/Schedule";
 import Page from "../components/layouts/Page";
+import DatabaseSelector from "../components/query/common/topbar/DatabaseSelector";
+import { selectedSourceState } from "../utils/contexts/query/state";
+import { useRecoilState } from "recoil";
 
 interface Props {
   queries: Query[];
@@ -20,6 +23,8 @@ const Home: React.FC<Props> = (props) => {
   const [loading, setLoading] = useState(true);
   const user = supabase.auth.user();
   const { queries, sources, schedule } = props;
+  const [selectedSource, setSelectedSource] =
+    useRecoilState(selectedSourceState);
 
   useEffect(() => {
     if (!user) {
@@ -48,58 +53,15 @@ const Home: React.FC<Props> = (props) => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col justify-start items-start h-full w-full space-y-12 mt-4">
-          <div className="grid grid-cols-1 gap-12">
-            <div className="flex flex-col justify-start">
-              <a
-                className="text-left text-lg font-bold mb-2 hover:text-primary-600"
-                href="/sources"
-              >
-                Set up a data source
-              </a>
-              <p className="text-sm ">
-                We support any Postgres database. Only admins can set up and
-                manage data sources.
-              </p>
-            </div>
-            <div className="flex flex-col justify-start">
-              <a
-                className="text-left text-lg font-bold mb-2 hover:text-primary-600"
-                href="/queries"
-              >
-                Write your first query
-              </a>
-              <p className="text-sm ">
-                Once you've set up your database, write your first query. You
-                can use our online SQL editor or our query builder. Save queries
-                and share across your team.
-              </p>
-            </div>
-            <div className="flex flex-col justify-start">
-              <a
-                className="text-left text-lg font-bold mb-2 hover:text-primary-600"
-                href="/schedule"
-              >
-                Schedule an export
-              </a>
-              <p className="text-sm ">
-                Export the output of your data directly to Google Sheets. Once
-                you've exported your data once, you can set up a schedule to
-                have it automatically export.
-              </p>
-            </div>
-            <div className="flex flex-col justify-start">
-              <a
-                className="text-left text-lg font-bold mb-2 hover:text-primary-600"
-                href="/charts"
-              >
-                Graph your queries
-              </a>
-              <p className="text-sm ">
-                Use our visualisation to graph your data and save your graphs.
-              </p>
-            </div>
+        <div className="flex flex-col justify-center items-center h-full w-full ">
+          {/* <div className="grid grid-cols-1 gap-12"> */}
+          <div className="w-full sm:w-1/3 space-y-12">
+            <DatabaseSelector
+              sources={sources}
+              changeDatabase={setSelectedSource}
+            />
           </div>
+          {/* </div> */}
         </div>
       )}
     </Page>
@@ -129,8 +91,22 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     .from<Schedule[]>("schedule")
     .select("id, name, user_id");
 
+  // Not handling auth on server side because auth token needs to be set
+  if (sources && sources?.length > 0) {
+    return {
+      redirect: {
+        destination: `/queries`,
+        permanent: false,
+      },
+    };
+  }
+
+  // Not handling auth on server side because auth token needs to be set
   return {
-    props: { sources: sources, queries: queries, schedules: schedules },
+    redirect: {
+      destination: `/sources`,
+      permanent: false,
+    },
   };
 };
 

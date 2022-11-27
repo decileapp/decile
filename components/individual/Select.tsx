@@ -23,7 +23,7 @@ type Props = {
 const Select: React.FC<Props> = ({ ...props }) => {
   const { value, setSelected, id, name, title, options, description } = props;
   return (
-    <div>
+    <div className="w-full">
       {title && <InputLabel title={props.title} />}
       {description && <InputDescription description={props.description} />}
       <div className="mt-2">

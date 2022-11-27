@@ -137,7 +137,14 @@ const Sources: React.FC<Props> = (props) => {
       )}
 
       {sources?.length === 0 && (
-        <p className="mt-4 text-md"> No sources created.</p>
+        <p className="mt-4 text-sm">
+          {" "}
+          No sources found.{" "}
+          <a href="/sources/new" className="hover:text-primary-500">
+            Create
+          </a>{" "}
+          your first source.
+        </p>
       )}
 
       <ConfirmDialog

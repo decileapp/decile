@@ -19,7 +19,7 @@ const ResultsTable: React.FC = () => {
               {Object.keys(row).map((value, id) => {
                 return (
                   <td
-                    className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium  sm:pl-6"
+                    className="whitespace-nowrap py-4 pl-4 pr-3 text-xs   sm:pl-6"
                     key={id}
                   >
                     {typeof row[value] === "object"
