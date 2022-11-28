@@ -29,24 +29,10 @@ const Queries: React.FC<Props> = (props) => {
   // New queri
   async function createQuery() {
     try {
-      const input = {
-        name: "Untitled",
-        body: "select * from TABLE;",
-        publicQuery: false,
-        user_id: user?.id,
-        org_id: user?.user_metadata.org_id,
-        updated_at: new Date(Date.now()),
-      };
-      let { data, error } = await supabase
-        .from("queries")
-        .insert(input)
-        .single();
+      router.push({
+        pathname: `/queries/new`,
+      });
 
-      if (data) {
-        router.push({
-          pathname: `/queries/edit/${data.id}`,
-        });
-      }
       return;
     } catch (error: any) {
       toast.error("Failed to save query");

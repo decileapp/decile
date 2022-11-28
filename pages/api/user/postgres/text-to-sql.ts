@@ -7,7 +7,17 @@ import axios from "axios";
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     try {
-      const { queryText, schema } = req.body;
+      const {
+        queryText,
+        schema,
+        body,
+        dbUser,
+        host,
+        database,
+        password,
+        port,
+        ssl,
+      } = req.body;
 
       if (!queryText || !schema) {
         res.status(400).json({ error: "Query or schema are missing." });
@@ -24,7 +34,26 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         }
       );
       if (response.data) {
-        res.status(200).json({ sqlQuery: "SELECT " + response.data.text });
+        // Finalise query
+        const finalQuery = "SELECT " + response.data.text;
+
+        // Get results
+        const pool = new Pool({
+          user: dbUser,
+          host: host,
+          database: database,
+          password: decrypt(password),
+          port: port,
+          ssl: ssl,
+        });
+        const result = await pool.query(finalQuery);
+        return res
+          .status(200)
+          .json({
+            rows: result.rows,
+            fields: result.fields,
+            sqlQuery: finalQuery,
+          });
       } else {
         res.status(400).json({ error: "Failed to generate query." });
       }

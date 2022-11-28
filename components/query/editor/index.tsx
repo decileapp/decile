@@ -1,7 +1,11 @@
 import _ from "lodash";
 import { useState } from "react";
+import { useRecoilState } from "recoil";
+import { Source } from "../../../types/Sources";
 import { Table } from "../../../types/Table";
 import { classNames } from "../../../utils/classnames";
+import { selectedSourceState } from "../../../utils/contexts/query/state";
+import DatabaseSelector from "../common/DatabaseSelector";
 import Columnns from "./columns";
 import Editor from "./editor";
 import Tables from "./tables";
@@ -11,17 +15,34 @@ interface Props {
   stopQuery: () => void;
   queryLoading?: boolean;
   changeTable: (x: Table) => void;
+  sources: Source[];
+  changeDatabase: (x: string) => void;
 }
 
 const QueryEditor: React.FC<Props> = (props) => {
-  const { queryDb, stopQuery, queryLoading, changeTable } = props;
+  const {
+    queryDb,
+    stopQuery,
+    queryLoading,
+    changeTable,
+    sources,
+    changeDatabase,
+  } = props;
   const [showSchema, setShowSchema] = useState(true);
+  const [selectedSource, setSelectedSource] =
+    useRecoilState(selectedSourceState);
 
   return (
     <div className="grid grid-cols-6 h-full w-full min-h-0 overflow-hidden">
       {showSchema && (
         <div className="col-span-2 flex flex-col  border-r border-zinc-400  h-full w-full overflow-hidden">
           <div className="flex flex-col w-full h-full  overflow-auto">
+            <div className="flex flex-col w-full p-4 ">
+              <DatabaseSelector
+                sources={sources}
+                changeDatabase={changeDatabase}
+              />
+            </div>
             <div className="flex flex-col w-full p-4 ">
               <Tables
                 changeTable={changeTable}
@@ -49,6 +70,7 @@ const QueryEditor: React.FC<Props> = (props) => {
           stopQuery={stopQuery}
           setShowSchema={() => setShowSchema(true)}
           showSchema={showSchema}
+          sources={sources}
         />
       </div>
     </div>

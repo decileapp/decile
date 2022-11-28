@@ -8,7 +8,7 @@ import { Query } from "../types/Query";
 import { Source } from "../types/Sources";
 import { Schedule } from "../types/Schedule";
 import Page from "../components/layouts/Page";
-import DatabaseSelector from "../components/query/common/topbar/DatabaseSelector";
+import DatabaseSelector from "../components/query/common/DatabaseSelector";
 import { selectedSourceState } from "../utils/contexts/query/state";
 import { useRecoilState } from "recoil";
 

@@ -34,10 +34,9 @@ import {
   tablesState,
 } from "../../utils/contexts/query/state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import QueryTopBar from "./common/topbar";
 import QueryEditor from "./editor";
 import { Table } from "../../types/Table";
-import { fetchColumns, fetchTables, fetchTablesAndColumns } from "./functions";
+import { fetchColumns, fetchTablesAndColumns } from "./functions";
 import { useRouter } from "next/router";
 
 interface Props {
@@ -45,6 +44,7 @@ interface Props {
 }
 
 const QueryForm: React.FC<Props> = (props) => {
+  const { sources } = props;
   const router = useRouter();
   // Type
   const queryType = useRecoilValue(queryTypeState);
@@ -274,10 +274,9 @@ const QueryForm: React.FC<Props> = (props) => {
     }
   };
 
-  async function saveQuery() {
+  async function updateQuery() {
     try {
       if (!queryId) return;
-      setSaving(true);
       let { data, error } = await supabase
         .from("queries")
         .update({
@@ -311,22 +310,49 @@ const QueryForm: React.FC<Props> = (props) => {
     }
   }
 
+  async function saveQuery() {
+    try {
+      let { data, error } = await supabase
+        .from("queries")
+        .insert({
+          name: name,
+          database: selectedSource,
+          body: queryBuilder ? buildQuery : body,
+          publicQuery: publicQuery,
+          user_id: user?.id,
+          updated_at: new Date(Date.now()),
+          query_vars: queryVars,
+          query_filter_by: queryFilterBy,
+          query_group_by: queryGroupBy,
+          query_sort_by: querySortBy,
+          query_limit: queryLimit,
+          query_table:
+            selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
+          query_type: queryType,
+          org_id: user?.user_metadata.org_id,
+        })
+        .single();
+      if (data) {
+        setSavedAt(data.updated_at);
+        router.push(`/queries/view/${data.id}`);
+      }
+      setSaving(false);
+      return;
+    } catch (error: any) {
+      setSaving(false);
+      toast.error("Failed to save query");
+      return;
+    }
+  }
+
   // Edit
   return (
     <>
       <Page padding={false}>
         <div className="flex flex-col h-full overflow-hidden">
-          {/* Top bar */}
-          {props.sources && props.sources.length > 0 && (
-            <QueryTopBar
-              sources={props.sources}
-              changeDatabase={changeDatabase}
-            />
-          )}
-
           <div className="grid grid-cols-10 h-full w-full min-h-0 overflow-hidden">
             {/* Tables and columns for SQL EDITOR */}
-            {!queryBuilder && (
+            {!queryBuilder && sources && (
               <div
                 className="col-span-5
                     flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden"
@@ -336,13 +362,19 @@ const QueryForm: React.FC<Props> = (props) => {
                   queryLoading={queryLoading}
                   stopQuery={() => source.cancel()}
                   changeTable={changeTable}
+                  sources={sources}
+                  changeDatabase={changeDatabase}
                 />
               </div>
             )}
             {/* Query builder */}
-            {queryBuilder && (
+            {queryBuilder && sources && (
               <div className="col-span-3 flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden">
-                <QueryBuilder changeTable={changeTable} />
+                <QueryBuilder
+                  changeTable={changeTable}
+                  changeDatabase={changeDatabase}
+                  sources={sources}
+                />
               </div>
             )}
 
@@ -356,7 +388,7 @@ const QueryForm: React.FC<Props> = (props) => {
               <Results
                 queryLoading={queryLoading}
                 queryDb={queryBuilder ? () => queryDb() : undefined}
-                saveQuery={saveQuery}
+                saveQuery={queryId ? updateQuery : saveQuery}
                 error={error}
               />
             </div>

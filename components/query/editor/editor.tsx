@@ -2,9 +2,11 @@ import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
 import Editor from "@monaco-editor/react";
 import Button from "../../individual/Button";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   bodyState,
+  dataState,
+  fieldsState,
   queryTypeState,
   selectedSourceState,
   sourceSchemaState,
@@ -15,8 +17,8 @@ import TextArea from "../../individual/TextArea";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import Loading from "../../individual/Loading";
 import MiniLoading from "../../individual/MiniLoading";
+import { Source } from "../../../types/Sources";
 
 interface Props {
   queryDb: () => void;
@@ -24,10 +26,11 @@ interface Props {
   stopQuery: () => void;
   showSchema: boolean;
   setShowSchema: () => void;
+  sources: Source[];
 }
 
 const Results: React.FC<Props> = (props) => {
-  const { queryDb, stopQuery, queryLoading } = props;
+  const { queryDb, stopQuery, queryLoading, sources } = props;
   const [body, setBody] = useRecoilState(bodyState);
   const selectedSource = useRecoilValue(selectedSourceState);
   const [textQuery, setTextQuery] = useRecoilState(textQueryState);
@@ -35,30 +38,35 @@ const Results: React.FC<Props> = (props) => {
   const [schema, setSchema] = useRecoilState(sourceSchemaState);
   const [generatingQuery, setGeneratingQuery] = useState(false);
   const [textSqlError, setTextSqlError] = useState(false);
+  const setData = useSetRecoilState(dataState);
+  const setFields = useSetRecoilState(fieldsState);
 
   const textToSql = async () => {
     try {
+      const selectedDb = sources.find((s) => s.id === selectedSource);
+
       setGeneratingQuery(true);
+      setData(null);
+      setFields(null);
       setTextSqlError(false);
       const res = await axios.post("/api/user/postgres/text-to-sql", {
         queryText: textQuery,
         schema: schema,
+        ...selectedDb,
       });
       if (res.data) {
         setBody(res.data.sqlQuery);
-        try {
-          queryDb();
-        } catch (e) {
-          setTextSqlError(true);
-          setQueryType("sql");
-        }
-      } else {
-        toast.error("Something went wrong.");
+        const fields: string[] = res.data.fields.map((f: any) => f.name);
+        const rows: {}[] = res.data.rows;
+        setFields(fields);
+        setData(rows);
+        setQueryType("sql");
       }
       setGeneratingQuery(false);
-      return;
     } catch (e) {
       setGeneratingQuery(false);
+      toast.error("Something went wrong.");
+
       return;
     }
   };

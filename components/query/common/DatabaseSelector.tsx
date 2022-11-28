@@ -1,13 +1,13 @@
-import { Source } from "../../../../types/Sources";
-import Select from "../../../individual/Select";
+import { Source } from "../../../types/Sources";
+import Select from "../../individual/Select";
 import _ from "lodash";
 import { InformationCircleIcon } from "@heroicons/react/outline";
-import { selectedSourceState } from "../../../../utils/contexts/query/state";
+import { selectedSourceState } from "../../../utils/contexts/query/state";
 import { useRecoilState } from "recoil";
 import { useState } from "react";
 import Schema from "./schema";
-import FullPageDialog from "../../../individual/FullPageDialog";
-import InputLabel from "../../../individual/common/InputLabel";
+import FullPageDialog from "../../individual/FullPageDialog";
+import InputLabel from "../../individual/common/InputLabel";
 
 interface Props {
   sources: Source[];
