@@ -9,6 +9,7 @@ import {
   nameState,
   publicQueryState,
 } from "../../../../utils/contexts/query/state";
+import { useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   open: boolean;
@@ -22,7 +23,7 @@ const SaveQuery: React.FC<Props> = (props) => {
   // Chart details
   const [name, setName] = useRecoilState(nameState);
   const [publicQuery, setPublicQuery] = useRecoilState(publicQueryState);
-  const user = supabase.auth.user();
+  const user = useUser();
 
   return (
     <BasicDialog open={open} setOpen={setOpen}>

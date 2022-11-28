@@ -1,37 +1,18 @@
-export interface Schedule {
-  id?: number;
-  created_at?: Date;
-  name: string;
-  periodicity: string;
-  run_at_time: number;
-  run_at_day: number;
-  run_at_month_date: number;
-  user_id: { id: string; email: string };
-  org_id: number;
+import { Database } from "./database.types";
+
+export type Schedule = Database["public"]["Tables"]["schedule"]["Row"] & {
+  user_id: {
+    id: string;
+    email: string;
+  };
   export_id: {
     id: number;
-    query_id: { id: number; name: string };
+    query_id: {
+      id: number;
+      name: string;
+    };
     spreadsheet: string;
   };
-  timestamp_utc: string;
-  timestamp_user_zone: string;
-  timezone: string;
-  notify_email: boolean;
-}
+};
 
-export interface ScheduleInput {
-  id?: number;
-  created_at?: Date;
-  name: string;
-  periodicity: string;
-  run_at_time: number;
-  run_at_day: number;
-  run_at_month_date: number;
-  user_id: string;
-  org_id: number;
-  export_id: number;
-  timestamp_utc: string;
-  timestamp_user_zone: string;
-  timezone: string;
-  notify_email: boolean;
-}
+export type ScheduleInput = Database["public"]["Tables"]["schedule"]["Insert"];

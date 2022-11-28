@@ -1,11 +1,12 @@
 import { useRouter } from "next/router";
 import { Source } from "../../types/Sources";
-import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   sources: Source[];
@@ -16,7 +17,8 @@ const Sources: React.FC<Props> = (props) => {
   const { sources } = props;
   const [deletedId, setDeletedId] = useState<string>();
   const [loading, setLoading] = useState(false);
-  const user = supabase.auth.user();
+  const user = useUser();
+  const supabase = useSupabaseClient();
 
   // Delete link
   async function deleteSource(id: string) {
@@ -36,7 +38,8 @@ const Sources: React.FC<Props> = (props) => {
         .in(
           "query_id",
           foundQueries.map((e) => e.id)
-        );
+        )
+        .select("id");
       if (exports && exports.length > 0) {
         // Schedule
         const { data: schedules } = await supabase
@@ -44,20 +47,24 @@ const Sources: React.FC<Props> = (props) => {
           .delete()
           .in(
             "export_id",
-            exports.map((e) => e.id)
-          );
+            exports.map((e: any) => e.id)
+          )
+          .select("id");
       }
       // Check if there are queries
       const { data: deletedQueries, error: queryError } = await supabase
         .from("queries")
         .delete()
-        .match({ user_id: user?.id || "", database: parseInt(id, 10) });
+        .match({ user_id: user?.id || "", database: parseInt(id, 10) })
+        .select("id");
     }
 
     const { data, error } = await supabase
-      .from<Source>("sources")
+      .from("sources")
       .delete()
-      .match({ user_id: user?.id || "", id: id });
+      .match({ user_id: user?.id || "", id: id })
+      .select("*")
+      .single();
     if (data) {
       setDeletedId(undefined);
     }
@@ -140,7 +147,7 @@ const Sources: React.FC<Props> = (props) => {
         <p className="mt-4 text-sm">
           {" "}
           No sources found.{" "}
-          <a href="/sources/new" className="hover:text-primary-500">
+          <a href="/sources/new" className="text-primary-500">
             Create
           </a>{" "}
           your first source.
@@ -163,33 +170,34 @@ const Sources: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   // Admins only
-  if (user.user_metadata.role_id !== 1) {
+  if (session.user.user_metadata.role_id !== 1) {
     return {
       redirect: {
-        destination: `/`,
+        destination: `/queries`,
         permanent: false,
       },
     };
   }
-
-  supabase.auth.setAuth(token || "");
 
   const { data, error } = await supabase
     .from("sources")
     .select("id, name, host, database, port, created_at, user_id, org_id")
-    .match({ org_id: user?.user_metadata.org_id });
+    .match({ org_id: session.user?.user_metadata.org_id });
 
   return {
     props: { sources: data },

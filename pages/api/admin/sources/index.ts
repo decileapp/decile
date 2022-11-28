@@ -3,38 +3,21 @@ import { Pool } from "pg";
 import { encrypt } from "../../../../utils/encryption";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
 import { supabase } from "../../../../utils/supabaseClient";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
-  // GET SOURCES
-  if (req.method === "GET") {
-    try {
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
-      if (!user || !token) {
-        res.status(401).json({ error: "Not authorised" });
-        return;
-      }
-
-      supabase.auth.setAuth(token);
-
-      res.status(200).json({});
-      return;
-    } catch (e: any) {
-      console.log(e);
-
-      throw new Error(`Something went wrong.`);
-    }
-  }
-
   // CREATE NEW SOURCE
   if (req.method === "POST") {
     try {
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
-
-      if (!user || !token) {
+      // Check user
+      const supabase = createServerSupabaseClient({ req, res });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
         return res.status(401);
       }
-
-      supabase.auth.setAuth(token);
+      const { user } = session;
 
       const { name, dbUser, host, database, password, port, ssl } = req.body;
 
@@ -70,6 +53,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           user_id: user?.id,
           org_id: user.user_metadata.org_id,
         })
+        .select("id")
         .single();
 
       if (!data) {
@@ -80,7 +64,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(200).json({ id: data?.id });
       return;
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
 
       throw new Error(`Something went wrong.`);
     }
@@ -89,13 +73,15 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   // EDIT SOURCE
   if (req.method === "PATCH") {
     try {
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
-
-      if (!user || !token) {
+      // Check user
+      const supabase = createServerSupabaseClient({ req, res });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
         return res.status(401);
       }
-
-      supabase.auth.setAuth(token);
+      const { user } = session;
 
       const { id, name, dbUser, host, database, password, port, ssl } =
         req.body;
@@ -130,6 +116,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           user_id: user?.id,
         })
         .match({ id: parseInt(id, 10), user_id: user?.id })
+        .select("id")
         .single();
 
       if (!data) {
@@ -140,7 +127,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(200).json({ id: data?.id });
       return;
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
 
       throw new Error(`Something went wrong.`);
     }

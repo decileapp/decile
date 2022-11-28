@@ -40,7 +40,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         }),
       });
     } catch (e) {
-      console.log(e);
+      console.error(e);
       throw new Error(`Something went wrong.`);
     }
   } else {

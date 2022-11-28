@@ -13,6 +13,8 @@ import { Export } from "../../../types/Export";
 import dateFormatter from "../../../utils/dateFormatter";
 import ScheduleForm from "../../../components/schedule";
 import { getSpreadsheetId } from "../../../utils/google/helpers";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   exports: Export[];
@@ -22,7 +24,7 @@ const ExportQuery: React.FC<Props> = (props) => {
   const router = useRouter();
   const { id } = router.query;
   const { exports } = props;
-  const user = supabase.auth.user();
+  const user = useUser();
 
   // For one time
   const [type, setType] = useState<string>("create");
@@ -215,23 +217,25 @@ const ExportQuery: React.FC<Props> = (props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(ctx.req);
-  if (!user || !token) {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
-  supabase.auth.setAuth(token);
 
   const { data: exports, error } = await supabase
     .from("export")
     .select(`id, spreadsheet, query_id, created_at`)
     .match({
-      org_id: user.user_metadata.org_id,
-      user_id: user.id,
+      org_id: session.user.user_metadata.org_id,
+      user_id: session.user.id,
       query_id: ctx.query.id,
     });
 
@@ -240,7 +244,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { data } = await serviceSupabase
     .from("integration_credentials")
     .select("id")
-    .match({ user_id: user.id, provider: "google" })
+    .match({ user_id: session.user.id, provider: "google" })
     .single();
 
   // No data set to Google setup

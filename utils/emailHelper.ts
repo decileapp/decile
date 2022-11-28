@@ -41,7 +41,7 @@ const emailHelper = async ({
     });
     return requestId;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw e;
   }
 };

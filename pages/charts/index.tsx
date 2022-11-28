@@ -1,5 +1,4 @@
 import { useRouter } from "next/router";
-import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
@@ -9,6 +8,8 @@ import dateFormatter from "../../utils/dateFormatter";
 import PageHeading from "../../components/layouts/Page/PageHeading";
 import TextInput from "../../components/individual/TextInput";
 import { Chart } from "../../types/Chart";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   charts: Chart[];
@@ -20,16 +21,18 @@ const Charts: React.FC<Props> = (props) => {
   const [deletedId, setDeletedId] = useState<number>();
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState<string>();
-  const user = supabase.auth.user();
+  const user = useUser();
+  const supabase = useSupabaseClient();
 
   // Delete link
   async function deleteChart(id: number) {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from<Chart>("chart")
+      .from("chart")
       .delete()
-      .match({ user_id: user?.id || "", id: id });
+      .match({ user_id: user?.id || "", id: id })
+      .select("id");
 
     if (data) {
       setDeletedId(undefined);
@@ -165,25 +168,26 @@ const Charts: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/auth/signin`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
-
-  supabase.auth.setAuth(token);
 
   const { data: charts, error } = await supabase
-    .from<Chart>("chart")
+    .from("chart")
     .select(
       "id, title, chart_type, chart_meta_data, user_id(id, email), public_chart, query_id, org_id, created_at"
     )
-    .match({ org_id: user.user_metadata.org_id });
+    .match({ org_id: session.user.user_metadata.org_id });
 
   if (!charts || charts.length === 0) {
     return {
@@ -195,7 +199,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   // Get only subset
   const subCharts = charts.filter(
-    (q) => q.public_chart || q.org_id === user.user_metadata.org_id
+    (q) => q.public_chart || q.org_id === session.user.user_metadata.org_id
   );
 
   return {

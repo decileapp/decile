@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
 import FormLayout from "../layouts/FormLayout";
 import TextInput from "../individual/TextInput";
 import Button from "../individual/Button";
@@ -8,6 +7,7 @@ import Switch from "../individual/Switch";
 import { toast } from "react-toastify";
 import axios from "axios";
 import MiniLoading from "../individual/MiniLoading";
+import { useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   id?: string;
@@ -36,7 +36,7 @@ const SourceForm: React.FC<Props> = (props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Props>();
 
-  const user = supabase.auth.user();
+  const user = useUser();
 
   const validateLink = (input: Props) => {
     const { name, database, host, dbUser, password, port } = input;

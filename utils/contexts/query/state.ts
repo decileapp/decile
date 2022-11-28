@@ -21,9 +21,9 @@ export const queryTypeState = atom<string>({
 });
 
 // Data source
-export const selectedSourceState = atom<string>({
+export const selectedSourceState = atom<number | undefined>({
   key: "selectedSource",
-  default: "",
+  default: undefined,
 });
 
 // Data source

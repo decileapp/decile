@@ -1,12 +1,14 @@
 import type { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import FormLayout from "../../components/layouts/FormLayout";
 import TextInput from "../../components/individual/TextInput";
 import PageHeading from "../../components/layouts/Page/PageHeading";
 import Button from "../../components/individual/Button";
 import validator from "validator";
+import { useUser } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const Reset: NextPage = () => {
   const router = useRouter();
@@ -15,8 +17,9 @@ const Reset: NextPage = () => {
   const [password2, setPassword2] = useState<string>();
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
-  const user = supabase.auth.user();
+  const user = useUser();
   const { access_token } = router.query;
+  const supabase = useSupabaseClient();
 
   const validateSignup = () => {
     // Validation
@@ -47,12 +50,9 @@ const Reset: NextPage = () => {
       return;
     }
 
-    const { error, data } = await supabase.auth.api.updateUser(
-      access_token as string,
-      {
-        password: password,
-      }
-    );
+    const { error, data } = await supabase.auth.updateUser({
+      password: password,
+    });
 
     if (error) {
       setError("Something went wrong.");
@@ -110,16 +110,20 @@ const Reset: NextPage = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (user) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   return {
     props: {},

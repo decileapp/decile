@@ -1,4 +1,3 @@
-// pages/pages/api/auth.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import updateOrgForSession from "../../../utils/organisation/updateOrgForSession";
 import { supabase } from "../../../utils/supabaseClient";
@@ -10,18 +9,18 @@ export default async function handler(
   // Set the auth cookie.
   if (req.method === "POST") {
     try {
-      supabase.auth.api.setAuthCookie(req, res);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
       // Update the creds on cookie
-      if (user && token) {
-        supabase.auth.setAuth(token);
+      if (user) {
         const data = await updateOrgForSession(user);
       }
-
+      res.status(200).json({});
       return;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       throw new Error(
         `The HTTP ${req.method} method is not supported at this route.`
       );

@@ -1,13 +1,15 @@
 import type { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
 import TextInput from "../../components/individual/TextInput";
 import Button from "../../components/individual/Button";
 import Loading from "../../components/individual/Loading";
 import Page from "../../components/layouts/Page";
 import GoogleImage from "../../public/google.svg";
 import Image from "next/image";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useUser } from "@supabase/auth-helpers-react";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 const Signin: NextPage = () => {
   const router = useRouter();
@@ -17,7 +19,8 @@ const Signin: NextPage = () => {
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [forgot, setForgot] = useState(false);
-  const user = supabase.auth.user();
+  const user = useUser();
+  const supabase = useSupabaseClient();
 
   const signIn = async () => {
     setLoading(true);
@@ -28,9 +31,17 @@ const Signin: NextPage = () => {
       return;
     }
 
-    const { user, error } = await supabase.auth.signIn({
-      email: email,
-      password: password,
+    if (!email) {
+      setError("Please enter an email address.");
+      return;
+    }
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
     if (error) {
@@ -44,7 +55,7 @@ const Signin: NextPage = () => {
   };
 
   const googleSignIn = async () => {
-    const { user, session, error } = await supabase.auth.signIn({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
     });
     return;
@@ -57,9 +68,7 @@ const Signin: NextPage = () => {
       setError("Please enter an email address.");
       return;
     }
-    const { data, error } = await supabase.auth.api.resetPasswordForEmail(
-      email
-    );
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
 
     if (error) {
       setError("Something went wrong.");
@@ -105,6 +114,11 @@ const Signin: NextPage = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md w-full border rounded-lg">
         <div className="bg-white dark:bg-zinc-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 ">
           <form className="space-y-6" action="#">
+            {forgot && (
+              <p className="text-sm">
+                Please enter your email address to reset your password.
+              </p>
+            )}
             <TextInput
               name="email"
               id="email"
@@ -181,16 +195,21 @@ const Signin: NextPage = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (user) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   return {
     props: {},

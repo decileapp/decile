@@ -1,31 +1,26 @@
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { GetServerSideProps } from "next";
 import SourceForm from "../../components/sources";
-import { supabase } from "../../utils/supabaseClient";
 
 const NewSource: React.FC = () => {
   return <SourceForm />;
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
-    return {
-      redirect: {
-        destination: `/`,
-        permanent: false,
-      },
-    };
-  }
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  // Admins only
-  if (user.user_metadata.role_id !== 1) {
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   return {
     props: {},

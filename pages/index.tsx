@@ -4,16 +4,15 @@ import Loading from "../components/individual/Loading";
 import { supabase } from "../utils/supabaseClient";
 import queryString from "querystring";
 import { GetServerSideProps } from "next";
-import { Query } from "../types/Query";
+import { BasicQuery } from "../types/Query";
 import { Source } from "../types/Sources";
 import { Schedule } from "../types/Schedule";
 import Page from "../components/layouts/Page";
-import DatabaseSelector from "../components/query/common/DatabaseSelector";
-import { selectedSourceState } from "../utils/contexts/query/state";
-import { useRecoilState } from "recoil";
+import { useUser } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 interface Props {
-  queries: Query[];
+  queries: BasicQuery[];
   sources: Source[];
   schedule: Schedule[];
 }
@@ -21,10 +20,7 @@ interface Props {
 const Home: React.FC<Props> = (props) => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const user = supabase.auth.user();
-  const { queries, sources, schedule } = props;
-  const [selectedSource, setSelectedSource] =
-    useRecoilState(selectedSourceState);
+  const user = useUser();
 
   useEffect(() => {
     if (!user) {
@@ -53,43 +49,38 @@ const Home: React.FC<Props> = (props) => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col justify-center items-center h-full w-full ">
-          {/* <div className="grid grid-cols-1 gap-12"> */}
-          <div className="w-full sm:w-1/3 space-y-12">
-            <DatabaseSelector
-              sources={sources}
-              changeDatabase={setSelectedSource}
-            />
-          </div>
-          {/* </div> */}
-        </div>
+        <div className="flex flex-col justify-center items-center h-full w-full "></div>
       )}
     </Page>
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  // Not handling auth on server side because auth token needs to be set
-  if (!user || !token) {
-    return { props: {} };
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/signin",
+        permanent: false,
+      },
+    };
   }
-  supabase.auth.setAuth(token);
 
   const { data: sources, error: sourceError } = await supabase
-    .from<Source[]>("sources")
+    .from("sources")
     .select("id, name, user_id");
 
   const { data: queries, error: queryError } = await supabase
-    .from<Query[]>("queries")
+    .from("queries")
     .select("id, name, user_id")
-    .match({ org_id: user.user_metadata.org_id })
-    .or(`user_id.eq.${user.id},publicQuery.is.true`);
-
-  const { data: schedules, error: scheduleError } = await supabase
-    .from<Schedule[]>("schedule")
-    .select("id, name, user_id");
+    .match({ org_id: session.user.user_metadata.org_id })
+    .or(`user_id.eq.${session.user.id},publicQuery.is.true`);
 
   // Not handling auth on server side because auth token needs to be set
   if (sources && sources?.length > 0) {

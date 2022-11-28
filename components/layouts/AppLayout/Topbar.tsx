@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Disclosure } from "@headlessui/react";
 import {
   DatabaseIcon,
-  HomeIcon,
   CodeIcon,
   XIcon,
   MenuIcon,
@@ -13,14 +12,17 @@ import {
 } from "@heroicons/react/outline";
 import { useRouter } from "next/router";
 import { MoonIcon, SunIcon } from "@heroicons/react/solid";
-import { supabase } from "../../../utils/supabaseClient";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTheme } from "next-themes";
 import Switch from "../../individual/Switch";
 import { classNames } from "../../../utils/classnames";
 import axios from "axios";
-import Link from "next/link";
+import {
+  useSession,
+  useSupabaseClient,
+  useUser,
+} from "@supabase/auth-helpers-react";
 
 interface Item {
   name: string;
@@ -33,15 +35,15 @@ const Topbar: React.FC = ({ children }) => {
   const [currentLoc, setCurrentLoc] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const user = supabase.auth.user();
-  const session = supabase.auth.session();
+  const user = useUser();
+  const session = useSession();
   const { theme, setTheme } = useTheme();
+  const supabase = useSupabaseClient();
 
   let authLeft: Item[] = user
     ? [
-        { name: "Charts", href: "/charts", icon: ChartBarIcon, current: false },
         { name: "Queries", href: "/queries", icon: CodeIcon, current: false },
-
+        { name: "Charts", href: "/charts", icon: ChartBarIcon, current: false },
         {
           name: "Schedule",
           href: "/schedule",
@@ -62,7 +64,6 @@ const Topbar: React.FC = ({ children }) => {
 
   // Signout
   const signout = async () => {
-    const res = await axios.get("/api/auth/signout");
     await supabase.auth.signOut();
     location.reload();
     return;
@@ -132,7 +133,7 @@ const Topbar: React.FC = ({ children }) => {
                         {user.user_metadata.role_id && (
                           <a
                             className="border-transparent 
-                              block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                              block pl-3 pr-4 py-2 border-l-4 text-base"
                             onClick={() => router.push("/settings")}
                             href="#"
                           >
@@ -157,6 +158,17 @@ const Topbar: React.FC = ({ children }) => {
                         href="#"
                       >
                         Signin
+                      </a>
+                    )}
+                    {!user && (
+                      <a
+                        className="hover:text-primary-600 hover:bg-opacity-75 ml-4 text-base"
+                        onClick={() => {
+                          router.push("/auth/signup");
+                        }}
+                        href="#"
+                      >
+                        Signup
                       </a>
                     )}
                   </div>
@@ -203,7 +215,7 @@ const Topbar: React.FC = ({ children }) => {
                       {user?.user_metadata.role_id && (
                         <a
                           className="border-transparent 
-                              block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                              block pl-3 pr-4 py-2 border-l-4 text-base"
                           onClick={() => router.push("/settings")}
                           href="#"
                         >

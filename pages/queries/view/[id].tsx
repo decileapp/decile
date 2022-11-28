@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { supabase } from "../../../utils/supabaseClient";
 import { Query } from "../../../types/Query";
 import Loading from "../../../components/individual/Loading";
 import { Source } from "../../../types/Sources";
@@ -10,7 +9,6 @@ import {
   columnsState,
   nameState,
   publicQueryState,
-  queryBuilderState,
   queryFilterState,
   queryGroupByState,
   queryIdState,
@@ -30,6 +28,8 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
 import QueryView from "../../../components/query/view";
 import axios from "axios";
+import { useUser, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 interface Props {
   sources: Source[];
@@ -38,7 +38,8 @@ interface Props {
 
 const EditQuery: React.FC<Props> = (props) => {
   const router = useRouter();
-  const user = supabase.auth.user();
+  const user = useUser();
+  const supabase = useSupabaseClient();
   const [loading, setLoading] = useState(false);
   const { query, sources } = props;
 
@@ -148,7 +149,7 @@ const EditQuery: React.FC<Props> = (props) => {
       setLoading(false);
       return;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       toast.error("Something went wrong. Please check your query.");
       setLoading(false);
       return;
@@ -161,30 +162,34 @@ const EditQuery: React.FC<Props> = (props) => {
     }
   }, []);
 
-  return loading ? <Loading /> : <QueryView sources={sources} />;
+  return loading ? (
+    <Loading />
+  ) : (
+    <QueryView sources={sources} owner={query.user_id === user?.id} />
+  );
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(ctx.req);
-  if (!user || !token) {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
-
-  supabase.auth.setAuth(token);
 
   const { data: sources, error } = await supabase
-    .from<Source>("sources")
-    .select(
-      "id, name, host, database, port, dbUser, password, ssl, created_at, user_id"
-    );
+    .from("sources")
+    .select("*")
+    .match({ org_id: session.user.user_metadata.org_id });
 
   const { data: query, error: queryError } = await supabase
-    .from<Query>("queries")
+    .from("queries")
     .select(
       `id, created_at, name, database, body, publicQuery, query_vars, query_group_by, query_filter_by, query_sort_by, query_limit, query_table, query_type, updated_at, user_id(id, email)`
     )

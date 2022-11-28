@@ -1,12 +1,9 @@
 import { useRouter } from "next/router";
-import { supabase } from "../../utils/supabaseClient";
-import Page from "../layouts/Page";
 import TableShell from "../individual/table/shell";
-import { GetServerSideProps } from "next";
 import TableHeader from "../individual/table/header";
 import { Org_User } from "../../types/Organisation";
 import Button from "../individual/Button";
-import { useEffect, useState } from "react";
+import { useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   members: Org_User[];
@@ -15,7 +12,7 @@ interface Props {
 const Organisation: React.FC<Props> = (props) => {
   const router = useRouter();
   const { members } = props;
-  const user = supabase.auth.user();
+  const user = useUser();
 
   // Variable map
   const fields = ["Email", "Role", "", ""];
@@ -26,7 +23,7 @@ const Organisation: React.FC<Props> = (props) => {
         <Button
           onClick={() =>
             user?.user_metadata.role_id === 1
-              ? router.push("/organisation/invite")
+              ? router.push("/team/invite")
               : undefined
           }
           label="Invite"

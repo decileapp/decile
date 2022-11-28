@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
 import { toast } from "react-toastify";
@@ -25,13 +24,16 @@ import InputLabel from "../individual/common/InputLabel";
 import dateFormatter from "../../utils/dateFormatter";
 import { useRouter } from "next/router";
 import { PencilIcon } from "@heroicons/react/outline";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   sources?: Source[];
+  owner?: boolean;
 }
 
 const QueryView: React.FC<Props> = (props) => {
   const router = useRouter();
+  const supabase = useSupabaseClient();
   // Type
   const queryBuilder = useRecoilValue(queryBuilderState);
 
@@ -56,7 +58,7 @@ const QueryView: React.FC<Props> = (props) => {
   const [querySortBy, setQuerySortBy] = useRecoilState(querySortByState);
   const [queryLimit, setQueryLimit] = useRecoilState(queryLimitState);
 
-  const user = supabase.auth.user();
+  const user = useUser();
 
   /* Local states */
   const [queryLoading, setQueryLoading] = useState(false);
@@ -85,6 +87,7 @@ const QueryView: React.FC<Props> = (props) => {
           org_id: user?.user_metadata.org_id,
           query_builder: queryBuilder,
         })
+        .select("id")
         .single();
       setName(`Copy of ${name}`);
       if (data) {
@@ -103,12 +106,14 @@ const QueryView: React.FC<Props> = (props) => {
           <div className="flex flex-col p-4 space-y-2">
             <div className="flex flex-row  items-center justify-between">
               <p className="text-sm font-bold">Query details</p>
-              <a
-                onClick={() => router.push(`/queries/edit/${queryId}`)}
-                href="#"
-              >
-                <PencilIcon className="block h-5 w-5 text-secondary-500" />
-              </a>
+              {props.owner && (
+                <a
+                  onClick={() => router.push(`/queries/edit/${queryId}`)}
+                  href="#"
+                >
+                  <PencilIcon className="block h-5 w-5 text-secondary-500" />
+                </a>
+              )}
             </div>
             <div className="flex flex-row  space-x-4">
               {props.sources && (

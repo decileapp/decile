@@ -47,18 +47,16 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           ssl: ssl,
         });
         const result = await pool.query(finalQuery);
-        return res
-          .status(200)
-          .json({
-            rows: result.rows,
-            fields: result.fields,
-            sqlQuery: finalQuery,
-          });
+        return res.status(200).json({
+          rows: result.rows,
+          fields: result.fields,
+          sqlQuery: finalQuery,
+        });
       } else {
         res.status(400).json({ error: "Failed to generate query." });
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       throw new Error(`Something went wrong.`);
     }
   } else {

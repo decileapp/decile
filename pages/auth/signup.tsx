@@ -1,13 +1,12 @@
 import type { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
 import TextInput from "../../components/individual/TextInput";
 import Button from "../../components/individual/Button";
 import validator from "validator";
-import axios from "axios";
 import { toast } from "react-toastify";
-import { setAuthCookieForServer } from "../../utils/auth/setAuthCookie";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 const Signup: NextPage = () => {
   const router = useRouter();
@@ -18,45 +17,44 @@ const Signup: NextPage = () => {
   const [password2, setPassword2] = useState<string>();
   const [checkEmail, setCheckEmail] = useState<boolean>(false);
   const [error, setError] = useState<string>();
-  const user = supabase.auth.user();
-
-  const validateSignup = () => {
-    // Validation
-    if (!email || !validator.isEmail(email)) {
-      setError("Please enter a valid email.");
-      return false;
-    }
-
-    if (password !== password2) {
-      setError("Passwords do not match.");
-      return false;
-    }
-
-    if (password) {
-      if (!validator.isStrongPassword(password)) {
-        setError(
-          "Password must be atleast 8 characters and include: lower case, upper case, number and symbol."
-        );
-        return false;
-      }
-    }
-
-    return true;
-  };
+  const user = useUser();
+  const supabase = useSupabaseClient();
 
   const signUp = async () => {
     try {
       setError("");
       setLoading(true);
-      const validate = validateSignup();
-      if (!validate) {
-        setLoading(false);
+      // Validation
+      if (!email || !validator.isEmail(email)) {
+        setError("Please enter a valid email.");
         return;
       }
 
-      const { user, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
+      if (!password) {
+        setError("Please enter a password.");
+        return;
+      }
+
+      if (password !== password2) {
+        setError("Passwords do not match.");
+        return;
+      }
+
+      if (password) {
+        if (!validator.isStrongPassword(password)) {
+          setError(
+            "Password must be atleast 8 characters and include: lower case, upper case, number and symbol."
+          );
+          return;
+        }
+      }
+
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.signUp({
+        email,
+        password,
       });
 
       if (error) {
@@ -77,7 +75,7 @@ const Signup: NextPage = () => {
 
   const googleSignUp = async () => {
     try {
-      const { user, session, error } = await supabase.auth.signIn({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
       });
       return;
@@ -192,16 +190,20 @@ const Signup: NextPage = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (user) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   return {
     props: {},

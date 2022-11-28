@@ -1,6 +1,5 @@
 import { useState } from "react";
 import axios from "axios";
-import { supabase } from "../../utils/supabaseClient";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
 import { toast } from "react-toastify";
@@ -38,6 +37,7 @@ import QueryEditor from "./editor";
 import { Table } from "../../types/Table";
 import { fetchColumns, fetchTablesAndColumns } from "./functions";
 import { useRouter } from "next/router";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   sources?: Source[];
@@ -46,6 +46,7 @@ interface Props {
 const QueryForm: React.FC<Props> = (props) => {
   const { sources } = props;
   const router = useRouter();
+  const supabase = useSupabaseClient();
   // Type
   const queryType = useRecoilValue(queryTypeState);
   const queryBuilder = useRecoilValue(queryBuilderState);
@@ -83,7 +84,7 @@ const QueryForm: React.FC<Props> = (props) => {
   // Output of query builder
   const buildQuery = useRecoilValue(buildQueryState);
 
-  const user = supabase.auth.user();
+  const user = useUser();
 
   /* Local states */
   const [queryLoading, setQueryLoading] = useState(false);
@@ -96,7 +97,7 @@ const QueryForm: React.FC<Props> = (props) => {
   const [error, setError] = useState<string | undefined>();
 
   // SOURCES
-  const changeDatabase = async (x: string) => {
+  const changeDatabase = async (x: number) => {
     setTableLoading(true);
     setColumnsLoading(true);
 
@@ -296,6 +297,7 @@ const QueryForm: React.FC<Props> = (props) => {
           query_type: queryType,
         })
         .match({ org_id: user?.user_metadata.org_id, id: queryId })
+        .select("*")
         .single();
       if (data) {
         setSavedAt(data.updated_at);
@@ -331,6 +333,7 @@ const QueryForm: React.FC<Props> = (props) => {
           query_type: queryType,
           org_id: user?.user_metadata.org_id,
         })
+        .select("*")
         .single();
       if (data) {
         setSavedAt(data.updated_at);

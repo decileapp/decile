@@ -2,12 +2,17 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "../supabaseClient";
 import { includes } from "lodash";
 import { User } from "@supabase/supabase-js";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const protectServerRoute = (handler: any) => {
   return async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       // Check user
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
+      const supabase = createServerSupabaseClient({ req, res });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       const pathname = req.url || "";
 
       // Path
@@ -32,7 +37,7 @@ const protectServerRoute = (handler: any) => {
       };
 
       // Org routes
-      if (isOrgRoute(pathname) && !user) {
+      if (isOrgRoute(pathname) && (!session || !session.user)) {
         res.status(401).json({ message: "Not authorised" });
         return;
       }
@@ -40,14 +45,17 @@ const protectServerRoute = (handler: any) => {
       // User routes
       if (
         isUserRoute(pathname) &&
-        ![1, 2].includes(user?.user_metadata.role_id)
+        (!session || ![1, 2].includes(session.user?.user_metadata.role_id))
       ) {
         res.status(401).json({ message: "Not authorised" });
         return;
       }
 
       // Admin routes
-      if (isAdminRoute(pathname) && user?.user_metadata.role_id !== 1) {
+      if (
+        isAdminRoute(pathname) &&
+        (!session || session.user?.user_metadata.role_id !== 1)
+      ) {
         res.status(401).json({ message: "Not authorised" });
         return;
       }

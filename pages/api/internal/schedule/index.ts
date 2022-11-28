@@ -82,7 +82,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(200).json({ success: true });
       return;
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
       throw new Error(`Something went wrong.`);
     }
   }

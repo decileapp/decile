@@ -5,16 +5,21 @@ import {
   checkExistingToken,
 } from "../../../../../utils/google/auth";
 import protectServerRoute from "../../../../../utils/auth/protectServerRoute";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   // CHECK CREDS
   if (req.method === "GET") {
     try {
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
-
-      if (!user || !token) {
+      // Check user
+      const supabase = createServerSupabaseClient({ req, res });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
         return res.status(401);
       }
+      const { user } = session;
 
       // Check if token exists
       const auth = await checkExistingToken(user.id);
@@ -29,7 +34,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
 
       return;
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
 
       throw new Error(`Something went wrong.`);
     }

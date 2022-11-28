@@ -1,5 +1,4 @@
 import { useRouter } from "next/router";
-import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import { GetServerSideProps } from "next";
 import FormLayout from "../../components/layouts/FormLayout";
@@ -8,6 +7,8 @@ import ScheduleForm from "../../components/schedule";
 import { useEffect, useState } from "react";
 import { Schedule } from "../../types/Schedule";
 import Button from "../../components/individual/Button";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   selectedExport: Export;
@@ -18,14 +19,15 @@ const ScheduleQuery: React.FC<Props> = (props) => {
   const router = useRouter();
   const { id } = router.query;
   const { selectedExport, schedule } = props;
-  const user = supabase.auth.user();
+  const user = useUser();
   const [eligible, setEligible] = useState(false);
+  const supabase = useSupabaseClient();
 
   const checkEligibility = async () => {
     // Check users and plans
     const { data: scheduleLimit, error: orgError } = await supabase
       .from("plan")
-      .select("id, scheduled_query_limit")
+      .select("id, scheduled_query_limit, user_limit")
       .match({ id: user?.user_metadata.plan_id })
       .single();
 
@@ -74,23 +76,25 @@ const ScheduleQuery: React.FC<Props> = (props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(ctx.req);
-  if (!user || !token) {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
-  supabase.auth.setAuth(token);
 
   const { data: selectedExport, error } = await supabase
     .from("export")
     .select(`id, spreadsheet, query_id, created_at, org_id, user_id`)
     .match({
-      org_id: user.user_metadata.org_id,
-      user_id: user.id,
+      org_id: session.user.user_metadata.org_id,
+      user_id: session.user.id,
       id: ctx.query.id,
     })
     .single();
@@ -110,8 +114,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       `id, created_at, user_id, org_id, export_id, name, run_at_time, run_at_day, run_at_month_date, periodicity, timestamp_utc, timestamp_user_zone, timezone, notify_email`
     )
     .match({
-      org_id: user.user_metadata.org_id,
-      user_id: user.id,
+      org_id: session.user.user_metadata.org_id,
+      user_id: session.user.id,
       export_id: selectedExport.id,
     })
     .single();

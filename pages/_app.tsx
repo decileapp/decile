@@ -1,5 +1,5 @@
 import "../styles/globals.css";
-import React from "react";
+import React, { useState } from "react";
 import type { AppProps } from "next/app";
 import AppLayout from "../components/layouts/AppLayout";
 import { useEffect } from "react";
@@ -10,9 +10,20 @@ import { supabase } from "../utils/supabaseClient";
 import { RecoilRoot } from "recoil";
 import "react-toastify/dist/ReactToastify.css";
 import { setAuthCookieForServer } from "../utils/auth/setAuthCookie";
+import {
+  createBrowserSupabaseClient,
+  Session,
+} from "@supabase/auth-helpers-nextjs";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({
+  Component,
+  pageProps,
+}: AppProps<{
+  initialSession: Session;
+}>) {
   const router = useRouter();
+  const [supabaseClient] = useState(() => createBrowserSupabaseClient());
 
   // Mix panel events
   useEffect(() => {
@@ -43,13 +54,18 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [router.query, router.isReady]);
 
   return (
-    <ThemeProvider attribute="class">
-      <RecoilRoot>
-        <AppLayout>
-          <Component {...pageProps} />
-        </AppLayout>
-      </RecoilRoot>
-    </ThemeProvider>
+    <SessionContextProvider
+      supabaseClient={supabaseClient}
+      initialSession={pageProps.initialSession}
+    >
+      <ThemeProvider attribute="class">
+        <RecoilRoot>
+          <AppLayout>
+            <Component {...pageProps} />
+          </AppLayout>
+        </RecoilRoot>
+      </ThemeProvider>
+    </SessionContextProvider>
   );
 }
 

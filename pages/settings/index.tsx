@@ -3,13 +3,14 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Button from "../../components/individual/Button";
 import Page from "../../components/layouts/Page";
-import Organisation from "../../components/organisation";
+import Organisation from "../../components/team";
 import Pricing from "../../components/pricing";
 import { Org_User } from "../../types/Organisation";
 import { classNames } from "../../utils/classnames";
-import { supabase } from "../../utils/supabaseClient";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const tabs = [
   { name: "Organsation", href: "#" },
@@ -24,27 +25,25 @@ const Settings: React.FC<Props> = (props) => {
   const [loading, setLoading] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   const router = useRouter();
-  const user = supabase.auth.user();
+  const user = useUser();
   const [eligible, setEligible] = useState(false);
+  const supabase = useSupabaseClient();
 
   const checkEligibility = async () => {
     setLoading(true);
 
     // Get latest plan info
     const res = await axios.get("/api/org");
-
     // Check users and plans
     const { data: orgLimit, error: orgError } = await supabase
       .from("plan")
       .select("id, user_limit")
       .match({ id: user?.user_metadata.plan_id })
       .single();
-
     const { data: orgUsers, error: orgUserError } = await supabase
       .from("org_users")
       .select("id")
       .match({ org_id: user?.user_metadata.org_id });
-
     if (!orgUsers || !orgLimit) {
       setLoading(false);
       toast.error("Something went wrong");
@@ -74,8 +73,10 @@ const Settings: React.FC<Props> = (props) => {
   };
 
   useEffect(() => {
-    checkEligibility();
-  }, []);
+    if (user) {
+      checkEligibility();
+    }
+  }, [user]);
 
   return (
     <Page title="Settings" pageLoading={loading}>
@@ -133,19 +134,22 @@ const Settings: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   // Only show if assigned to org
-  if (!user.user_metadata.org_id) {
+  if (!session.user.user_metadata.org_id) {
     return {
       redirect: {
         destination: `/`,
@@ -154,11 +158,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     };
   }
 
-  supabase.auth.setAuth(token);
   const { data: members, error } = await supabase
-    .from<Org_User[]>("org_users")
+    .from("org_users")
     .select(`id, org_id(id, name), role_id(id, name), user_id(id, email)`)
-    .match({ org_id: user.user_metadata.org_id });
+    .match({ org_id: session.user.user_metadata.org_id });
 
   return {
     props: { members: members },

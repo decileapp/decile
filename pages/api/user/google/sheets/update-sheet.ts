@@ -11,18 +11,21 @@ import { writeOnSpreadsheet } from "../../../../../utils/google/sheets";
 import queryById from "../../../../../utils/postgres/queryById";
 import formatForSheets from "../../../../../utils/postgres/formatForSheets";
 import protectServerRoute from "../../../../../utils/auth/protectServerRoute";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   // CHECK CREDS
   if (req.method === "POST") {
     try {
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
-
-      if (!user || !token) {
+      // Check user
+      const supabase = createServerSupabaseClient({ req, res });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
         return res.status(401);
       }
-
-      supabase.auth.setAuth(token);
+      const { user } = session;
 
       const { spreadsheet, queryId, range } = req.body;
 
@@ -65,7 +68,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         }
       }
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
 
       throw new Error(`Something went wrong.`);
     }

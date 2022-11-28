@@ -1,18 +1,18 @@
-import { supabase } from "../utils/supabaseClient";
 import { GetServerSideProps } from "next";
 import Page from "../components/layouts/Page";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import Button from "../components/individual/Button";
 import GoogleImage from "../public/google.svg";
 import Image from "next/image";
-import { classNames } from "../utils/classnames";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const Google: React.FC = () => {
   const [setup, setSetup] = useState(false);
+  const supabase = useSupabaseClient();
   const [loading, setLoading] = useState(false);
-  const user = supabase.auth.user();
+  const user = useUser();
   const authoriseGoogle = async () => {
     try {
       const res = await axios.get("/api/user/google");
@@ -98,16 +98,21 @@ const Google: React.FC = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  // Create authenticated Supabase Client
+  const supabase = createServerSupabaseClient(ctx);
+  // Check if we have a session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/auth/signin`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   return {
     props: {},

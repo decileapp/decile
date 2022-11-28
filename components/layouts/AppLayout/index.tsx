@@ -1,34 +1,37 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import Head from "next/head";
 import Script from "next/script";
-import { supabase } from "../../../utils/supabaseClient";
 import Loading from "../../individual/Loading";
 import Topbar from "./Topbar";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { User } from "@supabase/supabase-js";
+import {
+  useSession,
+  useUser,
+  useSupabaseClient,
+} from "@supabase/auth-helpers-react";
 
 const AppLayout: React.FC = ({ children }) => {
-  const user = supabase.auth.user();
+  const user = useUser();
+  const session = useSession();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const session = supabase.auth.session();
-
+  const supabase = useSupabaseClient();
   // Check org
   const checkOrg = async (user: User) => {
     // Update metadata if there is no org id or if update was > 24 hours ago
-    if (
-      !user.user_metadata.org_id ||
-      (user.updated_at &&
-        new Date(Date.now()).getTime() - new Date(user.updated_at).getTime() >
-          24 * 60 * 60 * 1000)
-    ) {
+    if (!user.user_metadata.org_id) {
       const res = await axios.get("/api/org");
       if (res.data.success) {
+        const { data, error } = await supabase.auth.refreshSession({
+          refresh_token: session?.refresh_token || "",
+        });
+        window.location.reload();
         return;
       } else {
         // If no org data, create org
-        router.push("onboard/organisation/new");
+        router.push("/onboard/team/new");
       }
     }
     return;

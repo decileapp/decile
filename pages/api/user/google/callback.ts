@@ -3,15 +3,20 @@ import { encrypt } from "../../../../utils/encryption";
 import { getServiceSupabase, supabase } from "../../../../utils/supabaseClient";
 import { getNewToken } from "../../../../utils/google/auth";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     try {
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
-
-      if (!user) {
-        throw new Error("User not found.");
+      // Check user
+      const supabase = createServerSupabaseClient({ req, res });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        return res.status(401);
       }
+      const { user } = session;
 
       const { code } = req.query;
 
@@ -47,7 +52,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       res.redirect("/google");
       return;
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
 
       throw new Error(`Something went wrong.`);
     }

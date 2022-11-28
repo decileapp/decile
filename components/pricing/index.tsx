@@ -1,10 +1,10 @@
 import { classNames } from "../../utils/classnames";
 import axios from "axios";
-import { supabase } from "../../utils/supabaseClient";
 import { toast } from "react-toastify";
+import { useUser } from "@supabase/auth-helpers-react";
 
 const Pricing: React.FC = () => {
-  const user = supabase.auth.user();
+  const user = useUser();
   const pricing = [
     {
       title: "Starter",
@@ -48,7 +48,7 @@ const Pricing: React.FC = () => {
       }
       return;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       toast.error("Something went wrong.");
       return;
     }

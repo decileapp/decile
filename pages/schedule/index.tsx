@@ -1,14 +1,13 @@
 import { useRouter } from "next/router";
-import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
-import TableShell from "../../components/individual/table/shell";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
-import TableHeader from "../../components/individual/table/header";
 import { Schedule } from "../../types/Schedule";
 import { formatSchedule } from "../../utils/schedule";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   schedule: Schedule[];
@@ -19,16 +18,18 @@ const Schedule: React.FC<Props> = (props) => {
   const { schedule } = props;
   const [deletedId, setDeletedId] = useState<number>();
   const [loading, setLoading] = useState(false);
-  const user = supabase.auth.user();
+  const user = useUser();
+  const supabase = useSupabaseClient();
 
   // Delete link
   async function deleteJob(id: number) {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from<Schedule>("schedule")
+      .from("schedule")
       .delete()
-      .match({ user_id: user?.id || "", id: id });
+      .match({ user_id: user?.id || "", id: id })
+      .select("id");
     if (data) {
       setDeletedId(undefined);
     }
@@ -131,25 +132,26 @@ const Schedule: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
-
-  supabase.auth.setAuth(token);
 
   const { data: schedule, error } = await supabase
-    .from<Schedule>("schedule")
+    .from("schedule")
     .select(
       "id, name, user_id(id, email), org_id, periodicity, run_at_time, run_at_day, run_at_month_date, export_id(id, query_id(id, name), spreadsheet), timestamp_utc, timestamp_user_zone, timezone"
     )
-    .match({ user_id: user.id });
+    .match({ user_id: session.user.id });
   return {
     props: {
       schedule: schedule,

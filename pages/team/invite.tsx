@@ -1,21 +1,23 @@
 import { useRouter } from "next/router";
-import { supabase } from "../../utils/supabaseClient";
 import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { toast } from "react-toastify";
 import axios from "axios";
-import TextInput from "../individual/TextInput";
-import Select from "../individual/Select";
-import Button from "../individual/Button";
-import FormLayout from "../layouts/FormLayout";
+import TextInput from "../../components/individual/TextInput";
+import Select from "../../components/individual/Select";
+import Button from "../../components/individual/Button";
+import FormLayout from "../../components/layouts/FormLayout";
 import { Org_User } from "../../types/Organisation";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 interface Props {
   people: Org_User[];
 }
 
 const InviteOrganisation: React.FC<Props> = (props) => {
-  const user = supabase.auth.user();
+  const supabase = useSupabaseClient();
+  const user = useUser();
   const [email, setEmail] = useState<string | undefined>();
   const [role, setRole] = useState<string | undefined>();
 
@@ -92,19 +94,22 @@ const InviteOrganisation: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   // Admins only
-  if (user.user_metadata.role_id !== 1) {
+  if (session.user.user_metadata.role_id !== 1) {
     return {
       redirect: {
         destination: `/`,

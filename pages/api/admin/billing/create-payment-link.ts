@@ -1,3 +1,4 @@
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
@@ -10,13 +11,15 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         apiVersion: "2022-08-01",
       });
 
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
-      if (!user || !token) {
-        res.status(401).json({ error: "Not authorised" });
-        return;
+      // Check user
+      const supabase = createServerSupabaseClient({ req, res });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        return res.status(401);
       }
-
-      supabase.auth.setAuth(token);
+      const { user } = session;
 
       const { plan_type } = req.body;
 
@@ -48,7 +51,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         return;
       }
 
-      const session = await stripe.checkout.sessions.create({
+      const stripeSession = await stripe.checkout.sessions.create({
         mode: "subscription",
         line_items: [
           {
@@ -60,10 +63,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         cancel_url: `${process.env.NEXT_PUBLIC_ORIGIN}`,
         customer: data.stripe_customer_id,
       });
-      if (!session.url) {
+      if (!stripeSession.url) {
         throw new Error("Something went wrong");
       }
-      return res.status(200).json({ link: session.url });
+      return res.status(200).json({ link: stripeSession.url });
     } catch (e) {
       return res.status(400).send(`Webhook signature failed`);
     }

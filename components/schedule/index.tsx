@@ -1,5 +1,4 @@
 import { useRouter } from "next/router";
-import { supabase } from "../../utils/supabaseClient";
 import { useEffect, useState } from "react";
 import Button from "../../components/individual/Button";
 import { toast } from "react-toastify";
@@ -14,6 +13,7 @@ import InputLabel from "../../components/individual/common/InputLabel";
 import { DateTime } from "luxon";
 import Switch from "../individual/Switch";
 import { CheckIcon, LinkIcon, XIcon } from "@heroicons/react/outline";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   selectedExport?: Export;
@@ -23,7 +23,8 @@ interface Props {
 const ScheduleForm: React.FC<Props> = (props) => {
   const router = useRouter();
   const { selectedExport, schedule } = props;
-  const user = supabase.auth.user();
+  const user = useUser();
+  const supabase = useSupabaseClient();
 
   const [loading, setLoading] = useState(false);
 

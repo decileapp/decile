@@ -1,3 +1,4 @@
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import protectServerRoute from "../../../utils/auth/protectServerRoute";
@@ -8,12 +9,15 @@ import { supabase } from "../../../utils/supabaseClient";
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     try {
-      const { user, token } = await supabase.auth.api.getUserByCookie(req);
-      if (!user || !token) {
-        res.status(401).json({ error: "Not authorised" });
-        return;
+      // Check user
+      const supabase = createServerSupabaseClient({ req, res });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        return res.status(401);
       }
-      supabase.auth.setAuth(token);
+      const { user } = session;
 
       const { orgName } = req.body;
       if (!orgName) {
@@ -25,45 +29,34 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         apiVersion: "2022-08-01",
       });
 
-      // Check there is no org already
-      // const { data: checkOrg } = await supabase
-      //   .from("organisations")
-      //   .select("id")
-      //   .match({ user_id: user?.id })
-      //   .single();
-      // if (checkOrg) {
-      //   res
-      //     .status(400)
-      //     .json({ error: "An organisation already exists for this user." });
-      //   return;
-      // }
-
       // Create org
-      const { data, error: orgError } = await supabase
+      const { data: orgData, error: orgError } = await supabase
         .from("organisations")
         .insert({
           name: orgName,
           user_id: user?.id,
           plan_id: 1, // free
         })
+        .select("*")
         .single();
 
       // Create role
-      if (data) {
+      if (orgData) {
         const { data: roleData, error: roleError } = await supabase
           .from("org_users")
           .insert({
-            org_id: data.id,
+            org_id: orgData.id,
             user_id: user?.id,
             role_id: 1, // admin
           })
+          .select("*")
           .single();
 
         // Create stripe customer
         const customer = await stripe.customers.create({
           email: user.email,
-          name: data.name,
-          metadata: { orgId: data.id },
+          name: orgData.name,
+          metadata: { orgId: orgData.id },
         });
 
         // Close dialog
@@ -74,7 +67,8 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
             .update({
               stripe_customer_id: customer.id,
             })
-            .match({ id: data.id });
+            .match({ id: orgData.id })
+            .select("id");
 
           const updatedOrgSession = await updateOrgForSession(user);
 
@@ -89,11 +83,12 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           const { data: deleted, error } = await supabase
             .from("organisations")
             .delete()
-            .match({ id: data.id });
+            .match({ id: orgData.id });
+          res.status(500).json({ error: "Something went wrong!" });
         }
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
       throw new Error(`Failed to create stripe customer.`);
     }
   } else {

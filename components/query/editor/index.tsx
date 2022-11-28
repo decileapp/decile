@@ -1,3 +1,4 @@
+import { ChevronLeftIcon } from "@heroicons/react/outline";
 import _ from "lodash";
 import { useState } from "react";
 import { useRecoilState } from "recoil";
@@ -5,6 +6,7 @@ import { Source } from "../../../types/Sources";
 import { Table } from "../../../types/Table";
 import { classNames } from "../../../utils/classnames";
 import { selectedSourceState } from "../../../utils/contexts/query/state";
+import InputLabel from "../../individual/common/InputLabel";
 import DatabaseSelector from "../common/DatabaseSelector";
 import Columnns from "./columns";
 import Editor from "./editor";
@@ -16,7 +18,7 @@ interface Props {
   queryLoading?: boolean;
   changeTable: (x: Table) => void;
   sources: Source[];
-  changeDatabase: (x: string) => void;
+  changeDatabase: (x: number) => void;
 }
 
 const QueryEditor: React.FC<Props> = (props) => {
@@ -41,13 +43,11 @@ const QueryEditor: React.FC<Props> = (props) => {
               <DatabaseSelector
                 sources={sources}
                 changeDatabase={changeDatabase}
+                setShowSchema={setShowSchema}
               />
             </div>
             <div className="flex flex-col w-full p-4 ">
-              <Tables
-                changeTable={changeTable}
-                setShowSchema={() => setShowSchema(false)}
-              />
+              <Tables changeTable={changeTable} />
             </div>
 
             <div className="flex flex-col flex-1 w-full p-4 ">

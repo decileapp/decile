@@ -1,25 +1,27 @@
 import SourceForm from "../../components/sources";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
 import { Source } from "../../types/Sources";
 import Loading from "../../components/individual/Loading";
 import { GetServerSideProps } from "next";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 const EditSource: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const [loading, setLoading] = useState(false);
   const [source, setSource] = useState<Source>();
-  const user = supabase.auth.user();
+  const user = useUser();
+  const supabase = useSupabaseClient();
 
   // Get links
   async function getSource() {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from<Source>("sources")
-      .select(`id, created_at, name, database, host, dbUser, port, ssl`)
+      .from("sources")
+      .select(`*`)
       .eq("id", id as string)
       .single();
     if (data) {
@@ -54,19 +56,22 @@ const EditSource: React.FC = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   // Admins only
-  if (user.user_metadata.role_id !== 1) {
+  if (session.user.user_metadata.role_id !== 1) {
     return {
       redirect: {
         destination: `/`,

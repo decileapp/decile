@@ -1,6 +1,5 @@
 import { Serie } from "@nivo/line";
 import { ReactElement, useState } from "react";
-import { supabase } from "../../../utils/supabaseClient";
 import Button from "../../individual/Button";
 import MiniSelect from "../../individual/MiniSelect";
 import Bar from "../bar";
@@ -12,9 +11,9 @@ import { toast } from "react-toastify";
 import Loading from "../../individual/Loading";
 import _ from "lodash";
 import Switch from "../../individual/Switch";
-import InputLabel from "../../individual/common/InputLabel";
 import TextInput from "../../individual/TextInput";
 import ChartView from "./ChartView";
+import { useUser, useSupabaseClient } from "@supabase/auth-helpers-react";
 
 interface Props {
   fields: string[];
@@ -26,6 +25,7 @@ interface Props {
 const ChartContainer: React.FC<Props> = (props) => {
   const { data, fields, chart, queryId } = props;
   const [loading, setLoading] = useState(false);
+  const supabase = useSupabaseClient();
 
   // Dialog
   const [open, setOpen] = useState(false);
@@ -72,7 +72,7 @@ const ChartContainer: React.FC<Props> = (props) => {
     chart ? chart?.chart_meta_data.valueLabels : true
   );
 
-  const user = supabase.auth.user();
+  const user = useUser();
 
   // xAxis
   const xOptions =
@@ -224,12 +224,12 @@ const ChartContainer: React.FC<Props> = (props) => {
           query_id: queryId,
           public_chart: publicChart,
         })
-        .match({ id: props.chart?.id });
+        .match({ id: props.chart?.id })
+        .select("id");
       if (data) {
         toast.success("Chart updated!");
       }
       if (error) {
-        console.log(error);
         toast.error("Something went wrong!");
       }
       setOpen(false);
@@ -260,20 +260,22 @@ const ChartContainer: React.FC<Props> = (props) => {
         toast.error("No chart type.");
       }
 
-      const { data, error } = await supabase.from("chart").insert({
-        title: title,
-        user_id: user?.id,
-        org_id: user?.user_metadata.org_id,
-        chart_meta_data: chart_meta_data,
-        chart_type: chartType,
-        query_id: queryId,
-        public_chart: publicChart,
-      });
+      const { data, error } = await supabase
+        .from("chart")
+        .insert({
+          title: title,
+          user_id: user?.id,
+          org_id: user?.user_metadata.org_id,
+          chart_meta_data: chart_meta_data,
+          chart_type: chartType,
+          query_id: queryId,
+          public_chart: publicChart,
+        })
+        .select("id");
       if (data) {
         toast.success("Chart saved!");
       }
       if (error) {
-        console.log(error);
         toast.error("Something went wrong!");
       }
       setOpen(false);

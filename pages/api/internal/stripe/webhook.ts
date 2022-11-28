@@ -98,8 +98,8 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
             default:
               throw new Error("Unhandled relevant event!");
           }
-        } catch (error) {
-          console.log(error);
+        } catch (e) {
+          console.error(e);
           return res
             .status(400)
             .send('Webhook error: "Webhook handler failed. View logs."');

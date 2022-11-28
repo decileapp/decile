@@ -54,7 +54,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
 
       return res.status(200).json({ schema: schema });
     } catch (e) {
-      console.log(e);
+      console.error(e);
       throw new Error(`Something went wrong.`);
     }
   } else {

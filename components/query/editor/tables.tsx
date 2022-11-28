@@ -13,7 +13,6 @@ import { ChevronLeftIcon } from "@heroicons/react/outline";
 
 interface Props {
   changeTable: (x: Table) => void;
-  setShowSchema: () => void;
 }
 
 const Tables: React.FC<Props> = (props) => {
@@ -23,13 +22,8 @@ const Tables: React.FC<Props> = (props) => {
 
   return (
     <>
-      <div className="flex-row flex justify-between items-center">
-        <InputLabel title="Tables" />
-        <ChevronLeftIcon
-          className="h-5 w-5 hover:text-primary-500"
-          onClick={() => props.setShowSchema()}
-        />
-      </div>
+      <InputLabel title="Tables" />
+
       <div className="mt-2">
         {!tableLoading && tables && tables.length > 0 && (
           <div className="grid grid-cols-1 gap-2">

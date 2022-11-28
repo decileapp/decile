@@ -13,6 +13,6 @@ export const event = (event_name: string, props: any) => {
       (window as any).mixpanel.track(event_name, props);
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 };

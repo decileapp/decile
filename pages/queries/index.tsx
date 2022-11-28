@@ -1,21 +1,20 @@
 import { useRouter } from "next/router";
-import { supabase } from "../../utils/supabaseClient";
 import Page from "../../components/layouts/Page";
 import { useState } from "react";
 import ConfirmDialog from "../../components/individual/ConfirmDialog";
 import { TrashIcon } from "@heroicons/react/outline";
-import { Query } from "../../types/Query";
+import { BasicQuery } from "../../types/Query";
 import { GetServerSideProps } from "next";
 import dateFormatter from "../../utils/dateFormatter";
 import { toast } from "react-toastify";
-import { Export } from "../../types/Export";
-import { Schedule } from "../../types/Schedule";
 import PageHeading from "../../components/layouts/Page/PageHeading";
 import Button from "../../components/individual/Button";
 import TextInput from "../../components/individual/TextInput";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 interface Props {
-  queries: Query[];
+  queries: BasicQuery[];
 }
 
 const Queries: React.FC<Props> = (props) => {
@@ -24,7 +23,8 @@ const Queries: React.FC<Props> = (props) => {
   const [deletedId, setDeletedId] = useState<number>();
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState<string>();
-  const user = supabase.auth.user();
+  const user = useUser();
+  const supabase = useSupabaseClient();
 
   // New queri
   async function createQuery() {
@@ -46,30 +46,33 @@ const Queries: React.FC<Props> = (props) => {
     // Check if there are exports
     // First delete any exports
     const { data: exportIds, error: exportError } = await supabase
-      .from<Export>("export")
+      .from("export")
       .select("id")
       .match({ user_id: user?.id || "", query_id: id });
 
     if (exportIds && exportIds.length > 0) {
       // First delete any exports
       const { data: schedules, error: scheduleError } = await supabase
-        .from<Schedule>("schedule")
+        .from("schedule")
         .delete()
         .in(
           "export_id",
           exportIds.map((e) => e.id)
-        );
+        )
+        .select("id");
 
       const { data: exports, error: exportError } = await supabase
-        .from<Export>("export")
+        .from("export")
         .delete()
-        .match({ user_id: user?.id || "", query_id: id });
+        .match({ user_id: user?.id || "", query_id: id })
+        .select("id");
     }
 
     const { data, error } = await supabase
-      .from<Query>("queries")
+      .from("queries")
       .delete()
-      .match({ user_id: user?.id || "", id: id });
+      .match({ user_id: user?.id || "", id: id })
+      .select("id");
 
     if (data) {
       setDeletedId(undefined);
@@ -79,7 +82,7 @@ const Queries: React.FC<Props> = (props) => {
     return;
   }
 
-  const toQuery = (row: Query) => {
+  const toQuery = (row: BasicQuery) => {
     router.push({
       pathname: `/queries/view/${row.id}`,
     });
@@ -97,7 +100,7 @@ const Queries: React.FC<Props> = (props) => {
     return name.match(regex);
   };
 
-  let filteredQueries: Query[] | undefined = queries;
+  let filteredQueries: BasicQuery[] | undefined = queries;
   if (searchText && queries && queries.length > 0) {
     filteredQueries = queries.filter((q) => searchFunc(q.name, searchText));
   }
@@ -165,14 +168,14 @@ const Queries: React.FC<Props> = (props) => {
                   </p>
 
                   <div className="col-span-1 justify-end flex">
-                    {row.user_id.id === user?.id && (
+                    {row.user_id === user?.id && (
                       <a href="#" onClick={() => setDeletedId(row.id)}>
                         <TrashIcon className="h-5 w-5 text-zinc-600 hover:text-red-600 dark:hover:text-red-400  " />
                       </a>
                     )}
                   </div>
                   <p className="col-span-2 text-sm text-right">
-                    {row.user_id.email}
+                    {row.user.email}
                   </p>
                 </div>
               );
@@ -186,7 +189,7 @@ const Queries: React.FC<Props> = (props) => {
             <a
               href="#"
               onClick={() => createQuery()}
-              className="hover:text-primary-500"
+              className="text-primary-500"
             >
               Create
             </a>{" "}
@@ -211,25 +214,26 @@ const Queries: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/auth/signin`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
-
-  supabase.auth.setAuth(token);
 
   const { data: queries, error } = await supabase
-    .from<Query>("queries")
+    .from("queries")
     .select(
-      "id, name, database, body, publicQuery, updated_at, user_id(id, email), org_id"
+      "id, name, database, body, publicQuery, updated_at, user_id, user:user_id(id, email), org_id"
     )
-    .match({ org_id: user.user_metadata.org_id });
+    .match({ org_id: session.user.user_metadata.org_id });
 
   if (!queries || queries.length === 0) {
     return {
@@ -241,17 +245,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   // Get only subset
   const subQueries = queries.filter(
-    (q) => q.publicQuery || q.user_id === user.user_metadata.org_id
+    (q) => q.publicQuery || q.org_id === session.user.user_metadata.org_id
   );
 
   return {
     props: {
-      queries:
-        queries && queries.length > 0
-          ? queries.filter(
-              (q) => q.publicQuery === true || q.user_id.id === user.id
-            )
-          : [],
+      queries: subQueries,
     },
   };
 };

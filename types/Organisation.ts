@@ -1,9 +1,6 @@
-export interface Organisation {
-  id: number;
-  name: string;
-  user_id: string;
-  plan_id: number;
-}
+import { Database } from "./database.types";
+
+export type Organisation = Database["public"]["Tables"]["organisations"]["Row"];
 
 export interface Org_User {
   id: string;

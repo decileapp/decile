@@ -1,12 +1,13 @@
 import { useState } from "react";
 import TextInput from "../../../components/individual/TextInput";
-import { supabase } from "../../../utils/supabaseClient";
 import { toast } from "react-toastify";
 import MiniLoading from "../../../components/individual/MiniLoading";
 import FormLayout from "../../../components/layouts/FormLayout";
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
 import axios from "axios";
+import { useUser } from "@supabase/auth-helpers-react";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 interface Props {
   open: boolean;
@@ -15,7 +16,7 @@ interface Props {
 const OrganisationPopup: React.FC<Props> = (props) => {
   const [loading, setLoading] = useState(false);
   const [orgName, setOrgName] = useState<string>();
-  const user = supabase.auth.user();
+  const user = useUser();
   const router = useRouter();
 
   const updateOrg = async () => {
@@ -32,7 +33,7 @@ const OrganisationPopup: React.FC<Props> = (props) => {
       setLoading(false);
       return;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setLoading(false);
       toast.error("Something went wrong.");
     }
@@ -69,20 +70,23 @@ const OrganisationPopup: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(req);
-  if (!user || !token) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
 
   // Admins only
-  if (user.user_metadata.role_id) {
-    if (user.user_metadata.role_id !== 1) {
+  if (session.user.user_metadata.role_id) {
+    if (session.user.user_metadata.role_id !== 1) {
       return {
         redirect: {
           destination: `/`,
@@ -91,8 +95,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
       };
     }
   }
-
-  supabase.auth.setAuth(token);
 
   const { data: role, error } = await supabase
     .from("org_users")

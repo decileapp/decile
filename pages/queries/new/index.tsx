@@ -1,33 +1,10 @@
 import QueryForm from "../../../components/query/form";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "../../../utils/supabaseClient";
-import { Query } from "../../../types/Query";
 import Loading from "../../../components/individual/Loading";
 import { Source } from "../../../types/Sources";
 import { GetServerSideProps } from "next";
-import { fetchTablesAndColumns } from "../../../components/query/functions";
-import {
-  bodyState,
-  columnsState,
-  nameState,
-  publicQueryState,
-  queryBuilderState,
-  queryFilterState,
-  queryGroupByState,
-  queryIdState,
-  queryLimitState,
-  querySortByState,
-  queryTypeState,
-  queryUpdatedAtState,
-  queryVarsState,
-  selectedSourceState,
-  selectedTableState,
-  sourceSchemaState,
-  tablesState,
-} from "../../../utils/contexts/query/state";
-import { useSetRecoilState } from "recoil";
-import { toast } from "react-toastify";
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 interface Props {
   sources: Source[];
@@ -41,20 +18,21 @@ const NewQuery: React.FC<Props> = (props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { user, token } = await supabase.auth.api.getUserByCookie(ctx.req);
-  if (!user || !token) {
+  const supabase = createServerSupabaseClient(ctx);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session)
     return {
       redirect: {
-        destination: `/`,
+        destination: "/",
         permanent: false,
       },
     };
-  }
-
-  supabase.auth.setAuth(token);
 
   const { data: sources, error } = await supabase
-    .from<Source>("sources")
+    .from("sources")
     .select(
       "id, name, host, database, port, dbUser, password, ssl, created_at, user_id"
     );
