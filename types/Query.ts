@@ -25,10 +25,8 @@ export type BasicQuery = Pick<
   updated_at: Date;
 };
 
-async function getBasicQueries() {
-  return await supabase
-    .from("movies")
-    .select(
-      "id, name, database, body, publicQuery, updated_at, user_id(id, email), org_id"
-    );
-}
+export type QueryWithDatabase = Pick<
+  Database["public"]["Tables"]["queries"]["Row"],
+  "id" | "name" | "database" | "body" | "publicQuery" | "org_id" | "user_id"
+> &
+  Database["public"]["Tables"]["sources"]["Row"];

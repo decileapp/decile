@@ -43,6 +43,7 @@ const ScheduleQuery: React.FC<Props> = (props) => {
       setEligible(true);
       return;
     }
+    return;
   };
 
   useEffect(() => {

@@ -7,6 +7,7 @@ import { getServiceSupabase } from "../../../../utils/supabaseClient";
 import { DateTime } from "luxon";
 import protectServerRoute from "../../../../utils/auth/protectServerRoute";
 import emailHelper from "../../../../utils/emailHelper";
+import { Database } from "../../../../types/database.types";
 
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
@@ -20,13 +21,12 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       let query = serviceSupabase
         .from("schedule")
         .select(
-          "periodicity, run_at_time, run_at_day, run_at_month_date, export_id(id, query_id, spreadsheet), user_id(id, email), org_id, notify_email"
+          "*,  export:export_id(id, query_id, spreadsheet), user:user_id(id, email)"
         )
         .or(`run_at_time.eq.-1, run_at_time.eq.${currentHour}`)
         .or(
           `periodicity.eq.hour, periodicity.eq.day, and(periodicity.eq.week,run_at_day.eq.${currentDay}), and(periodicity.eq.month,run_at_month_date.eq.${currentDate})`
         );
-
       const { data, error } = await query;
 
       if (!data) {
@@ -42,13 +42,13 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       // Run all queries
       const runQueries = data.map(async (singleQuery) => {
         const data = await queryById({
-          queryId: singleQuery.export_id.query_id,
-          userId: singleQuery.user_id.id,
+          queryId: singleQuery.export.query_id,
+          userId: singleQuery.user.id,
           orgId: singleQuery.org_id,
         });
         // Export to GSheets
         // Check if token exists
-        const auth = await checkExistingToken(singleQuery.user_id.id);
+        const auth = await checkExistingToken(singleQuery.user.id);
 
         // If no auth redir
         if (!auth) {
@@ -59,14 +59,14 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
             auth: auth,
             range: "From_Decile",
             data: rowData,
-            spreadsheet: singleQuery.export_id.spreadsheet,
+            spreadsheet: singleQuery.export.spreadsheet,
           });
 
           // Send email notification
           if (updatedSheet && singleQuery.notify_email) {
             const send = await emailHelper({
               from: process.env.FROM_EMAIL || "",
-              to: singleQuery.user_id.email,
+              to: singleQuery.user.email,
               templateId: process.env.COURIER_NOTIFICATION_EMAIL || "",
               vars: {
                 link: `https://docs.google.com/spreadsheets/d/${updatedSheet}/edit#gid=0`,

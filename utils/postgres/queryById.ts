@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import { QueryWithDatabase } from "../../types/Query";
 import { decrypt } from "../encryption";
 import { getServiceSupabase, supabase } from "../supabaseClient";
 
@@ -16,11 +17,13 @@ const queryById = async ({
     const serviceSupabase = getServiceSupabase();
     const { data, error } = await serviceSupabase
       .from("queries")
-      .select(
-        "id, database(dbUser, host, database, password, port, ssl), body, user_id, org_id"
-      )
+      .select("database(*), *")
       .match({ id: parseInt(queryId, 10) })
       .single();
+
+    if (!data) {
+      throw Error("Query not found");
+    }
 
     if (
       data.user_id === userId ||
