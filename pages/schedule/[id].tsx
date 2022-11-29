@@ -38,7 +38,6 @@ const ScheduleQuery: React.FC<Props> = (props) => {
 
     if (!schedule || !scheduleLimit) {
       throw new Error("Something went wrong");
-      return;
     }
     if (scheduleLimit.user_limit > schedule?.length) {
       setEligible(true);

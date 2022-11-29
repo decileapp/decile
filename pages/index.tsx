@@ -1,26 +1,32 @@
 import { useRouter } from "next/router";
 import { useEffect, Fragment, useState } from "react";
 import Loading from "../components/individual/Loading";
-import { supabase } from "../utils/supabaseClient";
 import queryString from "querystring";
 import { GetServerSideProps } from "next";
 import { BasicQuery } from "../types/Query";
 import { Source } from "../types/Sources";
 import { Schedule } from "../types/Schedule";
 import Page from "../components/layouts/Page";
-import { useUser } from "@supabase/auth-helpers-react";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import sources from "./api/admin/sources";
+import {
+  CheckCircleIcon,
+  QuestionMarkCircleIcon,
+} from "@heroicons/react/outline";
 
 interface Props {
-  queries: BasicQuery[];
-  sources: Source[];
-  schedule: Schedule[];
+  queries: number;
+  sources: number;
+  schedule: number;
+  graphs: number;
 }
 
 const Home: React.FC<Props> = (props) => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const user = useUser();
+  const supabase = useSupabaseClient();
 
   useEffect(() => {
     if (!user) {
@@ -44,12 +50,95 @@ const Home: React.FC<Props> = (props) => {
     return;
   }, [user?.id]);
 
+  const onboardingBox = ({
+    title,
+    description,
+    status,
+    link,
+  }: {
+    title: string;
+    description: string;
+    status: boolean;
+    link: string;
+  }) => {
+    return (
+      <a
+        className="flex flex-col h-full p-4 border rounded-lg bg-white dark:bg-zinc-700 space-y-4 shadow hover:shadow-xl transition duration-100 ease-in-out"
+        href={link}
+      >
+        <div className="flex flex-row justify-between items-start">
+          <p className="font-bold">{title}</p>
+          {status ? (
+            <CheckCircleIcon className="h-5 w-5 text-green-500" />
+          ) : (
+            <QuestionMarkCircleIcon className="h-5 w-5 text-secondary-500" />
+          )}
+        </div>
+
+        <p className="text-sm">{description}</p>
+      </a>
+    );
+  };
+
+  const metadata = [
+    {
+      title: "Sources",
+      description:
+        "Connect your Postgres databases here to start querying them.",
+      status: props.sources > 0,
+      link: "/sources",
+    },
+    {
+      title: "Queries",
+      description:
+        "All your saved queries appear here. Write queries using SQL, AI or our query builder.",
+      status: props.queries > 0,
+      link: "/queries",
+    },
+    {
+      title: "Graphs",
+      description: "Any visualisation of your queries are saved here.",
+      status: props.schedule > 0,
+      link: "/graphs",
+    },
+    {
+      title: "Schedule",
+      description: "Any scheduled queries are displayed on this tab.",
+      status: props.schedule > 0,
+      link: "/schedule",
+    },
+  ];
+
   return (
     <Page title="Welcome" description="Get started using the steps below.">
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col justify-center items-center h-full w-full "></div>
+        <div className="flex flex-col h-full w-full space-y-8">
+          <div className="grid grid-cols-2 gap-8">
+            {metadata.map((m, id) => {
+              return (
+                <div className="col-span-1 flex flex-col h-32" key={id}>
+                  {onboardingBox({ ...m })}
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-sm">
+            If you need help, please review{" "}
+            <a
+              className="text-primary-500"
+              href={process.env.NEXT_PUBLIC_ONBOARDING_GUIDE}
+            >
+              this
+            </a>{" "}
+            guide or{" "}
+            <a className="text-primary-500" href={`mailto:support@decile.app`}>
+              email us
+            </a>
+            .
+          </p>
+        </div>
       )}
     </Page>
   );
@@ -74,29 +163,29 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   const { data: sources, error: sourceError } = await supabase
     .from("sources")
-    .select("id, name, user_id");
+    .select("id");
 
   const { data: queries, error: queryError } = await supabase
     .from("queries")
-    .select("id, name, user_id")
-    .match({ org_id: session.user.user_metadata.org_id })
-    .or(`user_id.eq.${session.user.id},publicQuery.is.true`);
+    .select("id")
+    .match({ org_id: session.user.user_metadata.org_id });
 
-  // Not handling auth on server side because auth token needs to be set
-  if (sources && sources?.length > 0) {
-    return {
-      redirect: {
-        destination: `/queries`,
-        permanent: false,
-      },
-    };
-  }
+  const { data: schedule, error: scheduleError } = await supabase
+    .from("schedule")
+    .select("id")
+    .match({ org_id: session.user.user_metadata.org_id });
 
-  // Not handling auth on server side because auth token needs to be set
+  const { data: charts, error: chartError } = await supabase
+    .from("chart")
+    .select("id")
+    .match({ org_id: session.user.user_metadata.org_id });
+
   return {
-    redirect: {
-      destination: `/sources`,
-      permanent: false,
+    props: {
+      queries: queries?.length,
+      sources: sources?.length,
+      charts: charts?.length,
+      schedule: schedule?.length,
     },
   };
 };

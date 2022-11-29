@@ -38,6 +38,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
 
       let stripePriceId;
       // Get price id for stripe
+      if (plan_type === "starter") {
+        stripePriceId = process.env.STARTER_PLAN;
+      }
+
       if (plan_type === "team") {
         stripePriceId = process.env.TEAM_PLAN;
       }
@@ -50,7 +54,6 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         res.status(400).json({ error: "Price ID not found." });
         return;
       }
-
       const stripeSession = await stripe.checkout.sessions.create({
         mode: "subscription",
         line_items: [

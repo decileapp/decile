@@ -9,7 +9,11 @@ import { Org_User } from "../../types/Organisation";
 import { classNames } from "../../utils/classnames";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import {
+  useSession,
+  useSupabaseClient,
+  useUser,
+} from "@supabase/auth-helpers-react";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const tabs = [
@@ -26,8 +30,16 @@ const Settings: React.FC<Props> = (props) => {
   const [currentTab, setCurrentTab] = useState(0);
   const router = useRouter();
   const user = useUser();
+  const session = useSession();
   const [eligible, setEligible] = useState(false);
   const supabase = useSupabaseClient();
+
+  const refreshSession = async () => {
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: session?.refresh_token || "",
+    });
+    return;
+  };
 
   const checkEligibility = async () => {
     setLoading(true);
@@ -78,6 +90,13 @@ const Settings: React.FC<Props> = (props) => {
     }
   }, [user]);
 
+  // Only on first load
+  useEffect(() => {
+    if (user) {
+      refreshSession();
+    }
+  }, []);
+
   return (
     <Page title="Settings" pageLoading={loading}>
       <div className="px-4 sm:px-6 md:px-0 h-full w-full">
@@ -126,7 +145,9 @@ const Settings: React.FC<Props> = (props) => {
                 type="primary"
               />
             )}
-            {user?.user_metadata.plan_id === 1 && <Pricing />}
+            {user?.user_metadata.plan_id === 1 && (
+              <Pricing showTrialExpiry={true} />
+            )}
           </div>
         )}
       </div>

@@ -2,37 +2,66 @@ import { classNames } from "../../utils/classnames";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useUser } from "@supabase/auth-helpers-react";
+import dateFormatter from "../../utils/dateFormatter";
 
-const Pricing: React.FC = () => {
+interface Props {
+  showTrialExpiry?: boolean;
+}
+
+const Pricing: React.FC<Props> = (props) => {
   const user = useUser();
   const pricing = [
     {
       title: "Starter",
-      price: "Free",
-      cadence: "",
+      price: "$19",
+      cadence: "/month",
       summary: "Ideal for single users.",
-      features: ["1 user", "Unlimited queries", "No scheduled runs"],
-      higlighted: user?.user_metadata.plan_id === 1,
-      plan_type: "free",
+      features: [
+        "1 user",
+        "Unlimited queries",
+        "Query with text using AI (Beta)*",
+        "Visualise results",
+        "Export results as CSV",
+        "Export to Google Sheets",
+        "100 scheduled runs per month",
+      ],
+      higlighted: user?.user_metadata.plan_id === 2,
+      plan_type: "starter",
       recommended: false,
     },
     {
       title: "Team (Recommended)",
-      price: "£49",
+      price: "$49",
       cadence: "/month",
       summary: "For small teams.",
-      features: ["3 users", "Unlimited queries", "500 scheduled runs"],
-      higlighted: user?.user_metadata.plan_id === 2,
+      features: [
+        "3 users",
+        "Unlimited queries",
+        "Query with text using AI (Beta)*",
+        "Visualise results",
+        "Export results as CSV",
+        "Export to Google Sheets",
+        "500 scheduled runs per month",
+      ],
+      higlighted: user?.user_metadata.plan_id === 3,
       plan_type: "team",
       recommended: true,
     },
     {
       title: "Enterprise",
-      price: "£149",
+      price: "$149",
       cadence: "/month",
       summary: "For large teams.",
-      features: ["10 users", "Unlimited queries", "2,500 scheduled queries"],
-      higlighted: user?.user_metadata.plan_id === 3,
+      features: [
+        "10 users",
+        "Unlimited queries",
+        "Query with text using AI (Beta)*",
+        "Visualise results",
+        "Export results as CSV",
+        "Export to Google Sheets",
+        "2500 scheduled runs per month",
+      ],
+      higlighted: user?.user_metadata.plan_id === 4,
       plan_type: "enterprise",
       recommended: false,
     },
@@ -54,8 +83,24 @@ const Pricing: React.FC = () => {
     }
   };
 
+  const d = new Date(user?.created_at || "");
+  const trialExpiry = new Date(d.getTime() + 14 * 24 * 60 * 60 * 1000);
+
   return (
     <div>
+      {props.showTrialExpiry && (
+        <p className="mb-6 text-center">
+          Your free trial expires on
+          <span className="font-bold">
+            {" " +
+              dateFormatter({
+                dateVar: trialExpiry,
+                type: "date",
+              })}
+          </span>
+          . Please upgrade to a paid plan to keep using Decile.
+        </p>
+      )}
       <div className="grid grid-cols-3 w-full gap-4">
         {pricing.map((p, id) => {
           return (
@@ -109,6 +154,10 @@ const Pricing: React.FC = () => {
           );
         })}
       </div>
+      <p className="mt-4 text-sm">
+        * The ability to query using natural language is included for free as we
+        develop the product. Please note that this will change in the future.
+      </p>
     </div>
   );
 };

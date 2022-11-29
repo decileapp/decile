@@ -80,7 +80,7 @@ const Topbar: React.FC = ({ children }) => {
       // Check if free trial is over
       const { data, error } = await supabase
         .from("organisations")
-        .select("created_at, id")
+        .select("created_at, id, plan_id")
         .match({ id: user?.user_metadata.org_id })
         .single();
       if (!data) {
@@ -90,7 +90,7 @@ const Topbar: React.FC = ({ children }) => {
 
       const d = new Date();
       const cutoff = d.getTime() - 14 * 24 * 60 * 60 * 1000;
-      if (new Date(data.created_at) < new Date(cutoff)) {
+      if (new Date(data.created_at) < new Date(cutoff) && data.plan_id === 1) {
         setTrialEnded(true);
       }
     } catch (e) {
@@ -102,17 +102,14 @@ const Topbar: React.FC = ({ children }) => {
   useEffect(() => {
     setCurrentLoc(router.pathname);
 
-    if (user && user.user_metadata.plan_id === 1) {
-      checkTrial();
-    }
+    // if (user && user.user_metadata.plan_id === 1) {
+    //   checkTrial();
+    // }
   }, [router.pathname, user]);
 
   const trialComp = (
     <div className="flex flex-col h-full w-full  justify-center items-center pt-8">
-      <p className="mb-6 font-bold">
-        Your free trial has expired. Please choose a paid plan.
-      </p>
-      <Pricing />
+      <Pricing showTrialExpiry={false} />
     </div>
   );
 

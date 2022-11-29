@@ -16,7 +16,7 @@ interface Props {
   sources: Source[];
   changeDatabase: (x: number) => void;
   error?: string;
-  setShowSchema: (x: boolean) => void;
+  setShowSchema?: (x: boolean) => void;
 }
 
 const DatabaseSelector: React.FC<Props> = (props) => {
@@ -44,16 +44,18 @@ const DatabaseSelector: React.FC<Props> = (props) => {
               onClick={() => setDiagram(!diagram)}
               href="#"
             >
-              <InformationCircleIcon className="h-5 w-5 hover:text-primary-500" />
+              <InformationCircleIcon className="h-5 w-5 hover:text-primary-500 text-zinc-600" />
             </a>
           )}
         </div>
-        <div>
-          <ChevronLeftIcon
-            className="h-5 w-5 hover:text-primary-500"
-            onClick={() => setShowSchema(false)}
-          />
-        </div>
+        {setShowSchema && (
+          <div>
+            <ChevronLeftIcon
+              className="h-5 w-5 hover:text-primary-500 "
+              onClick={() => setShowSchema(false)}
+            />
+          </div>
+        )}
       </div>
       <Select
         value={selectedSource?.toString() || ""}
