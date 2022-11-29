@@ -434,7 +434,7 @@ const ChartContainer: React.FC<Props> = (props) => {
         <ChartView
           data={data}
           fields={fields}
-          chartType={chart?.chart_type || "line"}
+          chartType={chartType || "line"}
           chart_meta_data={chart_meta_data}
         />
       </div>

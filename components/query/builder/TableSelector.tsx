@@ -55,13 +55,17 @@ const TableSelector: React.FC<Props> = (props) => {
           )}
         </div>
         {!tableLoading && tables && tableOptions && tableOptions.length > 0 && (
-          <MiniSelect
-            options={tableOptions}
-            setSelected={(x) =>
-              changeTable(tables.find((t) => t.name === x.title) || tables[0])
-            }
-            selected={tableOptions.find((s) => s.title === selectedTable?.name)}
-          />
+          <div className="max-w-xs ">
+            <MiniSelect
+              options={tableOptions}
+              setSelected={(x) =>
+                changeTable(tables.find((t) => t.name === x.title) || tables[0])
+              }
+              selected={tableOptions.find(
+                (s) => s.title === selectedTable?.name
+              )}
+            />
+          </div>
         )}
         {tableLoading && <MiniLoading />}
       </div>

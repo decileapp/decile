@@ -165,7 +165,7 @@ const EditQuery: React.FC<Props> = (props) => {
   return loading ? (
     <Loading />
   ) : (
-    <QueryView sources={sources} owner={query.user_id === user?.id} />
+    <QueryView sources={sources} owner={query.user_id.id === user?.id} />
   );
 };
 

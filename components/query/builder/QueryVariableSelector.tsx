@@ -70,7 +70,7 @@ const QueryVariableSelector: React.FC = (props) => {
         </a>
       </div>
       {columns && !columnsLoading && columns.length > 0 && (
-        <div className="grid grid-cols-6 gap-2  mt-2 ">
+        <div className="grid grid-cols-4 gap-2  mt-2 ">
           {sortedColumns &&
             sortedColumns.map((c, id) => {
               let excluded = true;
@@ -95,7 +95,7 @@ const QueryVariableSelector: React.FC = (props) => {
                     onClick={() => (excluded ? addVar(c) : removeVar(c))}
                     href="#"
                   >
-                    <p className="text-sm truncate">{c.name}</p>
+                    <p className="text-xs truncate">{c.name}</p>
                   </a>
                 </div>
               );

@@ -166,14 +166,14 @@ const QueryFilterSelector: React.FC = () => {
                 </div>
 
                 {/* {!excluded && icons} */}
-                <div className="col-span-1 flex flex-row justify-center items-center w-full">
+                <div className="col-span-2 flex flex-row justify-center items-center w-full">
                   <MiniSelect
                     options={operators}
                     selected={operators.find((f) => f.value === q.operator)}
                     setSelected={(e) => updateOperator(e.value, id)}
                   />
                 </div>
-                <div className="col-span-4 flex flex-row justify-center items-center w-full">
+                <div className="col-span-3 flex flex-row justify-center items-center w-full">
                   <input
                     className="flex p-1 border rounded-md truncate text-sm"
                     value={q.value}

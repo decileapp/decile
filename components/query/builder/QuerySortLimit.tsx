@@ -128,7 +128,7 @@ const QuerySortLimit: React.FC = () => {
             {querySortBy?.map((q, id) => {
               return (
                 <div className="grid grid-cols-12 gap-2 justify-start" key={id}>
-                  <div className="col-span-4 flex flex-1 flex-row justify-start items-center w-full">
+                  <div className="col-span-4 flex flex-1 flex-row justify-start items-center w-full  ">
                     <MiniSelect
                       options={filterVarOptions}
                       selected={filterVarOptions.find(
@@ -138,7 +138,7 @@ const QuerySortLimit: React.FC = () => {
                     />
                   </div>
 
-                  <div className="col-span-2 flex flex-row justify-start items-center w-full">
+                  <div className="col-span-2 flex  flex-row justify-center items-center w-full ">
                     {q.type === "ASC" ? (
                       <ArrowUpIcon
                         className="h-4 w-4 "

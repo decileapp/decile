@@ -21,7 +21,6 @@ interface VarProps {
 
 const MiniSelect: React.FC<VarProps> = (props) => {
   const { options, selected, setSelected, emptyLabel, title } = props;
-
   return (
     <Listbox value={selected} onChange={setSelected}>
       {({ open }) => {
@@ -30,17 +29,19 @@ const MiniSelect: React.FC<VarProps> = (props) => {
             <Listbox.Label className="block text-sm font-semibold">
               {title}
             </Listbox.Label>
-            <div className="relative">
-              <Listbox.Button className="relative  cursor-default rounded-md  dark:bg-zinc-700 py-2 pr-10 text-left  sm:text-sm">
-                <span className="block truncate">
-                  {selected ? selected.title : "Select"}
-                </span>
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center ">
+            <div className="relative ">
+              <Listbox.Button className="flex flex-row space-x-1 cursor-default rounded-md  dark:bg-zinc-700 py-2   text-sm w-full items-center ">
+                <div className="flex ">
+                  <p className="truncate text-sm ">
+                    {selected ? selected.title : "Select"}
+                  </p>
+                </div>
+                <div className="pointer-events-none w-2/6">
                   <ChevronDownIcon
                     className="h-5 w-5 text-primary-500"
                     aria-hidden="true"
                   />
-                </span>
+                </div>
               </Listbox.Button>
 
               <Transition
