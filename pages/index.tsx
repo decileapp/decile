@@ -19,7 +19,7 @@ interface Props {
   queries: number;
   sources: number;
   schedule: number;
-  graphs: number;
+  charts: number;
 }
 
 const Home: React.FC<Props> = (props) => {
@@ -68,11 +68,13 @@ const Home: React.FC<Props> = (props) => {
       >
         <div className="flex flex-row justify-between items-start">
           <p className="font-bold">{title}</p>
-          {status ? (
-            <CheckCircleIcon className="h-5 w-5 text-green-500" />
-          ) : (
-            <QuestionMarkCircleIcon className="h-5 w-5 text-secondary-500" />
-          )}
+          <div className="flex flex-row justify-between items-start">
+            {status ? (
+              <CheckCircleIcon className="h-5 w-5 text-green-500" />
+            ) : (
+              <QuestionMarkCircleIcon className="h-5 w-5 text-secondary-500" />
+            )}
+          </div>
         </div>
 
         <p className="text-sm">{description}</p>
@@ -96,10 +98,10 @@ const Home: React.FC<Props> = (props) => {
       link: "/queries",
     },
     {
-      title: "Graphs",
+      title: "Charts",
       description: "Any visualisation of your queries are saved here.",
-      status: props.schedule > 0,
-      link: "/graphs",
+      status: props.charts > 0,
+      link: "/charts",
     },
     {
       title: "Schedule",
@@ -114,7 +116,7 @@ const Home: React.FC<Props> = (props) => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col h-full w-full space-y-8">
+        <div className="flex flex-col h-full w-full space-y-8 justify-between pb-10">
           <div className="grid grid-cols-2 gap-8">
             {metadata.map((m, id) => {
               return (

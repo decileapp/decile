@@ -101,7 +101,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (!selectedExport) {
     return {
       redirect: {
-        destination: `/queries`,
+        destination: `/`,
         permanent: false,
       },
     };
