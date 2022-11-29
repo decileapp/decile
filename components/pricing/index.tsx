@@ -57,9 +57,9 @@ const Pricing: React.FC = () => {
   return (
     <div>
       <div className="grid grid-cols-3 w-full gap-4">
-        {pricing.map((p) => {
+        {pricing.map((p, id) => {
           return (
-            <div>
+            <div key={id}>
               <div
                 className={classNames(
                   p.recommended ? "bg-primary-600 text-white" : "bg-white",

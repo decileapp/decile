@@ -11,6 +11,7 @@ import {
   useUser,
   useSupabaseClient,
 } from "@supabase/auth-helpers-react";
+import Pricing from "../../pricing";
 
 const AppLayout: React.FC = ({ children }) => {
   const user = useUser();
@@ -18,6 +19,7 @@ const AppLayout: React.FC = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = useSupabaseClient();
+
   // Check org
   const checkOrg = async (user: User) => {
     // Update metadata if there is no org id or if update was > 24 hours ago
@@ -34,6 +36,7 @@ const AppLayout: React.FC = ({ children }) => {
         router.push("/onboard/team/new");
       }
     }
+
     return;
   };
 
@@ -42,6 +45,7 @@ const AppLayout: React.FC = ({ children }) => {
     if (user) {
       checkOrg(user);
     }
+
     setLoading(false);
   }, [session, user]);
 

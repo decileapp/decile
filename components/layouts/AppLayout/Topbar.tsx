@@ -23,6 +23,8 @@ import {
   useSupabaseClient,
   useUser,
 } from "@supabase/auth-helpers-react";
+import Pricing from "../../pricing";
+import Loading from "../../individual/Loading";
 
 interface Item {
   name: string;
@@ -39,6 +41,7 @@ const Topbar: React.FC = ({ children }) => {
   const session = useSession();
   const { theme, setTheme } = useTheme();
   const supabase = useSupabaseClient();
+  const [trialEnded, setTrialEnded] = useState(false);
 
   let authLeft: Item[] = user
     ? [
@@ -69,9 +72,49 @@ const Topbar: React.FC = ({ children }) => {
     return;
   };
 
+  const checkTrial = async () => {
+    try {
+      if (!user) {
+        return;
+      }
+      // Check if free trial is over
+      const { data, error } = await supabase
+        .from("organisations")
+        .select("created_at, id")
+        .match({ id: user?.user_metadata.org_id })
+        .single();
+      if (!data) {
+        router.push("/onboard/team/new");
+        return;
+      }
+
+      const d = new Date();
+      const cutoff = d.getTime() - 14 * 24 * 60 * 60 * 1000;
+      if (new Date(data.created_at) < new Date(cutoff)) {
+        setTrialEnded(true);
+      }
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+  };
+
   useEffect(() => {
     setCurrentLoc(router.pathname);
+
+    if (user && user.user_metadata.plan_id === 1) {
+      checkTrial();
+    }
   }, [router.pathname, user]);
+
+  const trialComp = (
+    <div className="flex flex-col h-full w-full  justify-center items-center pt-8">
+      <p className="mb-6 font-bold">
+        Your free trial has expired. Please choose a paid plan.
+      </p>
+      <Pricing />
+    </div>
+  );
 
   return (
     <>
@@ -254,7 +297,7 @@ const Topbar: React.FC = ({ children }) => {
         </Disclosure>
 
         <main className="flex flex-col grow h-full w-full overflow-hidden">
-          {children}
+          {loading ? <Loading /> : trialEnded ? trialComp : children}
         </main>
       </div>
     </>
