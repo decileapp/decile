@@ -10,7 +10,7 @@ import { Source } from "../../../types/Sources";
 
 interface Props {
   changeTable: (x: Table) => void;
-  changeDatabase: (x: number) => void;
+  changeDatabase: (x: string) => void;
   sources: Source[];
 }
 

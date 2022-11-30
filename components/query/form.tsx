@@ -97,7 +97,7 @@ const QueryForm: React.FC<Props> = (props) => {
   const [error, setError] = useState<string | undefined>();
 
   // SOURCES
-  const changeDatabase = async (x: number) => {
+  const changeDatabase = async (x: string) => {
     setTableLoading(true);
     setColumnsLoading(true);
 

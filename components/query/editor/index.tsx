@@ -18,7 +18,7 @@ interface Props {
   queryLoading?: boolean;
   changeTable: (x: Table) => void;
   sources: Source[];
-  changeDatabase: (x: number) => void;
+  changeDatabase: (x: string) => void;
 }
 
 const QueryEditor: React.FC<Props> = (props) => {
