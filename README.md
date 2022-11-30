@@ -94,8 +94,6 @@ Get your API keys for each service and complete the file:
 
 For emailing, please set up an account with Courier and get an API key.
 
-For scheduling, you need to set up a cron job to call https://your-domain.com/api/internal/schedule with the Bearer token above.
-
 **3. Install modules.**
 
 Run "npm install" in your terminal to install all your modules.
