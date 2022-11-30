@@ -1,7 +1,7 @@
 # .github/workflows/scheduled-queries.yml
 name: Run scheduled queries
 on:
-  cron:
+  schedule:
     - cron: "05 * * * *"
 jobs:
   cron:
