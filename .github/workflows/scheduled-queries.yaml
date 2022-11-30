@@ -2,7 +2,7 @@
 name: Run scheduled queries
 on:
   schedule:
-    - cron: "05 * * * *"
+    - cron: "10 * * * *"
 jobs:
   cron:
     name: Run scheduled queries
