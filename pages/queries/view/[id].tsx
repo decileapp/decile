@@ -186,7 +186,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { data: sources, error } = await supabase
     .from("sources")
     .select("*")
-    .match({ org_id: session.user.user_metadata.org_id });
+    .or(`org_id.eq.${session.user?.user_metadata.org_id},public.eq.true`);
 
   const { data: query, error: queryError } = await supabase
     .from("queries")

@@ -177,7 +177,9 @@ const ScheduleForm: React.FC<Props> = (props) => {
       const { data, error } = await supabase
         .from("schedule")
         .update(input)
-        .match({ user_id: user.id, id: schedule.id });
+        .match({ user_id: user.id, id: schedule.id })
+        .select("id")
+        .single();
       if (data) {
         toast.success("Successfully updated.");
       }

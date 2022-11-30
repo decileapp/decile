@@ -1,0 +1,15 @@
+# .github/workflows/scheduled-queries.yml
+name: Run scheduled queries
+on:
+  cron:
+    - cron: "05 * * * *"
+jobs:
+  cron:
+    name: Run scheduled queries
+    runs-on: ubuntu-latest
+    steps:
+      - name: cURL request
+        run: |
+          curl --request GET \
+          --url 'https://dashboard.decile.app/api/internal/schedule' \
+          --header 'Authorization: Bearer ${{ secrets.BEARER_TOKEN }}'
