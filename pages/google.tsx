@@ -40,6 +40,7 @@ const Google: React.FC = () => {
         .select("id")
         .match({ user_id: user?.id })
         .single();
+
       // If not authenticated open new tab for auth
       if (data) {
         setLoading(false);

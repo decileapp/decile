@@ -14,7 +14,7 @@ import InputLabel from "../../individual/common/InputLabel";
 
 interface Props {
   sources: Source[];
-  changeDatabase: (x: number) => void;
+  changeDatabase: (x: string) => void;
   error?: string;
   setShowSchema?: (x: boolean) => void;
 }
@@ -61,7 +61,7 @@ const DatabaseSelector: React.FC<Props> = (props) => {
         value={selectedSource?.toString() || ""}
         id="database"
         name="database"
-        setSelected={(x) => changeDatabase(parseInt(x, 10))}
+        setSelected={(x) => changeDatabase(x)}
         options={sources.map((s) => {
           return { name: s.name, value: s.id.toString() };
         })}

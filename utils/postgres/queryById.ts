@@ -18,7 +18,7 @@ const queryById = async ({
     const { data, error } = await serviceSupabase
       .from("queries")
       .select("database(*), *")
-      .match({ id: parseInt(queryId, 10) })
+      .match({ id: queryId })
       .single();
 
     if (!data) {

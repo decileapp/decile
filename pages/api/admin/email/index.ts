@@ -6,7 +6,7 @@ import emailHelper from "../../../../utils/emailHelper";
 import { getServiceSupabase } from "../../../../utils/supabaseClient";
 type ResponseType = Database["public"]["Tables"]["org_users"]["Row"] & {
   org: {
-    id: number;
+    id: string;
     name: string;
     plan_id: number;
   };

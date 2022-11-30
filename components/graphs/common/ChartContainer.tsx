@@ -19,7 +19,7 @@ interface Props {
   fields: string[];
   data: any;
   chart?: Chart;
-  queryId: number;
+  queryId: string;
 }
 
 const ChartContainer: React.FC<Props> = (props) => {
@@ -31,7 +31,7 @@ const ChartContainer: React.FC<Props> = (props) => {
   const [open, setOpen] = useState(false);
 
   // Chart details
-  const [chartId, setChartId] = useState<number | undefined>(chart?.id);
+  const [chartId, setChartId] = useState<string | undefined>(chart?.id);
   const [title, setTitle] = useState<string | undefined>(chart?.title);
   const [publicChart, setPublicChart] = useState<boolean | undefined>(
     chart?.public_chart

@@ -6,9 +6,9 @@ export type Schedule = Database["public"]["Tables"]["schedule"]["Row"] & {
     email: string;
   };
   export_id: {
-    id: number;
+    id: string;
     query_id: {
-      id: number;
+      id: string;
       name: string;
     };
     spreadsheet: string;

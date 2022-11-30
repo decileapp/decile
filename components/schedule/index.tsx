@@ -186,7 +186,11 @@ const ScheduleForm: React.FC<Props> = (props) => {
       return;
     } else {
       //create
-      const { data, error } = await supabase.from("schedule").insert(input);
+      const { data, error } = await supabase
+        .from("schedule")
+        .insert(input)
+        .select("*")
+        .single();
       if (data) {
         toast.success("Successfully scheduled.");
       }

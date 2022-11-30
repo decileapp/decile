@@ -19,24 +19,24 @@ export interface ChartInput {
   description?: string;
   chart_type: string;
   chart_meta_data: CommonProps;
-  query_id: number;
+  query_id: string;
   public_chart: boolean;
   user_id: string;
-  org_id: number;
+  org_id: string;
 }
 
 export interface Chart {
-  id: number;
+  id: string;
   title: string;
   description?: string;
   chart_type: string;
   chart_meta_data: CommonProps;
   query_id: {
-    id: number;
+    id: string;
     name: string;
   };
   public_chart: boolean;
   user_id: { id: string; email: string };
-  org_id: number;
+  org_id: string;
   created_at: Date;
 }

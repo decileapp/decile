@@ -40,6 +40,11 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         .select("*")
         .single();
 
+      if (!orgData) {
+        res.status(500).json({ error: "Something went wrong." });
+        return;
+      }
+
       // Create role
       if (orgData) {
         const { data: roleData, error: roleError } = await supabase
@@ -51,7 +56,6 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           })
           .select("*")
           .single();
-
         // Create stripe customer
         const customer = await stripe.customers.create({
           email: user.email,

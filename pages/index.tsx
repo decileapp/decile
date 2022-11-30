@@ -184,10 +184,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   return {
     props: {
-      queries: queries?.length,
-      sources: sources?.length,
-      charts: charts?.length,
-      schedule: schedule?.length,
+      queries: queries ? queries.length : 0,
+      sources: sources ? sources.length : 0,
+      charts: charts ? charts.length : 0,
+      schedule: schedule ? schedule.length : 0,
     },
   };
 };

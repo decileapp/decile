@@ -77,16 +77,17 @@ const EditQuery: React.FC<Props> = (props) => {
     setLoading(true);
 
     if (!props.sources) {
+      setLoading(false);
       return;
     }
 
     if (props.sources.length === 0) {
+      setLoading(false);
       return;
     }
 
     try {
       const selectedDb = sources.find((s) => s.id === query.database);
-
       // Query details
       if (query.database) {
         setSelectedSource(query.database);
@@ -107,16 +108,16 @@ const EditQuery: React.FC<Props> = (props) => {
         setName(query.name);
       }
 
-      if (query.query_vars) {
+      if (query.query_vars && query.query_vars.length > 0) {
         setQueryVars(query.query_vars);
       }
-      if (query.query_filter_by) {
+      if (query.query_filter_by && query.query_filter_by.length > 0) {
         setQueryFilterBy(query.query_filter_by);
       }
-      if (query.query_group_by) {
+      if (query.query_group_by && query.query_group_by.length > 0) {
         setQueryGroupBy(query.query_group_by);
       }
-      if (query.query_sort_by) {
+      if (query.query_sort_by && query.query_sort_by.length > 0) {
         setQuerySortBy(query.query_sort_by);
       }
       if (query.query_limit) {
@@ -133,7 +134,6 @@ const EditQuery: React.FC<Props> = (props) => {
           ...selectedDb,
         }
       );
-
       if (res.data.error) {
         toast.error("Something went wrong.");
         setLoading(false);
@@ -186,16 +186,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { data: sources, error } = await supabase
     .from("sources")
     .select("*")
-    .or(`org_id.eq.${session.user?.user_metadata.org_id},public.eq.true`);
+    .or(`org_id.eq.${session.user?.user_metadata.org_id}, public.is.true`);
 
   const { data: query, error: queryError } = await supabase
     .from("queries")
-    .select(
-      `id, created_at, name, database, body, publicQuery, query_vars, query_group_by, query_filter_by, query_sort_by, query_limit, query_table, query_type, updated_at, user_id(id, email)`
-    )
-    .eq("id", ctx.query.id as string)
+    .select(`*, user_id(id, email)`)
+    .match({ id: ctx.query.id })
     .single();
-
   if (!query) {
     return {
       redirect: {

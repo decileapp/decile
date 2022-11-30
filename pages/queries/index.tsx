@@ -20,7 +20,7 @@ interface Props {
 const Queries: React.FC<Props> = (props) => {
   const router = useRouter();
   const { queries } = props;
-  const [deletedId, setDeletedId] = useState<number>();
+  const [deletedId, setDeletedId] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState<string>();
   const user = useUser();
@@ -40,7 +40,7 @@ const Queries: React.FC<Props> = (props) => {
   }
 
   // Delete link
-  async function deleteQuery(id: number) {
+  async function deleteQuery(id: string) {
     setLoading(true);
 
     // Check if there are exports
@@ -202,7 +202,7 @@ const Queries: React.FC<Props> = (props) => {
           setOpen={() => setDeletedId(undefined)}
           title="Delete query?"
           description="Are sure you want to delete this query? This will delete any scheduled exports."
-          confirmFunc={() => deleteQuery(deletedId || -1)}
+          confirmFunc={() => deleteQuery(deletedId || "")}
           id="popup"
           name="popup"
           buttonText="Delete"
@@ -232,8 +232,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     .from("queries")
     .select(
       "id, name, database, body, publicQuery, updated_at, user_id, user:user_id(id, email), org_id"
-    )
-    .match({ org_id: session.user.user_metadata.org_id });
+    );
 
   if (!queries || queries.length === 0) {
     return {

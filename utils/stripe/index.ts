@@ -48,7 +48,7 @@ export const downgradeToFree = async (stripeCustomerId: string) => {
   return;
 };
 
-const updatePlanForAllUsers = async (orgId: number, planId: number) => {
+const updatePlanForAllUsers = async (orgId: string, planId: number) => {
   try {
     // Get all users
     const { data: orgUsers, error } = await serviceSupabase

@@ -36,13 +36,20 @@ const ScheduleQuery: React.FC<Props> = (props) => {
       .select("id")
       .match({ org_id: user?.user_metadata.org_id });
 
-    if (!schedule || !scheduleLimit) {
+    if (!scheduleLimit) {
       throw new Error("Something went wrong");
     }
-    if (scheduleLimit.user_limit > schedule?.length) {
+
+    if (!schedule) {
       setEligible(true);
       return;
     }
+
+    if (scheduleLimit.scheduled_query_limit > schedule?.length) {
+      setEligible(true);
+      return;
+    }
+
     return;
   };
 

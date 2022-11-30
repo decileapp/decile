@@ -18,14 +18,14 @@ interface Props {
 const Charts: React.FC<Props> = (props) => {
   const router = useRouter();
   const { charts } = props;
-  const [deletedId, setDeletedId] = useState<number>();
+  const [deletedId, setDeletedId] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState<string>();
   const user = useUser();
   const supabase = useSupabaseClient();
 
   // Delete link
-  async function deleteChart(id: number) {
+  async function deleteChart(id: string) {
     setLoading(true);
 
     const { data, error } = await supabase
@@ -155,7 +155,7 @@ const Charts: React.FC<Props> = (props) => {
             setOpen={() => setDeletedId(undefined)}
             title="Delete chart?"
             description="Are sure you want to delete this chart?"
-            confirmFunc={() => deleteChart(deletedId || -1)}
+            confirmFunc={() => deleteChart(deletedId || "")}
             id="popup"
             name="popup"
             buttonText="Delete"
@@ -186,8 +186,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     .from("chart")
     .select(
       "id, title, chart_type, chart_meta_data, user_id(id, email), public_chart, query_id, org_id, created_at"
-    )
-    .match({ org_id: session.user.user_metadata.org_id });
+    );
 
   if (!charts || charts.length === 0) {
     return {
@@ -201,7 +200,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const subCharts = charts.filter(
     (q) => q.public_chart || q.org_id === session.user.user_metadata.org_id
   );
-
   return {
     props: {
       charts: subCharts,

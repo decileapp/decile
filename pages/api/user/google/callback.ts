@@ -43,6 +43,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
         .from("integration_credentials")
         .insert({
           user_id: user?.id,
+          org_id: user.user_metadata.org_id,
           access_token: encrypt(tokenData.credentials.access_token || ""),
           refresh_token: encrypt(tokenData.credentials.refresh_token || ""),
           expiry_date: tokenData.credentials.expiry_date,

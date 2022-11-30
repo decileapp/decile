@@ -6,7 +6,7 @@ const serviceSupabase = getServiceSupabase();
 
 type ResponseType = Database["public"]["Tables"]["org_users"]["Row"] & {
   org: {
-    id: number;
+    id: string;
     name: string;
     plan_id: number;
   };

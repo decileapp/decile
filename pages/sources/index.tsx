@@ -28,7 +28,7 @@ const Sources: React.FC<Props> = (props) => {
     const { data: foundQueries, error: queryError } = await supabase
       .from("queries")
       .select("id")
-      .match({ user_id: user?.id || "", database: parseInt(id, 10) });
+      .match({ user_id: user?.id || "", database: id });
 
     if (foundQueries && foundQueries?.length > 0) {
       // Exports

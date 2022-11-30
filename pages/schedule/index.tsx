@@ -16,13 +16,13 @@ interface Props {
 const Schedule: React.FC<Props> = (props) => {
   const router = useRouter();
   const { schedule } = props;
-  const [deletedId, setDeletedId] = useState<number>();
+  const [deletedId, setDeletedId] = useState<string>();
   const [loading, setLoading] = useState(false);
   const user = useUser();
   const supabase = useSupabaseClient();
 
   // Delete link
-  async function deleteJob(id: number) {
+  async function deleteJob(id: string) {
     setLoading(true);
 
     const { data, error } = await supabase
@@ -106,7 +106,7 @@ const Schedule: React.FC<Props> = (props) => {
           setOpen={() => setDeletedId(undefined)}
           title="Delete job?"
           description="Are sure you want to delete this job?"
-          confirmFunc={() => deleteJob(deletedId || -1)}
+          confirmFunc={() => deleteJob(deletedId || "")}
           id="popup"
           name="popup"
           buttonText="Delete"
