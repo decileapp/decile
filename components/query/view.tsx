@@ -74,7 +74,7 @@ const QueryView: React.FC<Props> = (props) => {
           name: `Copy of ${name}`,
           database: selectedSource,
           body: body,
-          publicQuery: false,
+          public_query: false,
           user_id: user?.id,
           updated_at: new Date(Date.now()),
           query_vars: queryVars,

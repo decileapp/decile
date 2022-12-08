@@ -16,7 +16,14 @@ export type Query = Database["public"]["Tables"]["queries"]["Row"] & {
 
 export type BasicQuery = Pick<
   Database["public"]["Tables"]["queries"]["Row"],
-  "id" | "name" | "database" | "body" | "publicQuery" | "org_id" | "user_id"
+  | "id"
+  | "name"
+  | "database"
+  | "body"
+  | "public_query"
+  | "org_id"
+  | "user_id"
+  | "query_type"
 > & {
   user: {
     id: string;
@@ -27,6 +34,6 @@ export type BasicQuery = Pick<
 
 export type QueryWithDatabase = Pick<
   Database["public"]["Tables"]["queries"]["Row"],
-  "id" | "name" | "database" | "body" | "publicQuery" | "org_id" | "user_id"
+  "id" | "name" | "database" | "body" | "public_query" | "org_id" | "user_id"
 > &
   Database["public"]["Tables"]["sources"]["Row"];

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Button from "../../components/individual/Button";
 import Page from "../../components/layouts/Page";
-import Organisation from "../../components/team";
+import Team from "../../components/team";
 import Pricing from "../../components/pricing";
 import { Org_User } from "../../types/Organisation";
 import { classNames } from "../../utils/classnames";
@@ -17,7 +17,7 @@ import {
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 
 const tabs = [
-  { name: "Organsation", href: "#" },
+  { name: "Team", href: "#" },
   { name: "Billing", href: "#" },
 ];
 
@@ -123,10 +123,8 @@ const Settings: React.FC<Props> = (props) => {
             </div>
           </div>
         </div>
-        {currentTab === 0 && eligible && (
-          <Organisation members={props.members} />
-        )}
-        {currentTab === 0 && !eligible && (
+        {currentTab === 0 && <Team members={props.members} />}
+        {/* {currentTab === 0 && !eligible && (
           <div className="space-y-4">
             <p>This plan does not allow you to invite team members.</p>
             <Button
@@ -135,7 +133,7 @@ const Settings: React.FC<Props> = (props) => {
               type="primary"
             />
           </div>
-        )}
+        )} */}
         {currentTab === 1 && (
           <div className="flex flex-col h-full w-full  justify-start items-center pt-8">
             {user?.user_metadata.plan_id !== 1 && (

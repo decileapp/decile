@@ -105,8 +105,8 @@ const EditQuery: React.FC<Props> = (props) => {
       if (query.body) {
         setBody(query.body);
       }
-      if (query.publicQuery) {
-        setPublicQuery(query.publicQuery);
+      if (query.public_query) {
+        setPublicQuery(query.public_query);
       }
       if (query.name) {
         setName(query.name);
@@ -169,7 +169,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { data: query, error: queryError } = await supabase
     .from("queries")
     .select(
-      `id, created_at, name, database, body, publicQuery, query_vars, query_group_by, query_filter_by, query_sort_by, query_limit, query_table, query_type, updated_at, user_id(id, email)`
+      `id, created_at, name, database, body, public_query, query_vars, query_group_by, query_filter_by, query_sort_by, query_limit, query_table, query_type, updated_at, user_id(id, email)`
     )
     .eq("id", ctx.query.id as string)
     .single();

@@ -124,8 +124,9 @@ const Queries: React.FC<Props> = (props) => {
         </div>
 
         <div className="grid grid-cols-1 gap-4 mt-2 max-w-4xl">
-          <div className="grid grid-cols-10 gap-2 ">
+          <div className="grid grid-cols-12 gap-2 ">
             <p className="col-span-3 font-bold text-md">Name</p>
+            <p className="col-span-2 font-bold text-md">Type</p>
             <p className="col-span-1  font-bold text-md">Public</p>
             <p className="col-span-3  font-bold text-md">Last run</p>
 
@@ -143,7 +144,7 @@ const Queries: React.FC<Props> = (props) => {
               return (
                 <div
                   key={id}
-                  className="grid grid-cols-10 gap-2 border-b pb-2 border-zinc-200 dark:border-zinc-700 "
+                  className="grid grid-cols-12 gap-2 border-b pb-2 border-zinc-200 dark:border-zinc-700 "
                 >
                   <a
                     className="col-span-3 text-sm"
@@ -152,13 +153,20 @@ const Queries: React.FC<Props> = (props) => {
                   >
                     {row.name}
                   </a>
+                  <a
+                    className="col-span-2 text-sm"
+                    onClick={() => toQuery(row)}
+                    href="#"
+                  >
+                    {row.query_type === "sql" ? "SQL" : "Question"}
+                  </a>
 
                   <a
                     className="col-span-1 text-sm"
                     onClick={() => toQuery(row)}
                     href="#"
                   >
-                    {row.publicQuery ? "Yes" : "No"}
+                    {row.public_query ? "Yes" : "No"}
                   </a>
                   <p className="col-span-3 text-sm">
                     {dateFormatter({
@@ -231,7 +239,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { data: queries, error } = await supabase
     .from("queries")
     .select(
-      "id, name, database, body, publicQuery, updated_at, user_id, user:user_id(id, email), org_id"
+      "id, name, database, body, public_query, updated_at, user_id, user:user_id(id, email), org_id, query_type"
     );
 
   if (!queries || queries.length === 0) {
@@ -244,7 +252,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   // Get only subset
   const subQueries = queries.filter(
-    (q) => q.publicQuery || q.org_id === session.user.user_metadata.org_id
+    (q) => q.public_query || q.org_id === session.user.user_metadata.org_id
   );
 
   return {

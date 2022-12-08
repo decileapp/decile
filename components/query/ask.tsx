@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Page from "../layouts/Page";
 import { Source } from "../../types/Sources";
@@ -42,9 +42,11 @@ import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 
 interface Props {
   sources?: Source[];
+  selectedSourceId?: string;
+  question?: string;
 }
 
-const QueryForm: React.FC<Props> = (props) => {
+const QueryAsk: React.FC<Props> = (props) => {
   const { sources } = props;
   const router = useRouter();
   const supabase = useSupabaseClient();
@@ -72,19 +74,11 @@ const QueryForm: React.FC<Props> = (props) => {
   const [body, setBody] = useRecoilState(bodyState);
   const publicQuery = useRecoilValue(publicQueryState);
   const [savedAt, setSavedAt] = useRecoilState(queryUpdatedAtState);
-  const [queryVars, setQueryVars] = useRecoilState(queryVarsState);
-  const [queryFilterBy, setQueryFilterBy] = useRecoilState(queryFilterState);
-  const [queryGroupBy, setQueryGroupBy] = useRecoilState(queryGroupByState);
-  const [querySortBy, setQuerySortBy] = useRecoilState(querySortByState);
-  const [queryLimit, setQueryLimit] = useRecoilState(queryLimitState);
-  const textQuery = useRecoilValue(textQueryState);
+  const [textQuery, setTextQuery] = useRecoilState(textQueryState);
 
   // Data
   const setFields = useSetRecoilState(fieldsState);
   const setData = useSetRecoilState(dataState);
-
-  // Output of query builder
-  const buildQuery = useRecoilValue(buildQueryState);
 
   const user = useUser();
 
@@ -106,11 +100,6 @@ const QueryForm: React.FC<Props> = (props) => {
     // Clear everything
     setSelectedTable(undefined);
     setColumns([]);
-    setQueryVars([]);
-    setQueryFilterBy([]);
-    setQueryGroupBy([]);
-    setQuerySortBy([]);
-    setQueryLimit("50");
 
     // Change source
     await setSelectedSource(x);
@@ -140,13 +129,6 @@ const QueryForm: React.FC<Props> = (props) => {
     setColumnsLoading(true);
     await setSelectedTable(x);
 
-    // Clear variables
-    setQueryVars([]);
-    setQueryFilterBy([]);
-    setQueryGroupBy([]);
-    setQuerySortBy([]);
-    setQueryLimit("50");
-
     // Get columns
     if (props.sources) {
       const foundSource = props.sources.find((s) => s.id === selectedSource);
@@ -173,45 +155,6 @@ const QueryForm: React.FC<Props> = (props) => {
       if (!selectedTable) {
         toast.error("Please choose a table.");
         return false;
-      }
-
-      if (queryVars.length === 0) {
-        toast.error("No variables selected");
-        return false;
-      }
-
-      // Check no filters are empty
-      if (queryFilterBy.length > 0) {
-        const badFilters = queryFilterBy.find(
-          (q) =>
-            !q.combo ||
-            !q.operator ||
-            !q.var ||
-            (q.operator !== "=" && q.operator !== "!=" && q.value === "") // blank values only allowed for these operators
-        );
-
-        if (badFilters) {
-          toast.error("Please check your filters.");
-          return false;
-        }
-      }
-
-      // Check no summarise is empty
-      if (queryGroupBy.length > 0) {
-        const badGroupBy = queryGroupBy.find((q) => !q.name || !q.function);
-        if (badGroupBy) {
-          toast.error("Please check your summarise fields.");
-          return false;
-        }
-      }
-
-      // Check sort by is not empty
-      if (querySortBy.length > 0) {
-        const badSort = querySortBy.find((q) => !q.name || !q.type);
-        if (badSort) {
-          toast.error("Please check your sort fields.");
-          return false;
-        }
       }
     } else {
       if (!body) {
@@ -250,7 +193,7 @@ const QueryForm: React.FC<Props> = (props) => {
       const res = await axios.post<{ rows: any[]; fields: any[]; error: any }>(
         "/api/user/postgres",
         {
-          body: queryBuilder ? buildQuery : body,
+          body: body,
           ...selectedDb,
           cancelToken: source.token,
         }
@@ -285,15 +228,10 @@ const QueryForm: React.FC<Props> = (props) => {
         .update({
           name: name,
           database: selectedSource,
-          body: queryBuilder ? buildQuery : body,
+          body: body,
           public_query: publicQuery,
           user_id: user?.id,
           updated_at: new Date(Date.now()),
-          query_vars: queryVars,
-          query_filter_by: queryFilterBy,
-          query_group_by: queryGroupBy,
-          query_sort_by: querySortBy,
-          query_limit: queryLimit,
           query_table:
             selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
           query_type: queryType,
@@ -322,15 +260,10 @@ const QueryForm: React.FC<Props> = (props) => {
         .insert({
           name: name,
           database: selectedSource,
-          body: queryBuilder ? buildQuery : body,
+          body: body,
           public_query: publicQuery,
           user_id: user?.id,
           updated_at: new Date(Date.now()),
-          query_vars: queryVars,
-          query_filter_by: queryFilterBy,
-          query_group_by: queryGroupBy,
-          query_sort_by: querySortBy,
-          query_limit: queryLimit,
           query_table:
             selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
           query_type: queryType,
@@ -352,6 +285,15 @@ const QueryForm: React.FC<Props> = (props) => {
     }
   }
 
+  useEffect(() => {
+    if (props.selectedSourceId) {
+      changeDatabase(props.selectedSourceId);
+    }
+    if (props.question) {
+      setTextQuery(props.question);
+    }
+  }, []);
+
   // Edit
   return (
     <>
@@ -371,16 +313,6 @@ const QueryForm: React.FC<Props> = (props) => {
                   changeTable={changeTable}
                   sources={sources}
                   changeDatabase={changeDatabase}
-                />
-              </div>
-            )}
-            {/* Query builder */}
-            {queryBuilder && sources && (
-              <div className="col-span-3 flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden">
-                <QueryBuilder
-                  changeTable={changeTable}
-                  changeDatabase={changeDatabase}
-                  sources={sources}
                 />
               </div>
             )}
@@ -406,4 +338,4 @@ const QueryForm: React.FC<Props> = (props) => {
   );
 };
 
-export default QueryForm;
+export default QueryAsk;

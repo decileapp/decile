@@ -27,7 +27,7 @@ const queryById = async ({
 
     if (
       data.user_id === userId ||
-      (data.org_id === orgId && data.publicQuery)
+      (data.org_id === orgId && data.public_query)
     ) {
       const formattedData = {
         user: data.database.dbUser,

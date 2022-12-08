@@ -209,7 +209,7 @@ export interface Database {
           created_at: string;
           name: string;
           body: string;
-          publicQuery: boolean;
+          public_query: boolean;
           user_id: string;
           updated_at: string;
           org_id: string;
@@ -222,13 +222,14 @@ export interface Database {
           query_builder: boolean;
           query_type: string;
           database: string | null;
+          query_text: string | null;
         };
         Insert: {
           id?: string;
           created_at?: string;
           name: string;
           body: string;
-          publicQuery: boolean;
+          public_query: boolean;
           user_id: string;
           updated_at?: string;
           org_id: string;
@@ -241,13 +242,14 @@ export interface Database {
           query_builder?: boolean;
           query_type?: string;
           database?: string | null;
+          query_text: string | null;
         };
         Update: {
           id?: string;
           created_at?: string;
           name?: string;
           body?: string;
-          publicQuery?: boolean;
+          public_query?: boolean;
           user_id?: string;
           updated_at?: string;
           org_id?: string;
@@ -260,6 +262,7 @@ export interface Database {
           query_builder?: boolean;
           query_type?: string;
           database?: string | null;
+          query_text: string | null;
         };
       };
       roles: {

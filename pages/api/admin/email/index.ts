@@ -41,12 +41,12 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!rawFetchOrg || rawFetchOrg?.length === 0 || !orgLimit) {
         throw new Error("Something went wrong");
       }
-      if (rawFetchOrg.length > orgLimit.user_limit) {
-        res
-          .status(200)
-          .json({ error: "Please upgrade your account to invite users." });
-        return;
-      }
+      // if (rawFetchOrg.length > orgLimit.user_limit) {
+      //   res
+      //     .status(200)
+      //     .json({ error: "Please upgrade your account to invite users." });
+      //   return;
+      // }
 
       // Add the invite to DB
       const { data, error } = await supabase

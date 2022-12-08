@@ -101,8 +101,8 @@ const EditQuery: React.FC<Props> = (props) => {
       if (query.body) {
         setBody(query.body);
       }
-      if (query.publicQuery) {
-        setPublicQuery(query.publicQuery);
+      if (query.public_query) {
+        setPublicQuery(query.public_query);
       }
       if (query.name) {
         setName(query.name);
