@@ -20,7 +20,7 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
 
       // Get tables
       const rawTables = await pool.query(
-        "SELECT * FROM information_schema.tables where table_schema = 'public'"
+        "SELECT * FROM information_schema.tables   WHERE table_schema NOT IN ('pg_catalog', 'information_schema') --exclude system tables AND table_type = 'BASE TABLE' -- only tables AND table_name NOT LIKE 'valid%'"
       );
       const tables = rawTables.rows;
 

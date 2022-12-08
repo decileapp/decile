@@ -11,7 +11,7 @@ import queryBuilder, {
 } from "../../query";
 
 export const savingState = atom<boolean>({
-  key: "savingState",
+  key: "saving",
   default: false,
 });
 

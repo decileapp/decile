@@ -31,6 +31,7 @@ import {
   sourceSchemaState,
   tableLoadingState,
   tablesState,
+  textQueryState,
 } from "../../utils/contexts/query/state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import QueryEditor from "./editor";
@@ -76,6 +77,7 @@ const QueryForm: React.FC<Props> = (props) => {
   const [queryGroupBy, setQueryGroupBy] = useRecoilState(queryGroupByState);
   const [querySortBy, setQuerySortBy] = useRecoilState(querySortByState);
   const [queryLimit, setQueryLimit] = useRecoilState(queryLimitState);
+  const textQuery = useRecoilValue(textQueryState);
 
   // Data
   const setFields = useSetRecoilState(fieldsState);
@@ -295,6 +297,7 @@ const QueryForm: React.FC<Props> = (props) => {
           query_table:
             selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
           query_type: queryType,
+          query_text: queryType === "ai" ? textQuery : "",
         })
         .match({ org_id: user?.user_metadata.org_id, id: queryId })
         .select("*")
@@ -332,6 +335,7 @@ const QueryForm: React.FC<Props> = (props) => {
             selectedTable && `${selectedTable?.schema}.${selectedTable?.name}`,
           query_type: queryType,
           org_id: user?.user_metadata.org_id,
+          query_text: queryType === "ai" ? textQuery : "",
         })
         .select("*")
         .single();

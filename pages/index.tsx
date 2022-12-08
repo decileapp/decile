@@ -14,6 +14,9 @@ import {
   CheckCircleIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/outline";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { postsState } from "../utils/contexts/posts/state";
+import { selectedSourceState } from "../utils/contexts/query/state";
 
 interface Props {
   queries: number;
@@ -84,6 +87,12 @@ const Home: React.FC<Props> = (props) => {
 
   const metadata = [
     {
+      title: "Learn",
+      description: "Learn the basics of SQL to get started with Decile.",
+      status: props.queries > 0,
+      link: "/learn",
+    },
+    {
       title: "Sources",
       description:
         "Connect your Postgres databases here to start querying them.",
@@ -127,7 +136,7 @@ const Home: React.FC<Props> = (props) => {
             })}
           </div>
           <p className="text-sm">
-            If you need help, please review{" "}
+            To get yourself set up with Decile, please review{" "}
             <a
               className="text-primary-500"
               href={process.env.NEXT_PUBLIC_ONBOARDING_GUIDE}

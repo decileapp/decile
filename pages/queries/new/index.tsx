@@ -37,6 +37,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       "id, name, host, database, port, dbUser, password, ssl, created_at, user_id"
     )
     .or(`org_id.eq.${session.user?.user_metadata.org_id},public.eq.true`);
+
   return {
     props: { sources: sources },
   };

@@ -28,7 +28,9 @@ const DatabaseSelector: React.FC<Props> = (props) => {
   if (diagram) {
     return (
       <FullPageDialog open={diagram} setOpen={setDiagram}>
-        <Schema sources={sources} />
+        <div className="flex flex-col h-full w-full overflow-auto">
+          <Schema sources={sources} />
+        </div>
       </FullPageDialog>
     );
   }

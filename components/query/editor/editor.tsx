@@ -29,7 +29,7 @@ interface Props {
   sources: Source[];
 }
 
-const Results: React.FC<Props> = (props) => {
+const EditorComp: React.FC<Props> = (props) => {
   const { queryDb, stopQuery, queryLoading, sources } = props;
   const [body, setBody] = useRecoilState(bodyState);
   const selectedSource = useRecoilValue(selectedSourceState);
@@ -54,6 +54,13 @@ const Results: React.FC<Props> = (props) => {
         schema: schema,
         ...selectedDb,
       });
+      if (res.data.error) {
+        setBody(res.data.sqlQuery);
+        setQueryType("sql");
+        toast.error("Failed to fetch data");
+        setGeneratingQuery(false);
+        return;
+      }
       if (res.data) {
         setBody(res.data.sqlQuery);
         const fields: string[] = res.data.fields.map((f: any) => f.name);
@@ -63,6 +70,7 @@ const Results: React.FC<Props> = (props) => {
         setQueryType("sql");
       }
       setGeneratingQuery(false);
+      return;
     } catch (e) {
       setGeneratingQuery(false);
       toast.error("Something went wrong.");
@@ -95,7 +103,7 @@ const Results: React.FC<Props> = (props) => {
           )}
           {!queryLoading ? (
             <Button
-              label={queryType === "sql" ? "Run" : "Generate"}
+              label={queryType === "sql" ? "Run" : "Ask"}
               onClick={() => (queryType === "sql" ? queryDb() : textToSql())}
               type={queryType === "sql" ? "secondary" : "primary"}
             />
@@ -144,4 +152,4 @@ const Results: React.FC<Props> = (props) => {
   );
 };
 
-export default Results;
+export default EditorComp;

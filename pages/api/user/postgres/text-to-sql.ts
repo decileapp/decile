@@ -46,14 +46,20 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           port: port,
           ssl: ssl,
         });
-        const result = await pool.query(finalQuery);
-        return res.status(200).json({
-          rows: result.rows,
-          fields: result.fields,
-          sqlQuery: finalQuery,
-        });
+        try {
+          const result = await pool.query(finalQuery);
+          return res.status(200).json({
+            rows: result.rows,
+            fields: result.fields,
+            sqlQuery: finalQuery,
+          });
+        } catch (e) {
+          res
+            .status(200)
+            .json({ sqlQuery: finalQuery, error: "Failed to fetch data." });
+        }
       } else {
-        res.status(400).json({ error: "Failed to generate query." });
+        throw new Error(`Something went wrong.`);
       }
     } catch (e) {
       console.error(e);
