@@ -141,7 +141,6 @@ const EditorComp: React.FC<Props> = (props) => {
           options={{
             formatOnPaste: true,
             formatOnType: true,
-            autoIndent: "full",
           }}
         />
       )}

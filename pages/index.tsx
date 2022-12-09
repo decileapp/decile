@@ -3,20 +3,13 @@ import { useEffect, Fragment, useState } from "react";
 import Loading from "../components/individual/Loading";
 import queryString from "querystring";
 import { GetServerSideProps } from "next";
-import { BasicQuery } from "../types/Query";
-import { Source } from "../types/Sources";
-import { Schedule } from "../types/Schedule";
 import Page from "../components/layouts/Page";
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
-import sources from "./api/admin/sources";
 import {
   CheckCircleIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/outline";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { postsState } from "../utils/contexts/posts/state";
-import { selectedSourceState } from "../utils/contexts/query/state";
 
 interface Props {
   queries: number;
@@ -121,11 +114,11 @@ const Home: React.FC<Props> = (props) => {
   ];
 
   return (
-    <Page title="Welcome" description="Get started using the steps below.">
+    <Page title="Welcome">
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col h-full w-full space-y-8 pb-10">
+        <div className="flex flex-col h-full w-full space-y-8 ">
           <p className="text-sm">
             Get started using the steps below, or read our{" "}
             <a className="text-primary-500" href={"/onboard"}>
