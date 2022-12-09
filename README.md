@@ -2,13 +2,13 @@
 <img width="150" src="./public/decile_logo.png"/>
 <h1 align="center"><b>Decile</b></h1>
 <p align="center">
-Simple, open-source analytics tool for any Postgres database.
+We use AI to help you build a data-led organisation.
 <br />
 <a href="https://decile.app" align="center"><strong>Early access</strong></a>
 <br />
 </p>
 <p >
-Get the data you need using natural language, SQL or our query builder.
+Get the data you need by just asking, learn SQL in the process.
 <br/>
 <br/>
 Connect any postgres database. Save and share queries with your team. Export to Google Sheets. Schedule queries and automatically update your Google Sheet.
