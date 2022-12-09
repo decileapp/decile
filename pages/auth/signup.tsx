@@ -87,7 +87,7 @@ const Signup: NextPage = () => {
 
   useEffect(() => {
     if (user) {
-      router.push("/queries");
+      router.push("/");
       return;
     }
   }, [user, router.query]);

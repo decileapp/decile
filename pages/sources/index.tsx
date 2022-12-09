@@ -7,6 +7,7 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { toast } from "react-toastify";
 
 interface Props {
   sources: Source[];
@@ -40,6 +41,7 @@ const Sources: React.FC<Props> = (props) => {
           foundQueries.map((e) => e.id)
         )
         .select("id");
+
       if (exports && exports.length > 0) {
         // Schedule
         const { data: schedules } = await supabase
@@ -67,8 +69,12 @@ const Sources: React.FC<Props> = (props) => {
       .single();
     if (data) {
       setDeletedId(undefined);
+      window.location.reload();
+    } else {
+      console.error(error);
+      toast.error("Something went wrong.");
     }
-    window.location.reload();
+
     setLoading(false);
     return;
   }
@@ -80,7 +86,7 @@ const Sources: React.FC<Props> = (props) => {
       onClick={() => router.push("sources/new")}
     >
       {sources && sources.length > 0 && (
-        <div className="grid grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 mt-2 sm:mt-0">
           {sources.map((row, id: number) => {
             return (
               <div
@@ -109,7 +115,7 @@ const Sources: React.FC<Props> = (props) => {
                     <a
                       href="#"
                       className="text-zinc-600 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
-                      onClick={() => setDeletedId(row.id.toString())}
+                      onClick={() => setDeletedId(row.id)}
                     >
                       <TrashIcon className="h-5 w-5" />
                       <span className="sr-only">, {row.name}</span>

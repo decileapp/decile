@@ -7,8 +7,11 @@ export interface PostHeading {
   updatedAt: Date;
   image: string;
   order: number;
+  questions: number[];
 }
 
-export interface Post extends PostHeading {
+export interface PostContent {
   body: string;
 }
+
+export type Post = PostHeading & PostContent;

@@ -1,6 +1,6 @@
 import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
-import Editor from "@monaco-editor/react";
+import Editor, { useMonaco } from "@monaco-editor/react";
 import Button from "../../individual/Button";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
@@ -16,9 +16,10 @@ import { ChevronRightIcon } from "@heroicons/react/outline";
 import TextArea from "../../individual/TextArea";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MiniLoading from "../../individual/MiniLoading";
 import { Source } from "../../../types/Sources";
+import { useTheme } from "next-themes";
 
 interface Props {
   queryDb: () => void;
@@ -40,6 +41,8 @@ const EditorComp: React.FC<Props> = (props) => {
   const [textSqlError, setTextSqlError] = useState(false);
   const setData = useSetRecoilState(dataState);
   const setFields = useSetRecoilState(fieldsState);
+  const monaco = useMonaco();
+  const { theme } = useTheme();
 
   const textToSql = async () => {
     try {
@@ -128,10 +131,18 @@ const EditorComp: React.FC<Props> = (props) => {
 
       {queryType === "sql" && !generatingQuery && selectedSource && (
         <Editor
-          theme="vs-dark"
-          defaultLanguage="sql"
+          theme={theme === "light" ? "vs-light" : "vs-dark"}
+          language="sql"
           defaultValue={body ? body : "select * from users limit 10;"}
-          onChange={(evn) => setBody(evn)}
+          onChange={(evn) => {
+            setBody(evn);
+            return;
+          }}
+          options={{
+            formatOnPaste: true,
+            formatOnType: true,
+            autoIndent: "full",
+          }}
         />
       )}
       {queryType === "ai" && !generatingQuery && selectedSource && (

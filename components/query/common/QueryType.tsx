@@ -1,11 +1,11 @@
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/solid";
 import { useRecoilState } from "recoil";
 import { queryTypeState } from "../../../utils/contexts/query/state";
 import { classNames } from "../../../utils/classnames";
 
-const editorOptions = [
+const allEditorOptions = [
   {
     title: "Query with text (Beta)",
     description: "Get the data you need using AI and natural language.",
@@ -26,8 +26,19 @@ const editorOptions = [
   },
 ];
 
-const QueryTypeSelector = () => {
+interface Props {
+  types?: string[];
+}
+
+const QueryTypeSelector: React.FC<Props> = ({
+  types = ["ai", "sql", "query_builder"],
+}) => {
   const [queryType, setQueryType] = useRecoilState(queryTypeState);
+  let editorOptions = allEditorOptions;
+
+  if (types && types.length > 0) {
+    editorOptions = allEditorOptions.filter((f) => types.includes(f.value));
+  }
 
   return (
     <Listbox value={queryType} onChange={setQueryType}>

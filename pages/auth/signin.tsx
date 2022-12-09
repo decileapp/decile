@@ -84,7 +84,7 @@ const Signin: NextPage = () => {
   };
   useEffect(() => {
     if (user) {
-      router.push("/queries");
+      router.push("/");
       return;
     }
     setLoading(false);

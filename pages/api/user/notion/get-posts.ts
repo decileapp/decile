@@ -41,6 +41,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
             ? prop.Tags.multi_select.map((opt: any) => opt.name)
             : [],
           order: prop.Order.number ? prop.Order.number : -1,
+          questions:
+            prop.Questions && prop.Questions.rich_text[0]
+              ? JSON.parse(prop.Questions.rich_text[0].plain_text)
+              : [],
         };
         return post;
       };

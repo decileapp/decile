@@ -29,15 +29,16 @@ interface Props {
   saveQuery?: () => void;
   copyQuery?: () => void;
   error?: string;
+  types?: string[];
 }
 
 const Results: React.FC<Props> = (props) => {
   const [qId, setQid] = useRecoilState(queryIdState);
-  const queryType = useRecoilValue(queryTypeState);
   const [fields, setFields] = useRecoilState(fieldsState);
   const [data, setData] = useRecoilState(dataState);
   const [saving, setSaving] = useRecoilState(savingState);
-  const { queryLoading, queryDb, saveQuery, copyQuery, error } = props;
+  const queryType = useRecoilValue(queryTypeState);
+  const { queryLoading, queryDb, saveQuery, copyQuery, error, types } = props;
   const router = useRouter();
 
   return (
@@ -49,7 +50,7 @@ const Results: React.FC<Props> = (props) => {
         <div className="flex flex-row items-center justify-between w-full ">
           <InputLabel title="Results" />
           <div className="flex flex-row items-center justify-center space-x-4">
-            <QueryTypeSelector />
+            <QueryTypeSelector types={types} />
             {data && data.length > 0 && (
               <CSVLink data={data} filename={`data_${Date.now()}`}>
                 <DownloadIcon className="block h-6 w-6 text-secondary-500" />
@@ -71,6 +72,7 @@ const Results: React.FC<Props> = (props) => {
                 </a>
               )}
             {queryDb &&
+              queryType === "query_builder" &&
               (!queryLoading ? (
                 <Button
                   label="Run"

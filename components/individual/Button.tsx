@@ -70,7 +70,7 @@ const Button: React.FC<Props> = (props) => {
       case "text-secondary":
         result = classNames(
           common,
-          "text-secondary-600 hover:bg-secondary-700  hover:text-white text-base"
+          "text-secondary-500 hover:bg-secondary-500 p-1  hover:text-white text-base"
         );
         break;
 

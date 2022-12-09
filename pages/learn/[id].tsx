@@ -6,20 +6,23 @@ import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import axios from "axios";
 import { toast } from "react-toastify";
 import ReactMarkdown from "react-markdown";
-
 import remarkGfm from "remark-gfm";
 import Button from "../../components/individual/Button";
-import { Post } from "../../types/Post";
 import { useRecoilValue } from "recoil";
 import { postsState } from "../../utils/contexts/posts/state";
+import { supabase } from "../../utils/supabaseClient";
+import { Database } from "../../types/database.types";
 
 const Module: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
 
   const [loading, setLoading] = useState(false);
-  const [post, setPost] = useState<Post>();
+  const [content, setContent] = useState<string>();
+  const [questions, setQuestions] =
+    useState<Database["public"]["Tables"]["questions"]["Row"][]>();
   const posts = useRecoilValue(postsState);
+  const currentPost = posts?.find((p) => p.id === id);
 
   const getContent = async () => {
     try {
@@ -27,8 +30,24 @@ const Module: React.FC = () => {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_ORIGIN}api/user/notion/post/${id}`
       );
+
+      // IF QUESTIONS
+      if (
+        currentPost &&
+        currentPost.questions &&
+        currentPost.questions.length > 0
+      ) {
+        const { data, error } = await supabase
+          .from("questions")
+          .select("*")
+          .or(currentPost.questions.map((c) => `id.eq.${c}`).join(","));
+        if (data) {
+          setQuestions(data);
+        }
+      }
+
       if (res.data) {
-        setPost(res.data.post);
+        setContent(res.data.content);
       }
       setLoading(false);
       return;
@@ -76,8 +95,8 @@ const Module: React.FC = () => {
       <article className="max-w-2xl px-6 py-12 mx-auto space-y-12 dark:bg-zinc-800 dark:text-zinc-50 overflow-auto">
         <div className="flex flex-row  justify-between items-start w-full  text-left">
           <div className="flex flex-col justify-start items-start space-y-2">
-            <h1 className="text-4xl font-bold ">{post?.title}</h1>
-            <p className="font-bold">{post?.tags[0]}</p>
+            <h1 className="text-4xl font-bold ">{currentPost?.title}</h1>
+            <p className="font-bold">{currentPost?.tags[0]}</p>
           </div>
           <div className="flex flex-row justify-end items-start space-x-4">
             <Button
@@ -95,10 +114,29 @@ const Module: React.FC = () => {
           </div>
         </div>
         <div className="prose dark:prose-invert">
-          {post?.body && (
-            <ReactMarkdown children={post.body} remarkPlugins={[remarkGfm]} />
+          {content && (
+            <ReactMarkdown children={content} remarkPlugins={[remarkGfm]} />
           )}
         </div>
+        {questions && questions.length > 0 && (
+          <div className="flex flex-col justify-start items-start space-y-2">
+            <p className="text-small font-bold text-secondary-500">
+              Practice questions
+            </p>
+            {questions.map((q) => {
+              return (
+                <div className="flex flex-row justify-between items-center border border-zinc-200 p-2 rounded-lg w-full">
+                  <p className="text-sm font-semibold">{q.question}</p>
+                  <Button
+                    label="Try"
+                    type="text-secondary"
+                    onClick={() => router.push(`/learn/ask/${q.id}`)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
         <div className="flex flex-row justify-between items-center space-x-4">
           <Button
             label="Back"

@@ -159,7 +159,16 @@ const Topbar: React.FC = ({ children }) => {
                       ))}
                     </div>
                   </div>
-                  <div className="hidden sm:ml-6 sm:flex sm:items-center">
+                  <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+                    <a
+                      className="hover:text-primary-600 hover:bg-opacity-75 mr-4 text-base"
+                      onClick={() => {
+                        router.push("/onboard");
+                      }}
+                      href="#"
+                    >
+                      Help
+                    </a>
                     {user && (
                       <>
                         <Switch
@@ -174,7 +183,7 @@ const Topbar: React.FC = ({ children }) => {
                         {user.user_metadata.role_id && (
                           <a
                             className="border-transparent 
-                              block pl-3 pr-4 py-2 border-l-4 text-base"
+                              block pl-3 pr-4 py-2 border-l-4 text-base "
                             onClick={() => router.push("/settings")}
                             href="#"
                           >
@@ -182,7 +191,7 @@ const Topbar: React.FC = ({ children }) => {
                           </a>
                         )}
                         <a
-                          className="hover:text-primary-600 hover:bg-opacity-75 ml-4 text-base"
+                          className="hover:text-primary-600 hover:bg-opacity-75 text-base"
                           onClick={() => signout()}
                           href="#"
                         >
@@ -190,9 +199,10 @@ const Topbar: React.FC = ({ children }) => {
                         </a>
                       </>
                     )}
+
                     {!user && (
                       <a
-                        className="hover:text-primary-600 hover:bg-opacity-75 ml-4 text-base"
+                        className="hover:text-primary-600 hover:bg-opacity-75 text-base"
                         onClick={() => {
                           router.push("/auth/signin");
                         }}
@@ -203,7 +213,7 @@ const Topbar: React.FC = ({ children }) => {
                     )}
                     {!user && (
                       <a
-                        className="hover:text-primary-600 hover:bg-opacity-75 ml-4 text-base"
+                        className="hover:text-primary-600 hover:bg-opacity-75 text-base"
                         onClick={() => {
                           router.push("/auth/signup");
                         }}
@@ -251,6 +261,13 @@ const Topbar: React.FC = ({ children }) => {
                       {item.name}
                     </Disclosure.Button>
                   ))}
+                  <a
+                    className="border-transparent 
+                              block pl-3 pr-4 py-2 border-l-4 text-base"
+                    href="/onboard"
+                  >
+                    Help
+                  </a>
                   {user && (
                     <>
                       {user?.user_metadata.role_id && (

@@ -301,7 +301,7 @@ const QueryAsk: React.FC<Props> = (props) => {
         <div className="flex flex-col h-full overflow-hidden">
           <div className="grid grid-cols-10 h-full w-full min-h-0 overflow-hidden">
             {/* Tables and columns for SQL EDITOR */}
-            {!queryBuilder && sources && (
+            {sources && (
               <div
                 className="col-span-5
                     flex flex-col  border-r border-zinc-400 h-full w-full overflow-hidden"
@@ -326,9 +326,10 @@ const QueryAsk: React.FC<Props> = (props) => {
             >
               <Results
                 queryLoading={queryLoading}
-                queryDb={queryBuilder ? () => queryDb() : undefined}
+                queryDb={queryDb}
                 saveQuery={queryId ? updateQuery : saveQuery}
                 error={error}
+                types={["ai", "sql"]}
               />
             </div>
           </div>

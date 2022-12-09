@@ -1,19 +1,17 @@
 import { useRouter } from "next/router";
-import { Source } from "../../types/Sources";
 import Page from "../../components/layouts/Page";
 import { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Post, PostHeading } from "../../types/Post";
 import { useRecoilState } from "recoil";
 import { postsState } from "../../utils/contexts/posts/state";
 import { classNames } from "../../utils/classnames";
 
 const Learn: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const [posts, setPosts] = useRecoilState(postsState);
   const getPosts = async () => {
     try {
@@ -42,6 +40,8 @@ const Learn: React.FC = () => {
       description="Our AI enabled learning tool helps you learn the basics of SQL in days, not weeks."
       pageLoading={loading}
       padding={true}
+      button="Practice"
+      onClick={() => router.push("/learn/ask")}
     >
       <div className="h-full w-full overflow-auto">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 justify-start items-start">

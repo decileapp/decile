@@ -125,7 +125,14 @@ const Home: React.FC<Props> = (props) => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col h-full w-full space-y-8 justify-between pb-10">
+        <div className="flex flex-col h-full w-full space-y-8 pb-10">
+          <p className="text-sm">
+            Get started using the steps below, or read our{" "}
+            <a className="text-primary-500" href={"/onboard"}>
+              onboarding guide
+            </a>
+            .
+          </p>
           <div className="grid grid-cols-2 gap-8">
             {metadata.map((m, id) => {
               return (
@@ -135,20 +142,6 @@ const Home: React.FC<Props> = (props) => {
               );
             })}
           </div>
-          <p className="text-sm">
-            To get yourself set up with Decile, please review{" "}
-            <a
-              className="text-primary-500"
-              href={process.env.NEXT_PUBLIC_ONBOARDING_GUIDE}
-            >
-              this
-            </a>{" "}
-            guide or{" "}
-            <a className="text-primary-500" href={`mailto:support@decile.app`}>
-              email us
-            </a>
-            .
-          </p>
         </div>
       )}
     </Page>

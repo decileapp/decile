@@ -19,6 +19,7 @@ export interface Database {
           org_id: string;
           title: string;
           public_chart: boolean;
+          query_id: string;
         };
         Insert: {
           id?: string;
@@ -29,6 +30,7 @@ export interface Database {
           org_id: string;
           title: string;
           public_chart?: boolean;
+          query_id: string;
         };
         Update: {
           id?: string;
@@ -39,6 +41,7 @@ export interface Database {
           org_id?: string;
           title?: string;
           public_chart?: boolean;
+          query_id?: string;
         };
       };
       export: {
@@ -48,6 +51,7 @@ export interface Database {
           spreadsheet: string;
           user_id: string;
           org_id: string;
+          query_id: string;
         };
         Insert: {
           id?: string;
@@ -55,6 +59,7 @@ export interface Database {
           spreadsheet: string;
           user_id: string;
           org_id: string;
+          query_id: string;
         };
         Update: {
           id?: string;
@@ -62,6 +67,7 @@ export interface Database {
           spreadsheet?: string;
           user_id?: string;
           org_id?: string;
+          query_id?: string;
         };
       };
       integration_credentials: {
@@ -242,7 +248,7 @@ export interface Database {
           query_builder?: boolean;
           query_type?: string;
           database?: string | null;
-          query_text: string | null;
+          query_text?: string | null;
         };
         Update: {
           id?: string;
@@ -262,7 +268,27 @@ export interface Database {
           query_builder?: boolean;
           query_type?: string;
           database?: string | null;
-          query_text: string | null;
+          query_text?: string | null;
+        };
+      };
+      questions: {
+        Row: {
+          id: number;
+          created_at: string;
+          question: string;
+          sql: string;
+        };
+        Insert: {
+          id?: number;
+          created_at?: string;
+          question: string;
+          sql: string;
+        };
+        Update: {
+          id?: number;
+          created_at?: string;
+          question?: string;
+          sql?: string;
         };
       };
       roles: {
