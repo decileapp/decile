@@ -10,12 +10,11 @@ import { postsState } from "../../utils/contexts/posts/state";
 import { classNames } from "../../utils/classnames";
 
 const Learn: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [posts, setPosts] = useRecoilState(postsState);
   const getPosts = async () => {
     try {
-      setLoading(true);
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_ORIGIN}api/user/notion/get-posts`
       );

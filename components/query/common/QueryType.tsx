@@ -45,15 +45,15 @@ const QueryTypeSelector: React.FC<Props> = ({
       {({ open }) => (
         <>
           <Listbox.Label className="sr-only">Query type</Listbox.Label>
-          <div className="relative">
-            <div className="inline-flex rounded-md ">
-              <div className="inline-flex  rounded-md hover:bg-primary-500 hover:text-white">
-                <div className="inline-flex items-center rounded-l-md border border-transparent py-2 pl-3 pr-4 ">
+          <div className="relative ">
+            <div className="inline-flex rounded-md">
+              <div className="inline-flex  rounded-md hover:text-primary-500">
+                <div className="inline-flex items-start rounded-l-md py- pl-3 pr-4 ">
                   <p className="ml-2.5 text-sm font-semibold">
                     {editorOptions.find((e) => e.value === queryType)?.title}
                   </p>
                 </div>
-                <Listbox.Button className="inline-flex items-center rounded-l-none rounded-r-md  p-2 text-sm font-medium ">
+                <Listbox.Button className="inline-flex items-start rounded-l-none rounded-r-md  px-2 text-sm font-medium ">
                   <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
                 </Listbox.Button>
               </div>

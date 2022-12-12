@@ -19,7 +19,7 @@ const Module: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [content, setContent] = useState<string>();
   const [questions, setQuestions] =
     useState<Database["public"]["Tables"]["questions"]["Row"][]>();

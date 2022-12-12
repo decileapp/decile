@@ -46,10 +46,10 @@ const Results: React.FC<Props> = (props) => {
       {saving && saveQuery && (
         <SaveQuery open={saving} setOpen={setSaving} confirmFunc={saveQuery} />
       )}
-      <div className="flex flex-col h-full w-full space-y-4  overflow-auto p-4">
-        <div className="flex flex-row items-center justify-between w-full ">
+      <div className="flex flex-col h-full w-full space-y-4  overflow-auto p-4 ">
+        <div className="flex flex-row items-start justify-between w-full ">
           <InputLabel title="Results" />
-          <div className="flex flex-row items-center justify-center space-x-4">
+          <div className="flex flex-row items-start justify-center space-x-4">
             <QueryTypeSelector types={types} />
             {data && data.length > 0 && (
               <CSVLink data={data} filename={`data_${Date.now()}`}>
