@@ -6,12 +6,14 @@ import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import axios from "axios";
 import { toast } from "react-toastify";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 import Button from "../../components/individual/Button";
 import { useRecoilValue } from "recoil";
 import { postsState } from "../../utils/contexts/posts/state";
 import { supabase } from "../../utils/supabaseClient";
 import { Database } from "../../types/database.types";
+import remarkGfm from "remark-gfm";
 
 const Module: React.FC = () => {
   const router = useRouter();
@@ -113,9 +115,38 @@ const Module: React.FC = () => {
             />
           </div>
         </div>
-        <div className="prose dark:prose-invert">
+        <div className="prose dark:prose-invert prose-code:before:hidden prose-code:after:hidden">
           {content && (
-            <ReactMarkdown children={content} remarkPlugins={[remarkGfm]} />
+            <ReactMarkdown
+              components={{
+                code({ node, inline, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || "");
+                  return !inline && match ? (
+                    <SyntaxHighlighter
+                      children={String(children).replace(/\n$/, "")}
+                      language={match[1]}
+                      PreTag="div"
+                      {...props}
+                      style={dracula}
+                      customStyle={{ background: "none" }}
+                    />
+                  ) : (
+                    <code
+                      className={
+                        "dark:text-red-400 text-red-500 bg-zinc-200 dark:bg-zinc-900 p-1 rounded-md"
+                      }
+                      {...props}
+                      lang="sql"
+                    >
+                      {children}
+                    </code>
+                  );
+                },
+              }}
+              remarkPlugins={[remarkGfm]}
+            >
+              {content}
+            </ReactMarkdown>
           )}
         </div>
         {questions && questions.length > 0 && (
