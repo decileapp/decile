@@ -22,7 +22,6 @@ const NewQuery: React.FC<Props> = (props) => {
     <QueryAsk
       sources={sources}
       selectedSourceId={firstPublicDataset ? firstPublicDataset.id : undefined}
-      question={"Show me all the actors"}
     />
   );
 };

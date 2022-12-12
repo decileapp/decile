@@ -29,10 +29,10 @@ const Module: React.FC = () => {
   const getContent = async () => {
     try {
       setLoading(true);
+      setQuestions([]);
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_ORIGIN}api/user/notion/post/${id}`
       );
-
       // IF QUESTIONS
       if (
         currentPost &&

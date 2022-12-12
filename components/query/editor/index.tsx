@@ -5,9 +5,13 @@ import { useRecoilState } from "recoil";
 import { Source } from "../../../types/Sources";
 import { Table } from "../../../types/Table";
 import { classNames } from "../../../utils/classnames";
-import { selectedSourceState } from "../../../utils/contexts/query/state";
+import {
+  queryTypeState,
+  selectedSourceState,
+} from "../../../utils/contexts/query/state";
 import InputLabel from "../../individual/common/InputLabel";
 import DatabaseSelector from "../common/DatabaseSelector";
+import AskEditor from "./ask";
 import Columnns from "./columns";
 import Editor from "./editor";
 import Tables from "./tables";
@@ -33,6 +37,7 @@ const QueryEditor: React.FC<Props> = (props) => {
   const [showSchema, setShowSchema] = useState(true);
   const [selectedSource, setSelectedSource] =
     useRecoilState(selectedSourceState);
+  const [queryType, setQueryType] = useRecoilState(queryTypeState);
 
   return (
     <div className="grid grid-cols-6 h-full w-full min-h-0 overflow-hidden">
@@ -64,14 +69,25 @@ const QueryEditor: React.FC<Props> = (props) => {
           "flex flex-col h-full p-4"
         )}
       >
-        <Editor
-          queryDb={queryDb}
-          queryLoading={queryLoading}
-          stopQuery={stopQuery}
-          setShowSchema={() => setShowSchema(true)}
-          showSchema={showSchema}
-          sources={sources}
-        />
+        {queryType === "sql" && (
+          <Editor
+            queryDb={queryDb}
+            queryLoading={queryLoading}
+            stopQuery={stopQuery}
+            setShowSchema={() => setShowSchema(true)}
+            showSchema={showSchema}
+            sources={sources}
+          />
+        )}
+        {queryType === "ai" && (
+          <AskEditor
+            queryLoading={queryLoading}
+            stopQuery={stopQuery}
+            setShowSchema={() => setShowSchema(true)}
+            showSchema={showSchema}
+            sources={sources}
+          />
+        )}
       </div>
     </div>
   );
