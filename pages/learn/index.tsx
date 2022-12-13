@@ -54,7 +54,16 @@ const Learn: React.FC = () => {
                   href={`/learn/${p.id}`}
                 >
                   <div className="flex flex-col h-full space-y-1">
-                    <p className="text-base font-bold">{p.title}</p>
+                    <div className="flex flex-row w-full justify-between items-center">
+                      <p className="text-base font-bold">{p.title}</p>
+                      <p className="text-xs ">{`${
+                        p.questions.length > 0
+                          ? p.questions.length > 1
+                            ? p.questions.length + " questions"
+                            : p.questions.length + " question"
+                          : "No questions"
+                      }`}</p>
+                    </div>
                     <div className="  flex-0 flex flex-row">
                       {p.tags.map((t, pid) => {
                         return (

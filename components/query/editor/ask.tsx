@@ -48,7 +48,7 @@ const AskEditor: React.FC<Props> = (props) => {
   const textToSql = async () => {
     try {
       const selectedDb = sources.find((s) => s.id === selectedSource);
-
+      console.log(textQuery);
       setGeneratingQuery(true);
       setData(null);
       setFields(null);

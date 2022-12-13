@@ -16,11 +16,11 @@ const ResultsTable: React.FC = () => {
         {data.map((row: any, id: number) => {
           return (
             <tr key={id}>
-              {Object.keys(row).map((value, id) => {
+              {Object.keys(row).map((value, xid) => {
                 return (
                   <td
                     className="whitespace-nowrap py-4 pl-4 pr-3 text-xs   sm:pl-6"
-                    key={id}
+                    key={xid}
                   >
                     {typeof row[value] === "object"
                       ? JSON.stringify(row[value])

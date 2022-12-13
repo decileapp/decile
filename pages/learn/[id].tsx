@@ -24,7 +24,9 @@ const Module: React.FC = () => {
   const [questions, setQuestions] =
     useState<Database["public"]["Tables"]["questions"]["Row"][]>();
   const posts = useRecoilValue(postsState);
-  const currentPost = posts?.find((p) => p.id === id);
+  const currentCount = posts?.findIndex((p) => p.id === id) || 0;
+  const currentPost = posts && currentCount ? posts[currentCount] : undefined;
+  const [completed, setCompleted] = useState<number>(0);
 
   const getContent = async () => {
     try {
@@ -50,6 +52,9 @@ const Module: React.FC = () => {
 
       if (res.data) {
         setContent(res.data.content);
+      }
+      if (posts && posts.length > 0 && currentCount) {
+        setCompleted(Math.round(((currentCount + 1) / posts.length) * 100));
       }
       setLoading(false);
       return;
@@ -92,6 +97,23 @@ const Module: React.FC = () => {
     getContent();
   }, [id]);
 
+  const buttons = (
+    <div className="flex flex-row justify-end items-start space-x-4">
+      <Button
+        label="Back"
+        type="outline-primary"
+        onClick={() => previousPost()}
+        disabled={!posts || findPost === 0}
+      />
+      <Button
+        label="Next"
+        type="primary"
+        onClick={() => nextPost()}
+        disabled={!posts || findPost === posts?.length - 1}
+      />
+    </div>
+  );
+
   return (
     <Page pageLoading={loading}>
       <article className="max-w-2xl px-6 py-12 mx-auto space-y-12 dark:bg-zinc-800 dark:text-zinc-50 overflow-auto">
@@ -100,19 +122,18 @@ const Module: React.FC = () => {
             <h1 className="text-4xl font-bold ">{currentPost?.title}</h1>
             <p className="font-bold">{currentPost?.tags[0]}</p>
           </div>
-          <div className="flex flex-row justify-end items-start space-x-4">
-            <Button
-              label="Back"
-              type="outline-primary"
-              onClick={() => previousPost()}
-              disabled={!posts || findPost === 0}
-            />
-            <Button
-              label="Next"
-              type="primary"
-              onClick={() => nextPost()}
-              disabled={!posts || findPost === posts?.length - 1}
-            />
+          <div className="flex flex-col justify-start items-end space-y-2 ">
+            <div className="flex flex-col justify-start items-end w-full space-y-1">
+              <p className="text-xs font-semibold ">{`${currentCount + 1} of ${
+                posts?.length
+              } completed`}</p>
+              {/* <div className="relative h-4 w-full ">
+          <div className="absolute w-full h-full bg-zinc-200 rounded-md"></div>
+
+          <div className={completeString()}></div>
+        </div> */}
+            </div>
+            {buttons}
           </div>
         </div>
         <div className="prose dark:prose-invert prose-code:before:hidden prose-code:after:hidden">
@@ -168,19 +189,11 @@ const Module: React.FC = () => {
             })}
           </div>
         )}
-        <div className="flex flex-row justify-between items-center space-x-4">
-          <Button
-            label="Back"
-            type="outline-primary"
-            onClick={() => previousPost()}
-            disabled={!posts || findPost === 0}
-          />
-          <Button
-            label="Next"
-            type="primary"
-            onClick={() => nextPost()}
-            disabled={!posts || findPost === posts?.length}
-          />
+        <div className="flex flex-row justify-between items-center space-x-4 w-full">
+          <p className="text-xs font-semibold ">{`${currentCount + 1} of ${
+            posts?.length
+          } completed`}</p>
+          {buttons}
         </div>
       </article>
     </Page>
