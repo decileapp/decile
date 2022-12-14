@@ -1,11 +1,14 @@
 import InputLabel from "../../individual/common/InputLabel";
 import _ from "lodash";
-import Editor from "@monaco-editor/react";
+import Editor, { Monaco, useMonaco } from "@monaco-editor/react";
 import Button from "../../individual/Button";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   bodyState,
+  columnsState,
+  fieldsState,
   selectedSourceState,
+  tablesState,
 } from "../../../utils/contexts/query/state";
 import { ChevronRightIcon } from "@heroicons/react/outline";
 import { Source } from "../../../types/Sources";

@@ -10,6 +10,7 @@ import {
   CheckCircleIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/outline";
+import Tooltip from "../components/individual/Tooltip";
 
 interface Props {
   queries: number;
@@ -51,11 +52,13 @@ const Home: React.FC<Props> = (props) => {
     description,
     status,
     link,
+    helperText,
   }: {
     title: string;
     description: string;
     status: boolean;
     link: string;
+    helperText: string;
   }) => {
     return (
       <a
@@ -64,13 +67,13 @@ const Home: React.FC<Props> = (props) => {
       >
         <div className="flex flex-row justify-between items-start">
           <p className="font-bold">{title}</p>
-          <div className="flex flex-row justify-between items-start">
+          <Tooltip helperText={helperText} position="top">
             {status ? (
               <CheckCircleIcon className="h-5 w-5 text-green-500" />
             ) : (
               <QuestionMarkCircleIcon className="h-5 w-5 text-secondary-500" />
             )}
-          </div>
+          </Tooltip>
         </div>
 
         <p className="text-sm">{description}</p>
@@ -84,6 +87,7 @@ const Home: React.FC<Props> = (props) => {
       description: "Learn the basics of SQL to get started with Decile.",
       status: props.queries > 0,
       link: "/learn",
+      helperText: "Save your first query to complete this step.",
     },
     {
       title: "Sources",
@@ -91,6 +95,7 @@ const Home: React.FC<Props> = (props) => {
         "Connect your Postgres databases here to start querying them.",
       status: props.sources > 0,
       link: "/sources",
+      helperText: "Connect a Postgres database to complete this step.",
     },
     {
       title: "Queries",
@@ -98,18 +103,21 @@ const Home: React.FC<Props> = (props) => {
         "All your saved queries appear here. Write queries using SQL, AI or our query builder.",
       status: props.queries > 0,
       link: "/queries",
+      helperText: "Save your first query to complete this step.",
     },
     {
       title: "Charts",
       description: "Any visualisation of your queries are saved here.",
       status: props.charts > 0,
       link: "/charts",
+      helperText: "Save your first chart to complete this step.",
     },
     {
       title: "Schedule",
       description: "Any scheduled queries are displayed on this tab.",
       status: props.schedule > 0,
       link: "/schedule",
+      helperText: "Schedule a query to complete this step.",
     },
   ];
 

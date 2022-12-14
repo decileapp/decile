@@ -48,7 +48,6 @@ const AskEditor: React.FC<Props> = (props) => {
   const textToSql = async () => {
     try {
       const selectedDb = sources.find((s) => s.id === selectedSource);
-      console.log(textQuery);
       setGeneratingQuery(true);
       setData(null);
       setFields(null);
@@ -81,6 +80,12 @@ const AskEditor: React.FC<Props> = (props) => {
       return;
     }
   };
+
+  useEffect(() => {
+    if (textQuery) {
+      setQueryComplete(true);
+    }
+  }, []);
 
   return (
     <div className="flex flex-col h-full">

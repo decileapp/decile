@@ -23,6 +23,7 @@ import {
   dataState,
   fieldsState,
   queryTypeState,
+  textQueryState,
 } from "../../../utils/contexts/query/state";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
@@ -68,6 +69,7 @@ const EditQuery: React.FC<Props> = (props) => {
   const setQuerySortBy = useSetRecoilState(querySortByState);
   const setQueryLimit = useSetRecoilState(queryLimitState);
   const setQueryType = useSetRecoilState(queryTypeState);
+  const setTextQuery = useSetRecoilState(textQueryState);
 
   const setData = useSetRecoilState(dataState);
   const setFields = useSetRecoilState(fieldsState);
@@ -125,6 +127,10 @@ const EditQuery: React.FC<Props> = (props) => {
       }
       if (query.query_type) {
         setQueryType(query.query_type);
+      }
+
+      if (query.query_text) {
+        setTextQuery(query.query_text);
       }
 
       const res = await axios.post<{ rows: any[]; fields: any[]; error: any }>(

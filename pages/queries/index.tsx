@@ -158,7 +158,11 @@ const Queries: React.FC<Props> = (props) => {
                     onClick={() => toQuery(row)}
                     href="#"
                   >
-                    {row.query_type === "sql" ? "SQL" : "Question"}
+                    {row.query_type === "sql"
+                      ? "SQL"
+                      : row.query_type === "ai"
+                      ? "Question"
+                      : "Query builder"}
                   </a>
 
                   <a
