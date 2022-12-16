@@ -113,17 +113,17 @@ const Reset: NextPage = () => {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const supabase = createServerSupabaseClient(ctx);
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  // const {
+  //   data: { session },
+  // } = await supabase.auth.getSession();
 
-  if (session)
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
+  // if (session)
+  //   return {
+  //     redirect: {
+  //       destination: "/",
+  //       permanent: false,
+  //     },
+  //   };
 
   return {
     props: {},

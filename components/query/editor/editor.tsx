@@ -13,6 +13,8 @@ import {
 import { ChevronRightIcon } from "@heroicons/react/outline";
 import { Source } from "../../../types/Sources";
 import { useTheme } from "next-themes";
+import { useCallback, useEffect } from "react";
+import CodeEditor from "../../editor";
 
 interface Props {
   queryDb: () => void;
@@ -28,6 +30,24 @@ const EditorComp: React.FC<Props> = (props) => {
   const [body, setBody] = useRecoilState(bodyState);
   const selectedSource = useRecoilValue(selectedSourceState);
   const { theme } = useTheme();
+  const tables = useRecoilValue(tablesState);
+
+  // // handle what happens on key press
+  // const handleKeyPress = useCallback((event) => {
+  //   if (event.shiftKey && selectedSource && body && event.key === "Enter") {
+  //     queryDb();
+  //   }
+  //   return;
+  // }, []);
+
+  // useEffect(() => {
+  //   // attach the event listener
+  //   document.addEventListener("keydown", handleKeyPress);
+  //   // remove the event listener
+  //   return () => {
+  //     document.removeEventListener("keydown", handleKeyPress);
+  //   };
+  // }, [handleKeyPress]);
 
   return (
     <div className="flex flex-col h-full">
@@ -69,18 +89,11 @@ const EditorComp: React.FC<Props> = (props) => {
       )}
 
       {selectedSource && (
-        <Editor
-          theme={theme === "light" ? "vs-light" : "vs-dark"}
-          language="sql"
+        <CodeEditor
           defaultValue={body ? body : "select * from users limit 10;"}
-          onChange={(evn) => {
-            setBody(evn);
-            return;
-          }}
-          options={{
-            formatOnPaste: true,
-            formatOnType: true,
-          }}
+          handleChange={setBody}
+          allowExecution={selectedSource && body ? true : false}
+          suggestions={tables ? tables.map((t) => t.name) : undefined}
         />
       )}
     </div>

@@ -82,6 +82,7 @@ const Signin: NextPage = () => {
     setLoading(false);
     return;
   };
+
   useEffect(() => {
     if (user) {
       router.push("/");
