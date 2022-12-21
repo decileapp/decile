@@ -143,9 +143,7 @@ const Settings: React.FC<Props> = (props) => {
                 type="primary"
               />
             )}
-            {user?.user_metadata.plan_id === 1 && (
-              <Pricing showTrialExpiry={true} />
-            )}
+            {user?.user_metadata.plan_id === 1 && <Pricing />}
           </div>
         )}
       </div>
