@@ -20,7 +20,8 @@ import MiniLoading from "../../individual/MiniLoading";
 import { Source } from "../../../types/Sources";
 import { useTheme } from "next-themes";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { docco } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+import ReactMarkdown from "react-markdown";
+import { dracula } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 
 interface Props {
   queryLoading?: boolean;
@@ -118,13 +119,9 @@ const AskEditor: React.FC<Props> = (props) => {
             />
           ) : (
             <Button
-              label={"Reset"}
+              label={"Edit"}
               onClick={() => {
-                setTextQuery(undefined);
-                setBody(undefined);
                 setQueryComplete(false);
-                setData(undefined);
-                setFields(undefined);
               }}
               type={"outline-primary"}
               disabled={textQuery ? false : true}
@@ -172,17 +169,29 @@ const AskEditor: React.FC<Props> = (props) => {
           <div className="flex flex-col justify-start items-start space-y-2 h-full w-full">
             <div className="flex flex-row justify-between items-center  w-full">
               <p className="text-sm font-semibold">Generated SQL</p>
-              <a onClick={() => setQueryType("sql")} href="#">
-                <PencilIcon className="h-5 w-5 text-primary-500" />
-              </a>
             </div>
             {body && (
-              <SyntaxHighlighter
-                children={body}
-                language="sql"
-                style={docco}
-                className="text-sm"
-              />
+              <div className="text-sm text-prose h-full overflow-hidden mr-5">
+                <ReactMarkdown
+                  children={"```\n".concat(body).concat("\n```")}
+                  components={{
+                    code({ node, inline, className, children, ...props }) {
+                      return !inline ? (
+                        <SyntaxHighlighter
+                          children={String(children).replace(/\n$/, "")}
+                          language={"sql"}
+                          PreTag="div"
+                          style={dracula}
+                        />
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>
