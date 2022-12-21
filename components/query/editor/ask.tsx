@@ -124,7 +124,6 @@ const AskEditor: React.FC<Props> = (props) => {
                 setQueryComplete(false);
               }}
               type={"outline-primary"}
-              disabled={textQuery ? false : true}
             />
           )}
         </div>
@@ -171,7 +170,7 @@ const AskEditor: React.FC<Props> = (props) => {
               <p className="text-sm font-semibold">Generated SQL</p>
             </div>
             {body && (
-              <div className="text-sm text-prose h-full overflow-hidden mr-5">
+              <div className="text-sm text-prose h-full w-full overflow-hidden mr-5">
                 <ReactMarkdown
                   children={"```\n".concat(body).concat("\n```")}
                   components={{

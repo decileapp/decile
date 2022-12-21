@@ -4,11 +4,7 @@ import { toast } from "react-toastify";
 import { useUser } from "@supabase/auth-helpers-react";
 import dateFormatter from "../../utils/dateFormatter";
 
-interface Props {
-  showTrialExpiry?: boolean;
-}
-
-const Pricing: React.FC<Props> = (props) => {
+const Pricing: React.FC = () => {
   const user = useUser();
   const pricing = [
     {
@@ -86,28 +82,24 @@ const Pricing: React.FC<Props> = (props) => {
   const d = new Date(user?.created_at || "");
   const trialExpiry = new Date(d.getTime() + 14 * 24 * 60 * 60 * 1000);
 
+  const pricingString =
+    trialExpiry > new Date(Date.now()) ? "expired" : "expires";
+
   return (
     <div>
-      {props.showTrialExpiry && (
-        <p className="mb-6 text-center">
-          Your free trial expires on
-          <span className="font-bold">
-            {" " +
-              dateFormatter({
-                dateVar: trialExpiry,
-                type: "date",
-              })}
-          </span>
-          . Please upgrade to a paid plan to keep using Decile.
-        </p>
-      )}
+      <p className="mb-6 text-center font-bold">
+        Please upgrade to a paid plan to keep using Decile.
+      </p>
+
       <div className="grid grid-cols-3 w-full gap-4">
         {pricing.map((p, id) => {
           return (
             <div key={id}>
               <div
                 className={classNames(
-                  p.recommended ? "bg-primary-600 text-white" : "bg-white",
+                  p.recommended
+                    ? "bg-primary-600 text-white"
+                    : "bg-white dark:bg-zinc-800",
                   "w-full  rounded-lg shadow hover:shadow-xl transition duration-100 ease-in-out p-6 md:mr-4 mb-10 md:mb-0"
                 )}
               >

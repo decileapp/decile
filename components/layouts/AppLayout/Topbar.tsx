@@ -110,7 +110,7 @@ const Topbar: React.FC = ({ children }) => {
 
   const trialComp = (
     <div className="flex flex-col h-full w-full  justify-center items-center pt-8">
-      <Pricing showTrialExpiry={false} />
+      <Pricing />
     </div>
   );
 

@@ -49,14 +49,14 @@ const Learn: React.FC = () => {
             posts.map((p, id) => {
               return (
                 <a
-                  className="flex flex-col h-full space-y-4 border p-2 rounded-lg bg-white dark:bg-zinc-700 hover:shadow-lg "
+                  className="flex flex-col h-full space-y-4 border dark:border-zinc-400 p-2 rounded-lg bg-white dark:bg-zinc-800 hover:shadow-lg "
                   key={id}
                   href={`/learn/${p.id}`}
                 >
                   <div className="flex flex-col h-full space-y-1">
                     <div className="flex flex-row w-full justify-between items-center">
                       <p className="text-base font-bold">{p.title}</p>
-                      <p className="text-xs ">{`${
+                      <p className="text-xs dark:text-zinc-200 ">{`${
                         p.questions.length > 0
                           ? p.questions.length > 1
                             ? p.questions.length + " questions"
@@ -71,12 +71,12 @@ const Learn: React.FC = () => {
                             key={pid}
                             className={classNames(
                               t == "Basic"
-                                ? "bg-blue-200"
+                                ? "bg-blue-200 dark:bg-blue-800"
                                 : t == "Intermediate"
-                                ? "bg-secondary-200"
+                                ? "bg-secondary-200 dark:bg-secondary-800"
                                 : t === "Advanced"
-                                ? "bg-green-200"
-                                : "bg-zinc-200",
+                                ? "bg-green-200 dark:bg-green-800"
+                                : "bg-zinc-200 dark:bg-zinc-700",
                               "text-xs p-1 rounded-lg shadow-sm"
                             )}
                           >
@@ -87,7 +87,7 @@ const Learn: React.FC = () => {
                     </div>
                   </div>
 
-                  <p className="text-sm text-black dark:text-white">
+                  <p className="text-sm text-black dark:text-zinc-200">
                     {p.description}
                   </p>
                 </a>
