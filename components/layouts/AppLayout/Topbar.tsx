@@ -103,9 +103,9 @@ const Topbar: React.FC = ({ children }) => {
   useEffect(() => {
     setCurrentLoc(router.pathname);
 
-    // if (user && user.user_metadata.plan_id === 1) {
-    //   checkTrial();
-    // }
+    if (user && user.user_metadata.plan_id === 1) {
+      checkTrial();
+    }
   }, [router.pathname, user]);
 
   const trialComp = (

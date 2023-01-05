@@ -15,6 +15,7 @@ const Pricing: React.FC = () => {
       features: [
         "1 user",
         "Unlimited queries",
+        "Access to learning content",
         "Query with text using AI (Beta)*",
         "Visualise results",
         "Export results as CSV",
@@ -33,6 +34,7 @@ const Pricing: React.FC = () => {
       features: [
         "3 users",
         "Unlimited queries",
+        "Access to learning content",
         "Query with text using AI (Beta)*",
         "Visualise results",
         "Export results as CSV",
@@ -51,6 +53,7 @@ const Pricing: React.FC = () => {
       features: [
         "10 users",
         "Unlimited queries",
+        "Access to learning content",
         "Query with text using AI (Beta)*",
         "Visualise results",
         "Export results as CSV",
@@ -147,8 +150,8 @@ const Pricing: React.FC = () => {
         })}
       </div>
       <p className="mt-4 text-sm">
-        * The ability to query using natural language is included for free as we
-        develop the product. Please note that this will change in the future.
+        * The ability to query using AI is provided without limits during the
+        Beta period. In the future, usage will likely be capped for each plan.
       </p>
     </div>
   );
